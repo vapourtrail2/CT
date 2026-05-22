@@ -1,0 +1,436 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="c_ui">
+      <UniqueIdentifier>{bf464f89-5f56-4e6d-93c8-c90c599a3aa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\workbenches">
+      <UniqueIdentifier>{f448063f-a7d9-4575-a92f-ef1090cfb4fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\app">
+      <UniqueIdentifier>{6d4f1bad-b9b3-4662-8849-ebc2e637acdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\qt">
+      <UniqueIdentifier>{f4be32e6-3f7c-4612-a6fb-5a890a0ead2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\panels">
+      <UniqueIdentifier>{56c8e114-0866-44e4-af47-f52ec539bea1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\nav">
+      <UniqueIdentifier>{43d09024-e490-4c8f-8d6c-5ff37d7e1319}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\workbenches\common">
+      <UniqueIdentifier>{fe6b4d8b-1e53-4c8a-af87-5a8bb6ffb279}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{36765ce0-6d20-42d6-a5e4-e984e4351068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{ef6d616b-8f91-46f0-a6ff-53cd7e7a06c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\App">
+      <UniqueIdentifier>{45d35f02-4cca-43f1-a50b-fd84574d2b52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Data">
+      <UniqueIdentifier>{8410429a-5450-4dfd-b941-fe4fb4578ba9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Interaction">
+      <UniqueIdentifier>{752bb37a-a6e2-4bff-9764-59f5728769ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Math">
+      <UniqueIdentifier>{00742ed4-c584-4d98-8e15-33123c09deba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Render">
+      <UniqueIdentifier>{82dc6b0a-d9ae-4365-a887-fcb8ec13a704}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Service">
+      <UniqueIdentifier>{9259f69d-60a4-4db9-b6ec-a7aff6073c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Strategies">
+      <UniqueIdentifier>{8548a1be-3a16-405e-b4aa-b289a16599ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Utils">
+      <UniqueIdentifier>{63b184db-a74d-4025-9c8a-ba1334b9ff97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Data">
+      <UniqueIdentifier>{9aaedd73-8e01-4d5a-90b3-83b1a09ed27b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Interaction">
+      <UniqueIdentifier>{a9505439-a2de-4275-b9ef-59371a4773e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Service">
+      <UniqueIdentifier>{801488fe-ffcf-4ce0-85eb-9b51b9b84c9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Strategies">
+      <UniqueIdentifier>{f7b58353-d2ab-44d5-986a-8d98e7a005bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utils">
+      <UniqueIdentifier>{20a59f19-585e-4ec6-b3cd-776dc278bda3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Math\GapAnalysis">
+      <UniqueIdentifier>{4e97a9f9-dcdf-421c-b8d6-9f8604cbb11b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Service\GapMeshOverlayService">
+      <UniqueIdentifier>{fb85953b-f5ab-4375-90fd-ad59fff63801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Strategies\GapMeshOverlayStrategy">
+      <UniqueIdentifier>{69b6514f-d9df-4d3a-ac5f-2dc4dbe263ad}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="c_ui\qt\QtRenderContext.h">
+      <Filter>c_ui\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\nav\UIState.h">
+      <Filter>c_ui\nav</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\nav\TabMap.h">
+      <Filter>c_ui\nav</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\nav\WorkspaceFlow.h">
+      <Filter>c_ui\nav</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\StartIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\EditIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\VolumeIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\SelectIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AlignIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\GeoIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\MeasureIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\CadIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AnaIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\ReportIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AniIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\WindowIconMap.h">
+      <Filter>c_ui\workbenches\common</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateCommands.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppTypes.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionEvent.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionResult.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionRouter.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer2DHandler.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\GapAnalysisTypes.h">
+      <Filter>include\Math\GapAnalysis</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\SurfaceRefiner.h">
+      <Filter>include\Math\GapAnalysis</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VoidDetector.h">
+      <Filter>include\Math\GapAnalysis</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VolumeBuffer.h">
+      <Filter>include\Math\GapAnalysis</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StrategyFactory.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService\GapAnalysisService.h">
+      <Filter>include\Service\GapMeshOverlayService</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppService.h">
+      <Filter>include\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppStateSyncStrategy.h">
+      <Filter>include\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\VolumeAnalysisService.h">
+      <Filter>include\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy\GapAlgorithmOverlayStrategies.h">
+      <Filter>include\Strategies\GapMeshOverlayStrategy</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\BaseVisualStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\ColoredPlanesStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\CompositeStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\IsoSurfaceStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\MultiSliceStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\SliceStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\VolumeStrategy.h">
+      <Filter>include\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\ImageProcessor.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\InteractionComputeService.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h">
+      <Filter>include\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="c_ui\main.cpp">
+      <Filter>c_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\MainWindow.cpp">
+      <Filter>c_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\AnalysisPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\AnimationPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\CADAndThen.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\DocumentPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\EditPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\GeometryPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\HelpPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\MeasurePage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\ReportPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\SelectPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\StartPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\VolumePage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\WindowPage.cpp">
+      <Filter>c_ui\workbenches</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\app\app.cpp">
+      <Filter>c_ui\app</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
+      <Filter>c_ui\qt</Filter>
+    </ClCompile>
+    <ClCompile Include="ReconInteraction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AppController.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\panels\SceneTreePanel.cpp">
+      <Filter>c_ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\panels\RenderPanel.cpp">
+      <Filter>c_ui\panels</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\nav\TabMap.cpp">
+      <Filter>c_ui\nav</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\nav\WorkspaceFlow.cpp">
+      <Filter>c_ui\nav</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\ReconstructPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Service\AppService.cpp">
+      <Filter>src\Service</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\ColoredPlanesStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\CompositeStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\IsoSurfaceStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\MultiSliceStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\SliceStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\VolumeStrategy.cpp">
+      <Filter>src\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\ImageProcessor.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp">
+      <Filter>src\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="c_ui\MainWindow.h">
+      <Filter>c_ui</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\DocumentPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\app\app.h">
+      <Filter>c_ui\app</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\AlignmentPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\AnalysisPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\AnimationPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\CADAndThen.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\EditPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\GeometryPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\HelpPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\MeasurePage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\ReportPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\StartPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\VolumePage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\WindowPage.h">
+      <Filter>c_ui\workbenches</Filter>
+    </QtMoc>
+    <QtMoc Include="AppController.h">
+      <Filter>头文件</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\panels\SceneTreePanel.h">
+      <Filter>c_ui\panels</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\panels\RenderPanel.h">
+      <Filter>c_ui\panels</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\workbenches\ReconstructPage.h">
+      <Filter>头文件</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Users\DELL\Desktop\GviewCT.ico" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,42 @@
+#pragma once
+#include "c_ui/workbenches/common/RibbonCommon.h"
+
+namespace IconMaps05 {
+    static const RibbonCommon::IconMapItem kSelectIconMap[] = {
+        { QStringLiteral("导航光标"),  ":/select_icons/icons_other/select_icons/navigation_cursor.png" },
+        { QStringLiteral("裁剪"),  ":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_plane.png" },
+        { QStringLiteral("选择对象(3D)"), ":/select_icons_2/icons_other/select_icons/choose_obj_3D_pull_down_menu/rectangle2.png" },
+        { QStringLiteral("绘制"),  ":/select_icons/icons_other/select_icons/draw.png" },
+        { QStringLiteral("矩形"),  ":/select_icons/icons_other/select_icons/rectangle.png" },
+        { QStringLiteral("圆角矩形"),  ":/select_icons/icons_other/select_icons/round_rectangle.png" },
+        { QStringLiteral("椭圆"),  ":/select_icons/icons_other/select_icons/ellipse.png" },
+        { QStringLiteral("折线"),  ":/select_icons/icons_other/select_icons/polyline.png" },
+        { QStringLiteral("多边形套索"),  ":/select_icons/icons_other/select_icons/lasso.png" },
+        { QStringLiteral("折线3D"),      ":/select_icons/icons_other/select_icons/polyline3D.png" },
+        { QStringLiteral("矩形3D"),        ":/select_icons/icons_other/select_icons/rectangle3D.png" },
+        { QStringLiteral("椭圆3D"),        ":/select_icons/icons_other/select_icons/ellipse3D.png" },
+        { QStringLiteral("来自灰度值的ROI"),        ":/select_icons_2/icons_other/select_icons/from_grayscale_value_ROI_pull_down_menu/region_grow.png" },
+        { QStringLiteral("来自对象的ROI"),":/select_icons_2/icons_other/select_icons/from_obj_ROI_pull_down_menu/from_obj_ROI.png" },
+        { QStringLiteral("绘制&分割"),":/select_icons/icons_other/select_icons/draw_segmentation.png" },
+        { QStringLiteral("绘制分割应用"),  ":/select_icons/icons_other/select_icons/apply_draw_and_segmentation_model.png" },
+        { QStringLiteral("深度分割"),  ":/select_icons/icons_other/select_icons/deep_segmentation.png" },
+        { QStringLiteral("侵蚀/膨胀"),  ":/select_icons/icons_other/select_icons/erosion_dilation.png" },
+        { QStringLiteral("平滑处理"),  ":/select_icons/icons_other/select_icons/smooth_process.png" },
+        { QStringLiteral("裂纹分割"),  ":/select_icons/icons_other/select_icons/crack_segmentation.png" },
+        { QStringLiteral("缩放"),  ":/select_icons/icons_other/select_icons/scale.png" },
+        { QStringLiteral("修正"),  ":/select_icons/icons_other/select_icons/fix.png" },
+        { QStringLiteral("添加ROI到ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/add_ROI_to_ROI.png" },
+        { QStringLiteral("从ROI减去ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/form_ROI_subtract_ROI.png" },
+        { QStringLiteral("拆分ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/detach_ROI.png" },
+        { QStringLiteral("清理ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/clean_ROI.png" },
+        { QStringLiteral("ROI与ROI相交"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/ROI_and_ROI_intersection.png" },
+        { QStringLiteral("合并ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/merge_ROI.png" },
+        { QStringLiteral("反转ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/reverse_ROI.png" },
+        { QStringLiteral("更改ROI精度"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/change_ROI_precision.png" },
+        { QStringLiteral("提取ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/extract_ROI.png" },
+        { QStringLiteral("重新采样ROI"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/sample_ROI.png" },
+        { QStringLiteral("ROI渲染"),  ":/select_icons_2/icons_other/select_icons/action_icon_group/ROI_render.png" },
+        { QStringLiteral("粘贴带选项的ROI"),  ":/select_icons/icons_other/select_icons/paste_with_option_ROI.png" },
+        { QStringLiteral("ROI模板"),  ":/select_icons_2/icons_other/select_icons/ROI_template_pull_down_menu/ROI_template.png" },
+    };
+};

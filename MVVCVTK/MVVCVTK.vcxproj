@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{5647dd87-6499-40fc-b1ed-5c8c72d02d16}</ProjectGuid>
+    <RootNamespace>MVVCVTK</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <Keyword>QtVS_v304</Keyword>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtModules>core;gui;widgets</QtModules>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Local.props" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Local.props" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\git\vcpkg-master\installed\x64-windows\include;D:\CT-1209\VTK\lib\vtk_install\include\vtk-9.4;C:\code\test_0323\main\MVVCVTK\core;$(IncludePath)</IncludePath>
+    <TargetName>GviewCT</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\MeasureAlgoService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Utils;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\MeasurementAlgo;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\MeasureAlgoStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs\lib;C:\lib\vtk_install\lib;C:\lib\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>UIReconstruct3D.lib;UIPhantomCalib.lib;vtkcgns-9.4d.lib;vtkChartsCore-9.4d.lib;vtkCommonColor-9.4d.lib;vtkCommonComputationalGeometry-9.4d.lib;vtkCommonCore-9.4d.lib;vtkCommonDataModel-9.4d.lib;vtkCommonExecutionModel-9.4d.lib;vtkCommonMath-9.4d.lib;vtkCommonMisc-9.4d.lib;vtkCommonSystem-9.4d.lib;vtkCommonTransforms-9.4d.lib;vtkDICOMParser-9.4d.lib;vtkDomainsChemistry-9.4d.lib;vtkDomainsChemistryOpenGL2-9.4d.lib;vtkdoubleconversion-9.4d.lib;vtkexodusII-9.4d.lib;vtkexpat-9.4d.lib;vtkFiltersAMR-9.4d.lib;vtkFiltersCellGrid-9.4d.lib;vtkFiltersCore-9.4d.lib;vtkFiltersExtraction-9.4d.lib;vtkFiltersFlowPaths-9.4d.lib;vtkFiltersGeneral-9.4d.lib;vtkFiltersGeneric-9.4d.lib;vtkFiltersGeometry-9.4d.lib;vtkFiltersGeometryPreview-9.4d.lib;vtkFiltersHybrid-9.4d.lib;vtkFiltersHyperTree-9.4d.lib;vtkFiltersImaging-9.4d.lib;vtkFiltersModeling-9.4d.lib;vtkFiltersParallel-9.4d.lib;vtkFiltersParallelImaging-9.4d.lib;vtkFiltersPoints-9.4d.lib;vtkFiltersProgrammable-9.4d.lib;vtkFiltersReduction-9.4d.lib;vtkFiltersSelection-9.4d.lib;vtkFiltersSMP-9.4d.lib;vtkFiltersSources-9.4d.lib;vtkFiltersStatistics-9.4d.lib;vtkFiltersTemporal-9.4d.lib;vtkFiltersTensor-9.4d.lib;vtkFiltersTexture-9.4d.lib;vtkFiltersTopology-9.4d.lib;vtkFiltersVerdict-9.4d.lib;vtkfmt-9.4d.lib;vtkfreetype-9.4d.lib;vtkGeovisCore-9.4d.lib;vtkgl2ps-9.4d.lib;vtkglad-9.4d.lib;vtkGUISupportQt-9.4d.lib;vtkGUISupportQtQuick-9.4d.lib;vtkGUISupportQtSQL-9.4d.lib;vtkhdf5-9.4d.lib;vtkhdf5_hl-9.4d.lib;vtkImagingColor-9.4d.lib;vtkImagingCore-9.4d.lib;vtkImagingFourier-9.4d.lib;vtkImagingGeneral-9.4d.lib;vtkImagingHybrid-9.4d.lib;vtkImagingMath-9.4d.lib;vtkImagingMorphological-9.4d.lib;vtkImagingSources-9.4d.lib;vtkImagingStatistics-9.4d.lib;vtkImagingStencil-9.4d.lib;vtkInfovisCore-9.4d.lib;vtkInfovisLayout-9.4d.lib;vtkInteractionImage-9.4d.lib;vtkInteractionStyle-9.4d.lib;vtkInteractionWidgets-9.4d.lib;vtkIOAMR-9.4d.lib;vtkIOAsynchronous-9.4d.lib;vtkIOCellGrid-9.4d.lib;vtkIOCesium3DTiles-9.4d.lib;vtkIOCGNSReader-9.4d.lib;vtkIOChemistry-9.4d.lib;vtkIOCityGML-9.4d.lib;vtkIOCONVERGECFD-9.4d.lib;vtkIOCore-9.4d.lib;vtkIOEngys-9.4d.lib;vtkIOEnSight-9.4d.lib;vtkIOERF-9.4d.lib;vtkIOExodus-9.4d.lib;vtkIOExport-9.4d.lib;vtkIOExportGL2PS-9.4d.lib;vtkIOExportPDF-9.4d.lib;vtkIOFDS-9.4d.lib;vtkIOFLUENTCFF-9.4d.lib;vtkIOGeometry-9.4d.lib;vtkIOHDF-9.4d.lib;vtkIOImage-9.4d.lib;vtkIOImport-9.4d.lib;vtkIOInfovis-9.4d.lib;vtkIOIOSS-9.4d.lib;vtkIOLegacy-9.4d.lib;vtkIOLSDyna-9.4d.lib;vtkIOMINC-9.4d.lib;vtkIOMotionFX-9.4d.lib;vtkIOMovie-9.4d.lib;vtkIONetCDF-9.4d.lib;vtkIOOggTheora-9.4d.lib;vtkIOParallel-9.4d.lib;vtkIOParallelXML-9.4d.lib;vtkIOPLY-9.4d.lib;vtkIOSegY-9.4d.lib;vtkIOSQL-9.4d.lib;vtkioss-9.4d.lib;vtkIOTecplotTable-9.4d.lib;vtkIOVeraOut-9.4d.lib;vtkIOVideo-9.4d.lib;vtkIOXML-9.4d.lib;vtkIOXMLParser-9.4d.lib;vtkjpeg-9.4d.lib;vtkjsoncpp-9.4d.lib;vtkkissfft-9.4d.lib;vtklibharu-9.4d.lib;vtklibproj-9.4d.lib;vtklibxml2-9.4d.lib;vtkloguru-9.4d.lib;vtklz4-9.4d.lib;vtklzma-9.4d.lib;vtkmetaio-9.4d.lib;vtknetcdf-9.4d.lib;vtkogg-9.4d.lib;vtkParallelCore-9.4d.lib;vtkParallelDIY-9.4d.lib;vtkpng-9.4d.lib;vtkpugixml-9.4d.lib;vtkRenderingAnnotation-9.4d.lib;vtkRenderingCellGrid-9.4d.lib;vtkRenderingContext2D-9.4d.lib;vtkRenderingContextOpenGL2-9.4d.lib;vtkRenderingCore-9.4d.lib;vtkRenderingFreeType-9.4d.lib;vtkRenderingGL2PSOpenGL2-9.4d.lib;vtkRenderingHyperTreeGrid-9.4d.lib;vtkRenderingImage-9.4d.lib;vtkRenderingLabel-9.4d.lib;vtkRenderingLICOpenGL2-9.4d.lib;vtkRenderingLOD-9.4d.lib;vtkRenderingOpenGL2-9.4d.lib;vtkRenderingQt-9.4d.lib;vtkRenderingSceneGraph-9.4d.lib;vtkRenderingUI-9.4d.lib;vtkRenderingVolume-9.4d.lib;vtkRenderingVolumeOpenGL2-9.4d.lib;vtkRenderingVtkJS-9.4d.lib;vtksqlite-9.4d.lib;vtksys-9.4d.lib;vtkTestingCore-9.4d.lib;vtkTestingRendering-9.4d.lib;vtktheora-9.4d.lib;vtktiff-9.4d.lib;vtktoken-9.4d.lib;vtkverdict-9.4d.lib;vtkViewsContext2D-9.4d.lib;vtkViewsCore-9.4d.lib;vtkViewsInfovis-9.4d.lib;vtkViewsQt-9.4d.lib;vtkWrappingTools-9.4d.lib;vtkzlib-9.4d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)libs\lib\*.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\MeasureAlgoService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Utils;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\MeasurementAlgo;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\MeasureAlgoStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>
+ %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs\lib;C:\lib\vtk_install\lib;C:\lib\opencv\build\x64\vc16\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>UIReconstruct3D.lib;UIPhantomCalib.lib;opencv_world4120.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y /d "$(SolutionDir)libs\lib\*.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <QtMoc Include="AppController.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateCommands.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionEvent.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionResult.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionRouter.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer2DHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\GapAnalysisTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\SurfaceRefiner.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VoidDetector.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VolumeBuffer.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StrategyFactory.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppStateSyncStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService\GapAnalysisService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\VolumeAnalysisService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\BaseVisualStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\ColoredPlanesStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\CompositeStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy\GapAlgorithmOverlayStrategies.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\IsoSurfaceStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\MultiSliceStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\SliceStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\VolumeStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\ImageProcessor.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\InteractionComputeService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h" />
+    <ClInclude Include="resource.h" />
+    <QtMoc Include="c_ui\app\app.h" />
+    <QtMoc Include="c_ui\MainWindow.h" />
+    <QtMoc Include="c_ui\panels\SceneTreePanel.h" />
+    <QtMoc Include="c_ui\panels\RenderPanel.h" />
+    <ClInclude Include="c_ui\nav\TabMap.h" />
+    <ClInclude Include="c_ui\nav\UIState.h" />
+    <ClInclude Include="c_ui\nav\WorkspaceFlow.h" />
+    <ClInclude Include="c_ui\qt\QtRenderContext.h" />
+    <QtMoc Include="c_ui\workbenches\AlignmentPage.h" />
+    <QtMoc Include="c_ui\workbenches\AnalysisPage.h" />
+    <QtMoc Include="c_ui\workbenches\AnimationPage.h" />
+    <QtMoc Include="c_ui\workbenches\CADAndThen.h" />
+    <QtMoc Include="c_ui\workbenches\DocumentPage.h" />
+    <QtMoc Include="c_ui\workbenches\EditPage.h" />
+    <QtMoc Include="c_ui\workbenches\GeometryPage.h" />
+    <QtMoc Include="c_ui\workbenches\HelpPage.h" />
+    <QtMoc Include="c_ui\workbenches\MeasurePage.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AlignIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AnaIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\AniIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\CadIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\EditIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\GeoIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\MeasureIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\ReportIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\SelectIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\StartIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\VolumeIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\WindowIconMap.h" />
+    <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h" />
+    <QtMoc Include="c_ui\workbenches\ReconstructPage.h" />
+    <QtMoc Include="c_ui\workbenches\ReportPage.h" />
+    <QtMoc Include="c_ui\workbenches\StartPage.h" />
+    <QtMoc Include="c_ui\workbenches\VolumePage.h" />
+    <QtMoc Include="c_ui\workbenches\WindowPage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AppController.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Service\AppService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\ColoredPlanesStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\CompositeStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\IsoSurfaceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\MultiSliceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\SliceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\VolumeStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\ImageProcessor.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp" />
+    <ClCompile Include="c_ui\app\app.cpp" />
+    <ClCompile Include="c_ui\main.cpp" />
+    <ClCompile Include="c_ui\MainWindow.cpp" />
+    <ClCompile Include="c_ui\nav\TabMap.cpp" />
+    <ClCompile Include="c_ui\nav\WorkspaceFlow.cpp" />
+    <ClCompile Include="c_ui\panels\RenderPanel.cpp" />
+    <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
+    <ClCompile Include="c_ui\qt\QtRenderContext.cpp" />
+    <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\AnalysisPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\AnimationPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\CADAndThen.cpp" />
+    <ClCompile Include="c_ui\workbenches\DocumentPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\EditPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\GeometryPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\HelpPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\MeasurePage.cpp" />
+    <ClCompile Include="c_ui\workbenches\ReconstructPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\ReportPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\SelectPage.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\StartPage.cpp" />
+    <ClCompile Include="c_ui\workbenches\VolumePage.cpp" />
+    <ClCompile Include="c_ui\workbenches\WindowPage.cpp" />
+    <ClCompile Include="ReconInteraction.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Users\DELL\Desktop\GviewCT.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220531.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+  </Target>
+</Project>

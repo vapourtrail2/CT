@@ -1,0 +1,3 @@
+[submodule "MVVCVTK/core/MVVCVTK"]
+	path = MVVCVTK/core/MVVCVTK
+	url = https://github.com/HelenTung/MVVCVTK.git

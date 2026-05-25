@@ -344,7 +344,7 @@ void DocumentPage::loadFilePath(const QString& path)
 {
     const QString p = path.trimmed();
     if (p.isEmpty()) {
-        updateStatusLabel(QStringLiteral("路径为空，请选择文件。"), true);
+        updateStatusLabel(QStringLiteral("路径为空，请选择文件。"), true); 
         return;
     }
 
@@ -359,7 +359,6 @@ void DocumentPage::loadFilePath(const QString& path)
         static_cast<float>(originY_->value()),
         static_cast<float>(originZ_->value())
     };
-
 
     updateStatusLabel(QStringLiteral("正在加载..."), false);
     emit openRequested(p,spacing,origin);   

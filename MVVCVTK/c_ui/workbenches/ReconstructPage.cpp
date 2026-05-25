@@ -174,28 +174,26 @@ bool ReconstructPage::saveSliceStackAsync(
     const double& angel,
     std::function<void(bool)> onComplete)
 {
-	const QString dir = outputDir.trimmed();
-
-    std::string utf8Path = dir.toUtf8().toStdString();
-
-    /*if(utf8Path.empty())
-    {
+    const QString dir = outputDir.trimmed();
+    if (dir.isEmpty()) {
         return false;
-	}*/
+    }
+
+    const QByteArray localPath = QDir::toNativeSeparators(dir).toLocal8Bit();
 
     switch (sliceMode) {
     case VizMode::SliceTop_down:
-        m_svcAxial->SetSliceImagesSavedAsync(utf8Path,
+        m_svcAxial->SetSliceImagesSavedAsync(localPath.constData(),
             angel,
             std::move(onComplete));
         break;
     case VizMode::SliceFront_back:
-        m_svcCoronal->SetSliceImagesSavedAsync(utf8Path,
+        m_svcCoronal->SetSliceImagesSavedAsync(localPath.constData(),
             angel,
             std::move(onComplete));
         break;
     case VizMode::SliceLeft_right:
-        m_svcSagittal->SetSliceImagesSavedAsync(utf8Path,
+        m_svcSagittal->SetSliceImagesSavedAsync(localPath.constData(),
             angel,
             std::move(onComplete));
         break;

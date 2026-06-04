@@ -427,10 +427,4 @@
       <Filter>头文件</Filter>
     </QtMoc>
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Users\DELL\Desktop\GviewCT.ico" />
-  </ItemGroup>
 </Project>

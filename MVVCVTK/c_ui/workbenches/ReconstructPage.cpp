@@ -16,7 +16,6 @@ ReconstructPage::ReconstructPage(QWidget* parent)
 
 void ReconstructPage::buildUi()
 {
- 
     m_viewGrid = new QGridLayout(this);
     m_viewGrid->setContentsMargins(6, 6, 6, 6);
     m_viewGrid->setHorizontalSpacing(6);
@@ -176,9 +175,9 @@ bool ReconstructPage::saveSliceStackAsync(
 {
     const QString dir = outputDir.trimmed();
     if (dir.isEmpty()) {
-        return false;
+        return false;   
     }
-
+    
     const QByteArray localPath = QDir::toNativeSeparators(dir).toLocal8Bit();
 
     switch (sliceMode) {
@@ -200,7 +199,6 @@ bool ReconstructPage::saveSliceStackAsync(
     default:
         return false;
     }
-
     return true;
 }
 

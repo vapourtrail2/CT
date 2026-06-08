@@ -84,6 +84,9 @@
     <Filter Include="include\Strategies\GapMeshOverlayStrategy">
       <UniqueIdentifier>{69b6514f-d9df-4d3a-ac5f-2dc4dbe263ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\workspace">
+      <UniqueIdentifier>{eab3d201-b7af-4a42-8dbd-533a061c1e45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">
@@ -367,6 +370,9 @@
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp">
       <Filter>src\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
+      <Filter>c_ui\workspace</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="c_ui\MainWindow.h">
@@ -425,6 +431,9 @@
     </QtMoc>
     <QtMoc Include="c_ui\workbenches\ReconstructPage.h">
       <Filter>头文件</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\contextarea\WorkspacePage.h">
+      <Filter>c_ui\workspace</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

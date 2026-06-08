@@ -218,6 +218,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\ImageProcessor.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\InteractionComputeService.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h" />
+    <QtMoc Include="c_ui\contextarea\WorkspacePage.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="c_ui\app\app.h" />
     <QtMoc Include="c_ui\MainWindow.h" />
@@ -273,6 +274,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\ImageProcessor.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
+    <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp" />
     <ClCompile Include="c_ui\main.cpp" />
     <ClCompile Include="c_ui\MainWindow.cpp" />
     <ClCompile Include="c_ui\nav\TabMap.cpp" />

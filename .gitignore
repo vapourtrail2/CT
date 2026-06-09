@@ -403,3 +403,9 @@ Makefile*
 # Mac OS specific (if your colleague uses Mac)
 .DS_Store
 /package/GviewCT_v1.1.1
+
+
+packages/
+*.nupkg
+Microsoft.Windows.CppWinRT.*/
+idontknowwhatitis/Microsoft.Windows.CppWinRT.*/

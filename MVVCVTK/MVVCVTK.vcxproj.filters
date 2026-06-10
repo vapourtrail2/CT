@@ -87,6 +87,9 @@
     <Filter Include="c_ui\workspace">
       <UniqueIdentifier>{eab3d201-b7af-4a42-8dbd-533a061c1e45}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\ribbon">
+      <UniqueIdentifier>{c40fa0e1-d38b-48e9-857b-d37381c60db0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">
@@ -248,6 +251,9 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h">
       <Filter>include\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h">
+      <Filter>c_ui\ribbon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\main.cpp">
@@ -373,6 +379,9 @@
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
       <Filter>c_ui\workspace</Filter>
     </ClCompile>
+    <ClCompile Include="c_ui\ribbon\RibbonPageRegister.cpp">
+      <Filter>c_ui\ribbon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="c_ui\MainWindow.h">
@@ -434,6 +443,9 @@
     </QtMoc>
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h">
       <Filter>c_ui\workspace</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\ribbon\RibbonPage.h">
+      <Filter>c_ui\ribbon</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

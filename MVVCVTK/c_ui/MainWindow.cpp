@@ -13,11 +13,13 @@
 #include "c_ui/workbenches/WindowPage.h"
 #include "c_ui/workbenches/AnimationPage.h"
 #include "c_ui/workbenches/ReconstructPage.h"
+#include "c_ui/contextarea/WorkspacePage.h"
 #include "AppController.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/nav/TabMap.h"
 #include "c_ui/nav/WorkspaceFlow.h"
+#include "c_ui/ribbon/RibbonPageRegister.h"
 
 #include <qwindow.h>
 #include <QApplication>
@@ -83,9 +85,6 @@ CTViewer::CTViewer(QWidget* parent)
 }
 
 CTViewer::~CTViewer() {
-    if (mprViews_ && !mprViews_->parent()) {
-        delete mprViews_;
-    }
 }
 
 void CTViewer::buildTheTop()
@@ -299,7 +298,8 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
     //添加多个页面  使用枚举
     pageStart_ = new StartPagePage(stack_);
     stack_->addWidget(pageStart_);
-    bindPage(TabIndex::Start, pageStart_);
+    ribbonRegistry_->add
+	
 
     pageEdit_ = new EditPage(stack_);
     stack_->addWidget(pageEdit_);
@@ -370,42 +370,7 @@ void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayou
 }
 
 void CTViewer::buildWorkspacePage() {
-    workspacePage_ = new QWidget(secondstack_);
-    auto workspaceContainerLayout = new QVBoxLayout(workspacePage_);
-    workspaceContainerLayout->setContentsMargins(0, 0, 0, 0);
-    workspaceContainerLayout->setSpacing(0);
-
-    workspaceSplit_ = new QSplitter(Qt::Horizontal, workspacePage_);//第一个参数是水平分割
-    workspaceSplit_->setObjectName("workspaceSplit");
-    workspaceContainerLayout->addWidget(workspaceSplit_, 1);
-
-    //workshop左边
-    mprViews_ = new ReconstructPage(workspaceSplit_);
-
-    //右侧
-    rightSplit_ = new QSplitter(Qt::Vertical, workspaceSplit_);
-    rightSplit_->setObjectName("rightsplit");
-
-    renderPanel_ = new RenderPanel(rightSplit_);
-    rightSplit_->addWidget(renderPanel_);
-
-    scenePanel_ = new SceneTreePanel(rightSplit_);
-    rightSplit_->addWidget(scenePanel_);
-
-    //安装
-    workspaceSplit_->addWidget(mprViews_);
-    workspaceSplit_->addWidget(rightSplit_);
-    workspaceSplit_->setStretchFactor(0, 50);
-    workspaceSplit_->setStretchFactor(1, 3); 
-
-    //这样是对的
-    rightSplit_->setStretchFactor(0, 0);
-    rightSplit_->setStretchFactor(1, 1);
-    rightSplit_->setSizes({ 520, 260 });
-
-    renderPanel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    renderPanel_->setMaximumHeight(520);
-
+    workspacePage_ = new WorkspacePage(secondstack_);
     secondstack_->addWidget(workspacePage_);
 }
 
@@ -492,13 +457,12 @@ void CTViewer::connectAppSignals() {
 
 void CTViewer::connectRenderSwitchSignals()
 {
-    connect(renderPanel_, &RenderPanel::primary3DModeRequested, this, [this](VizMode mode) {
-        if (mprViews_) {
-            mprViews_->setPrimary3DMode(mode);
+    connect(workspacePage_->getRenderPanel(), &RenderPanel::primary3DModeRequested, this, [this](VizMode mode) {
+        if (workspacePage_->getViewportPage()) {
+            workspacePage_->getViewportPage()->setPrimary3DMode(mode);
         }
         });
 }
-
 
 //架构优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
 UiState CTViewer::buildUiState(int index) const{
@@ -596,7 +560,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& s
 //保存切片
 void CTViewer::showSaveSliceStackDialog()
 {
-    if (!mprViews_ || !workspaceFlow_ || !workspaceFlow_->hasData()) {
+    if (!workspacePage_->getViewportPage() || !workspaceFlow_ || !workspaceFlow_->hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像堆栈"), QStringLiteral("请先加载数据。"));
         return;
     }
@@ -659,7 +623,7 @@ void CTViewer::showSaveSliceStackDialog()
         QPointer<QLabel> statusPtr(statusLabel);
         QPointer<QPushButton> saveButtonPtr(saveButton);
 
-        const bool started = mprViews_->saveSliceStackAsync(
+        const bool started = workspacePage_->getViewportPage()->saveSliceStackAsync(
             dir,
             mode,
             angleValue,
@@ -696,7 +660,7 @@ void CTViewer::showSaveSliceStackDialog()
 //保存图像
 void CTViewer::showSaveTransformedDataDialog()
 {
-    if (!mprViews_ || !workspaceFlow_ || !workspaceFlow_->hasData()) {
+    if (!workspacePage_->getViewportPage() || !workspaceFlow_ || !workspaceFlow_->hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像"), QStringLiteral("请先加载数据。"));
         return;
     }
@@ -719,7 +683,7 @@ void CTViewer::showSaveTransformedDataDialog()
 
     QPointer<CTViewer> self(this);
 
-    const bool started = mprViews_->saveTransformedDataAsync(
+    const bool started = workspacePage_->getViewportPage()->saveTransformedDataAsync(
         path,
         [this,self](bool ok) {
             QMetaObject::invokeMethod(qApp, [this,self, ok]() {
@@ -793,7 +757,9 @@ void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
     }
 
     QString err;
-    const bool ok = workspaceFlow_->bindSession(mprViews_, scenePanel_, renderPanel_, &err);
+    const bool ok = workspaceFlow_->bindSession(
+        workspacePage_->getViewportPage(), workspacePage_->getSceneTreePanel(), workspacePage_->getRenderPanel(), &err
+    );
 
     if (!ok) {
         if (ProgressDialog_) {

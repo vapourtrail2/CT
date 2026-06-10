@@ -1,6 +1,7 @@
 ﻿#include "StartPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/StartIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 StartPagePage::StartPagePage(QWidget* parent)
-    : QWidget(parent)
+    /*: QWidget(parent)*/
 {
     // 设置页面外观
     setObjectName(QStringLiteral("pageStart"));
@@ -37,6 +38,16 @@ StartPagePage::StartPagePage(QWidget* parent)
 
     //布局调用
     layout01->addWidget(buildRibbon01(this));
+}
+
+int StartPagePage::tabIndex() const
+{
+    return TabIndex::Start;
+}
+
+QString StartPagePage::tabName() const
+{
+    return QStringLiteral("开始");
 }
 
 QWidget* StartPagePage::buildRibbon01(QWidget* parent)

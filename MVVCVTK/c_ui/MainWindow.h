@@ -38,6 +38,8 @@ class QProgressDialog;//进度条
 
 class TabMap;
 class WorkspaceFlow;
+class WorkspacePage;
+class RibbonPageRegister;
 
 class CTViewer : public QMainWindow
 {
@@ -96,7 +98,7 @@ private:
     QPointer<QWidget> titleCenterArea_;
 
     QPointer<QWidget> whatEmpty_;
-    QPointer<QWidget> workspacePage_;
+   
     QPointer<QWidget> emptyPage_;
 
     QPointer<QLabel> titleLabel_;
@@ -121,7 +123,6 @@ private:
     QPointer<QWidget> pageGauge_;
     QPointer<ReportPage> pageReport_;
     QPointer<AnimationPage> pageAnimation_;
-    QPointer<ReconstructPage> mprViews_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;
 	QPointer<QtRenderContext> renderContext_;
@@ -132,16 +133,14 @@ private:
     UiState buildUiState(int index) const;
     void applyUiState(const UiState& state);
 
-    UIReconstruct3D* uiRecon3d_ = nullptr;
+    UIReconstruct3D* uiRecon3d_ = nullptr;  
     QPointer<AppController> appController_;
 
-    QPointer<QSplitter> workspaceSplit_;
-    QPointer<QSplitter> rightSplit_;
-    QPointer<SceneTreePanel> scenePanel_;
-    QPointer<RenderPanel> renderPanel_;
-
     QPointer<QProgressDialog> ProgressDialog_;
-    std::shared_ptr<void> loadNotifyToken_;//进度条    
+    std::shared_ptr<void> loadNotifyToken_;//进度条   
+
+    QPointer<WorkspacePage> workspacePage_;
+    std::unique_ptr<RibbonPageRegistry> ribbonRegistry_;
 
     int iconHeight_ = 100;
 };

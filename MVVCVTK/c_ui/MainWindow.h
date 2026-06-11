@@ -140,7 +140,7 @@ private:
     std::shared_ptr<void> loadNotifyToken_;//进度条   
 
     QPointer<WorkspacePage> workspacePage_;
-    std::unique_ptr<RibbonPageRegistry> ribbonRegistry_;
+    std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
 
     int iconHeight_ = 100;
 };

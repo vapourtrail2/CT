@@ -280,6 +280,8 @@ void CTViewer::connectWindowButtonSignals() {
 
 //start edit volune ...
 void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
+    ribbonPageRegister_ = std::make_unique<RibbonPageRegister>();
+
     stack_ = new QStackedWidget(totalContainer);
     stack_->setFixedHeight(iconHeight_);
     rootLayout->addWidget(stack_, 0);
@@ -298,9 +300,9 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
     //添加多个页面  使用枚举
     pageStart_ = new StartPagePage(stack_);
     stack_->addWidget(pageStart_);
-    ribbonRegistry_->add
+    ribbonPageRegister_->add(pageStart_);
+	bindPage(pageStart_->tabIndex(), pageStart_);
 	
-
     pageEdit_ = new EditPage(stack_);
     stack_->addWidget(pageEdit_);
     bindPage(TabIndex::Edit, pageEdit_);

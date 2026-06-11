@@ -22,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 StartPagePage::StartPagePage(QWidget* parent)
-    /*: QWidget(parent)*/
+    :RibbonPage(parent)//在创建StartPagePage之前 必须先创建他的父类RibbonPage 并把parent传给父类
 {
     // 设置页面外观
     setObjectName(QStringLiteral("pageStart"));

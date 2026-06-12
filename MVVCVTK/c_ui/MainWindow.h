@@ -40,6 +40,7 @@ class TabMap;
 class WorkspaceFlow;
 class WorkspacePage;
 class RibbonPageRegister;
+class RibbonPage;
 
 class CTViewer : public QMainWindow
 {
@@ -88,6 +89,7 @@ private:
     void setOpenProgressDialog(const QString& text, const QString& title);
     void setCloseProgressDialog();
 
+    void setRibbonPage(RibbonPage* page);
 
 private:
     bool draggingWindow_ = false;

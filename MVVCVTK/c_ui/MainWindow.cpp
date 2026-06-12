@@ -19,6 +19,7 @@
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/nav/TabMap.h"
 #include "c_ui/nav/WorkspaceFlow.h"
+#include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
 
 #include <qwindow.h>
@@ -278,6 +279,12 @@ void CTViewer::connectWindowButtonSignals() {
     connect(btnClose_, &QToolButton::clicked, this, &CTViewer::close);
 }
 
+void CTViewer::setRibbonPage(RibbonPage* page)
+{
+    stack_->addWidget(page);
+    ribbonPageRegister_->add(page);
+    tabMap_->bindTabPage(page->tabIndex(), page);
+}
 
 void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
     ribbonPageRegister_ = std::make_unique<RibbonPageRegister>();
@@ -286,89 +293,44 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
     stack_->setFixedHeight(iconHeight_);
     rootLayout->addWidget(stack_, 0);
 
-    //修改 加的lambda
-    auto bindPage = [this](int index, QWidget* page) {
-        if (tabMap_)
-        {
-			tabMap_->bindTabPage(index, page);
-        }
-    };
-
 	whatEmpty_ = new QWidget(stack_);
-	stack_->addWidget(whatEmpty_);
+    stack_->addWidget(whatEmpty_);
 
-    //添加多个页面  使用枚举
     pageStart_ = new StartPagePage(stack_);
-    stack_->addWidget(pageStart_);
-    ribbonPageRegister_->add(pageStart_);
-	bindPage(pageStart_->tabIndex(), pageStart_);
+    setRibbonPage(pageStart_);
 	
     pageEdit_ = new EditPage(stack_);
-    stack_->addWidget(pageEdit_);
-    ribbonPageRegister_->add(pageEdit_);
-    bindPage(pageEdit_->tabIndex(), pageEdit_);
+    setRibbonPage(pageEdit_);
 
     pageVolume_ = new VolumePage(stack_);
-    stack_->addWidget(pageVolume_);
-    ribbonPageRegister_->add(pageVolume_);
-    bindPage(pageVolume_->tabIndex(), pageVolume_);
+    setRibbonPage(pageVolume_);
 
     pageSelect_ = new SelectPage(stack_);
-    stack_->addWidget(pageSelect_);
-    ribbonPageRegister_->add(pageSelect_);
-    bindPage(pageSelect_->tabIndex(), pageSelect_);
+    setRibbonPage(pageSelect_);
 
     pageAlignment_ = new AlignmentPage(stack_);
-    stack_->addWidget(pageAlignment_);
-    ribbonPageRegister_->add(pageAlignment_);
-    bindPage(pageAlignment_->tabIndex(), pageAlignment_);
+    setRibbonPage(pageAlignment_);
 
     pageGeometry_ = new GeometryPage(stack_);
-    stack_->addWidget(pageGeometry_);
-    ribbonPageRegister_->add(pageGeometry_);
-    bindPage(pageGeometry_->tabIndex(), pageGeometry_);
+    setRibbonPage(pageGeometry_);
 
     pageMeasure_ = new MeasurePage(stack_);
-    stack_->addWidget(pageMeasure_);
-    ribbonPageRegister_->add(pageMeasure_);
-    bindPage(pageMeasure_->tabIndex(), pageMeasure_);
+    setRibbonPage(pageMeasure_);
 
     pageCAD_ = new CADAndThen(stack_);
-    stack_->addWidget(pageCAD_);
-    ribbonPageRegister_->add(pageCAD_);
-    bindPage(pageCAD_->tabIndex(), pageCAD_);
+    setRibbonPage(pageCAD_);
 
     pageAnalysis_ = new AnalysisPage(stack_);
-    stack_->addWidget(pageAnalysis_);
-    ribbonPageRegister_->add(pageAnalysis_);
-    bindPage(pageAnalysis_->tabIndex(), pageAnalysis_);
+    setRibbonPage(pageAnalysis_);
 
     pageReport_ = new ReportPage(stack_);
-    stack_->addWidget(pageReport_);
-    ribbonPageRegister_->add(pageReport_);
-    bindPage(pageReport_->tabIndex(), pageReport_);
+    setRibbonPage(pageReport_);
 
     pageAnimation_ = new AnimationPage(stack_);
-    stack_->addWidget(pageAnimation_);
-    ribbonPageRegister_->add(pageAnimation_);
-    bindPage(pageAnimation_->tabIndex(), pageAnimation_);
+    setRibbonPage(pageAnimation_);
 
     pageWindow_ = new WindowPage(stack_);
-    stack_->addWidget(pageWindow_);
-    ribbonPageRegister_->add(pageWindow_);
-    bindPage(pageWindow_->tabIndex(), pageWindow_);
-
-    // Gauge页暂时空着，后续再完善功能
-    pageGauge_ = new QWidget(stack_);
-    auto* gaugeLayout = new QHBoxLayout(pageGauge_);
-    gaugeLayout->setContentsMargins(12, 8, 12, 8);
-    gaugeLayout->setSpacing(0);
-    auto* gaugeLabel = new QLabel(QStringLiteral("Gauge tools are not wired yet"), pageGauge_);
-    gaugeLabel->setStyleSheet(QStringLiteral("color:#b0b0b0;"));
-    gaugeLayout->addWidget(gaugeLabel);
-    gaugeLayout->addStretch();
-    stack_->addWidget(pageGauge_);
-    bindPage(TabIndex::Gauge, pageGauge_);
+    setRibbonPage(pageWindow_);
 }
 
 void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
@@ -748,6 +710,8 @@ void CTViewer::setCloseProgressDialog()
     ProgressDialog_->close();
     ProgressDialog_.clear();
 }
+
+
 
 
 void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)

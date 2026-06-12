@@ -6,7 +6,6 @@
 
 class QWidget;
 
-//常量集中定义 好维护
 namespace TabIndex
 {
     constexpr int File = 0;
@@ -22,8 +21,6 @@ namespace TabIndex
     constexpr int Report = 10;
     constexpr int Animation = 11;
     constexpr int Window = 12;
-    constexpr int Gauge = 13;
-    constexpr int Count = 14;
 }
 
 class TabMap

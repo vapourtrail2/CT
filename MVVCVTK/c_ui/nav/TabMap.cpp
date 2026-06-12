@@ -32,7 +32,7 @@ bool TabMap::isFileTab(int index) const
 
 bool TabMap::isValidTab(int index) const
 {
-    return index >= TabIndex::File && index < TabIndex::Count;
+    return index >= TabIndex::File && index < TabIndex::Window;
 }
 
 void TabMap::bindTabPage(int index, QWidget* page)

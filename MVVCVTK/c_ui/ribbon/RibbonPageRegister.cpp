@@ -18,7 +18,10 @@ QList<RibbonPage*> RibbonPageRegister::pageslist() const
 
 	for (const auto &page :pagesList_ )
 	{
-		result.append(page);
+		if (page)
+		{
+			result.append(page);
+		}
 	}
 
 	return result;

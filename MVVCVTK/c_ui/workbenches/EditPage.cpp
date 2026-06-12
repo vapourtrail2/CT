@@ -1,6 +1,7 @@
 ﻿#include "EditPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/EditIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 EditPage::EditPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("pageEdit"));
@@ -37,6 +38,16 @@ EditPage::EditPage(QWidget* parent)
 
     // 功能区调用
     layout->addWidget(buildRibbon(this));
+}
+
+int EditPage::tabIndex() const
+{
+    return TabIndex::Edit;
+}
+
+QString EditPage::tabName() const
+{
+    return QStringLiteral("编辑");
 }
 
 QWidget* EditPage::buildRibbon(QWidget* parent)

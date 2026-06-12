@@ -1,6 +1,7 @@
 #include "SelectPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/SelectIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 SelectPage::SelectPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("volumeEdit"));
@@ -37,6 +38,16 @@ SelectPage::SelectPage(QWidget* parent)
 
     // 功能区调用
     layout03->addWidget(buildRibbon03(this));
+}
+
+int SelectPage::tabIndex() const
+{
+    return TabIndex::Select;
+}
+
+QString SelectPage::tabName() const
+{
+    return QStringLiteral("选择");
 }
 
 QWidget* SelectPage::buildRibbon03(QWidget* parent)

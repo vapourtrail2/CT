@@ -278,7 +278,7 @@ void CTViewer::connectWindowButtonSignals() {
     connect(btnClose_, &QToolButton::clicked, this, &CTViewer::close);
 }
 
-//start edit volune ...
+
 void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
     ribbonPageRegister_ = std::make_unique<RibbonPageRegister>();
 
@@ -305,47 +305,58 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
 	
     pageEdit_ = new EditPage(stack_);
     stack_->addWidget(pageEdit_);
-    bindPage(TabIndex::Edit, pageEdit_);
+    ribbonPageRegister_->add(pageEdit_);
+    bindPage(pageEdit_->tabIndex(), pageEdit_);
 
     pageVolume_ = new VolumePage(stack_);
     stack_->addWidget(pageVolume_);
-    bindPage(TabIndex::Volume, pageVolume_);
+    ribbonPageRegister_->add(pageVolume_);
+    bindPage(pageVolume_->tabIndex(), pageVolume_);
 
     pageSelect_ = new SelectPage(stack_);
     stack_->addWidget(pageSelect_);
-    bindPage(TabIndex::Select, pageSelect_);
+    ribbonPageRegister_->add(pageSelect_);
+    bindPage(pageSelect_->tabIndex(), pageSelect_);
 
     pageAlignment_ = new AlignmentPage(stack_);
     stack_->addWidget(pageAlignment_);
-    bindPage(TabIndex::Align, pageAlignment_);
+    ribbonPageRegister_->add(pageAlignment_);
+    bindPage(pageAlignment_->tabIndex(), pageAlignment_);
 
     pageGeometry_ = new GeometryPage(stack_);
     stack_->addWidget(pageGeometry_);
-    bindPage(TabIndex::Geometry, pageGeometry_);
+    ribbonPageRegister_->add(pageGeometry_);
+    bindPage(pageGeometry_->tabIndex(), pageGeometry_);
 
     pageMeasure_ = new MeasurePage(stack_);
     stack_->addWidget(pageMeasure_);
-    bindPage(TabIndex::Measure, pageMeasure_);
+    ribbonPageRegister_->add(pageMeasure_);
+    bindPage(pageMeasure_->tabIndex(), pageMeasure_);
 
     pageCAD_ = new CADAndThen(stack_);
     stack_->addWidget(pageCAD_);
-    bindPage(TabIndex::Cad, pageCAD_);
+    ribbonPageRegister_->add(pageCAD_);
+    bindPage(pageCAD_->tabIndex(), pageCAD_);
 
     pageAnalysis_ = new AnalysisPage(stack_);
     stack_->addWidget(pageAnalysis_);
-    bindPage(TabIndex::Analysis, pageAnalysis_);
+    ribbonPageRegister_->add(pageAnalysis_);
+    bindPage(pageAnalysis_->tabIndex(), pageAnalysis_);
 
     pageReport_ = new ReportPage(stack_);
     stack_->addWidget(pageReport_);
-    bindPage(TabIndex::Report, pageReport_);
+    ribbonPageRegister_->add(pageReport_);
+    bindPage(pageReport_->tabIndex(), pageReport_);
 
     pageAnimation_ = new AnimationPage(stack_);
     stack_->addWidget(pageAnimation_);
-    bindPage(TabIndex::Animation, pageAnimation_);
+    ribbonPageRegister_->add(pageAnimation_);
+    bindPage(pageAnimation_->tabIndex(), pageAnimation_);
 
     pageWindow_ = new WindowPage(stack_);
     stack_->addWidget(pageWindow_);
-    bindPage(TabIndex::Window, pageWindow_);
+    ribbonPageRegister_->add(pageWindow_);
+    bindPage(pageWindow_->tabIndex(), pageWindow_);
 
     // Gauge页暂时空着，后续再完善功能
     pageGauge_ = new QWidget(stack_);

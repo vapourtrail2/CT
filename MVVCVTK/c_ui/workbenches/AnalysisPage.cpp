@@ -1,6 +1,7 @@
 #include "AnalysisPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/AnaIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 AnalysisPage::AnalysisPage (QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("analysisEdit"));
@@ -37,6 +38,16 @@ AnalysisPage::AnalysisPage (QWidget* parent)
 
     // 功能区调用
     layout08->addWidget(buildRibbon08(this));
+}
+
+int AnalysisPage::tabIndex() const
+{
+    return TabIndex::Analysis;
+}
+
+QString AnalysisPage::tabName() const
+{
+    return QStringLiteral("分析");
 }
 
 QWidget* AnalysisPage::buildRibbon08(QWidget* parent)

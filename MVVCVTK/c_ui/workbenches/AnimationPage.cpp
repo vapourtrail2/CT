@@ -1,6 +1,7 @@
 #include "AnimationPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/AniIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 AnimationPage::AnimationPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("animationEdit"));
@@ -37,6 +38,16 @@ AnimationPage::AnimationPage(QWidget* parent)
 
     // 功能区调用
     layout10->addWidget(buildRibbon11(this));
+}
+
+int AnimationPage::tabIndex() const
+{
+    return TabIndex::Animation;
+}
+
+QString AnimationPage::tabName() const
+{
+    return QStringLiteral("动画");
 }
 
 QWidget* AnimationPage::buildRibbon11(QWidget* parent)

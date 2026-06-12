@@ -1,6 +1,7 @@
 #include "ReportPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/ReportIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 ReportPage::ReportPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("reportEdit"));
@@ -37,6 +38,16 @@ ReportPage::ReportPage(QWidget* parent)
 
     // 功能区调用
     layout10->addWidget(buildRibbon10(this));
+}
+
+int ReportPage::tabIndex() const
+{
+    return TabIndex::Report;
+}
+
+QString ReportPage::tabName() const
+{
+    return QStringLiteral("报告");
 }
 
 QWidget* ReportPage::buildRibbon10(QWidget* parent)

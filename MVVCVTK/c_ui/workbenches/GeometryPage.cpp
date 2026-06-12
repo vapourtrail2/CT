@@ -1,6 +1,7 @@
 #include "GeometryPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/GeoIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 GeometryPage::GeometryPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("volumeEdit"));
@@ -37,6 +38,16 @@ GeometryPage::GeometryPage(QWidget* parent)
 
     // 功能区调用
     layout05->addWidget(buildRibbon05(this));
+}
+
+int GeometryPage::tabIndex() const
+{
+    return TabIndex::Geometry;
+}
+
+QString GeometryPage::tabName() const
+{
+    return QStringLiteral("几何");
 }
 
 QWidget* GeometryPage::buildRibbon05(QWidget* parent)

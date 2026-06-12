@@ -1,6 +1,7 @@
 #include "CADAndThen.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/CadIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -21,7 +22,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 CADAndThen::CADAndThen(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("CADEdit"));
@@ -37,6 +38,16 @@ CADAndThen::CADAndThen(QWidget* parent)
 
     // 功能区调用
     layout07->addWidget(buildRibbon07(this));
+}
+
+int CADAndThen::tabIndex() const
+{
+    return TabIndex::Cad;
+}
+
+QString CADAndThen::tabName() const
+{
+    return QStringLiteral("CAD/表面测量");
 }
 
 QWidget* CADAndThen::buildRibbon07(QWidget* parent)

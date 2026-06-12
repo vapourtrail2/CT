@@ -1,6 +1,7 @@
 #include "WindowPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
 #include "c_ui/workbenches/common/IconMaps/WindowIconMap.h"
+#include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -23,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 }
 
 WindowPage::WindowPage(QWidget* parent)
-    : QWidget(parent)
+    : RibbonPage(parent)
 {
     // 设置页面外观
     setObjectName(QStringLiteral("windowEdit"));
@@ -39,6 +40,16 @@ WindowPage::WindowPage(QWidget* parent)
 
     // 功能区调用
     layout12->addWidget(buildRibbon12(this));
+}
+
+int WindowPage::tabIndex() const
+{
+    return TabIndex::Window;
+}
+
+QString WindowPage::tabName() const
+{
+    return QStringLiteral("窗口");
 }
 
 QWidget* WindowPage::buildRibbon12(QWidget* parent)

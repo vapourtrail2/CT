@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QStringList>
 #include <QHash>
 #include <QPointer>
 
@@ -21,14 +20,16 @@ namespace TabIndex
     constexpr int Report = 10;
     constexpr int Animation = 11;
     constexpr int Window = 12;
+    constexpr int Count = 13;
 }
+
+
 
 class TabMap
 {
 public:
     TabMap();
 
-    const QStringList& tabNames() const;
     bool isFileTab(int index) const;
     bool isValidTab(int index) const;
 
@@ -36,6 +37,6 @@ public:
     QWidget* tabPage(int index) const;
 
 private:
-    QStringList tabNames_;
+
     QHash<int, QPointer<QWidget>> tabPages_;
 };

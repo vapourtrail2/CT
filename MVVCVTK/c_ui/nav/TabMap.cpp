@@ -2,28 +2,13 @@
 #include <QWidget>
 
 TabMap::TabMap()
-    : tabNames_{
-        QStringLiteral("文件"),
-        QStringLiteral("开始"),
-        QStringLiteral("编辑"),
-        QStringLiteral("体积"),
-        QStringLiteral("选择"),
-        QStringLiteral("对齐"),
-        QStringLiteral("几何"),
-        QStringLiteral("测量"),
-        QStringLiteral("CAD/表面测量"),
-        QStringLiteral("分析"),
-        QStringLiteral("报告"),
-        QStringLiteral("动画"),
-        QStringLiteral("窗口"),
-    }
 {
 }
 
-const QStringList& TabMap::tabNames() const
-{
-    return tabNames_;
-}
+//不管 tab 显示名字
+//只负责 tab index->QWidget 页面映射
+
+//tab 显示名字 RibbonPage::tabName()
 
 bool TabMap::isFileTab(int index) const
 {
@@ -32,7 +17,7 @@ bool TabMap::isFileTab(int index) const
 
 bool TabMap::isValidTab(int index) const
 {
-    return index >= TabIndex::File && index < TabIndex::Window;
+    return index >= TabIndex::File && index < TabIndex::Count;
 }
 
 void TabMap::bindTabPage(int index, QWidget* page)

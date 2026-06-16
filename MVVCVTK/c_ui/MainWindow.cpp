@@ -113,6 +113,7 @@ void CTViewer::buildTheMiddle()
     v->setSpacing(0);
 
     buildRibbonStack(totalContainer, v);
+    buildRibbonTabs();
     buildContentStack(totalContainer, v);
 
     setCentralWidget(totalContainer);
@@ -240,15 +241,27 @@ void CTViewer::buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBar
         "QTabBar#mainRibbonTabBar::tab:selected{background-color:#333333;}"
         "QTabBar#mainRibbonTabBar::tab:hover{background-color:#2a2a2a;}"));
 
-    //填充标签名称
-	const QStringList tabNames = tabMap_->tabNames();
-          
-    for (auto name : tabNames) {
-        tabBar_->addTab(name);
+    topBarLayout->addWidget(tabBar_);
+}
+
+void CTViewer::buildRibbonTabs()
+{
+    if (!tabBar_ || !ribbonPageRegister_) {
+        return;
+    }
+    
+    while (tabBar_->count() > 0)
+    {
+        tabBar_->removeTab(0);
+    }
+
+    tabBar_->addTab(QStringLiteral("文件"));
+    
+    for (auto page : ribbonPageRegister_->pageslist() ) {
+        tabBar_->addTab(page->tabName());
     }
 
     tabBar_->setCurrentIndex(TabIndex::File);
-    topBarLayout->addWidget(tabBar_);
 }
 
 void CTViewer::connectWindowButtonSignals() {
@@ -281,6 +294,10 @@ void CTViewer::connectWindowButtonSignals() {
 
 void CTViewer::setRibbonPage(RibbonPage* page)
 {
+    if (!page || !stack_ || !ribbonPageRegister_ || !tabMap_) {
+        return;
+    }
+
     stack_->addWidget(page);
     ribbonPageRegister_->add(page);
     tabMap_->bindTabPage(page->tabIndex(), page);

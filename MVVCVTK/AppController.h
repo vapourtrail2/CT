@@ -15,7 +15,7 @@
 //把这次会话交给各个页面
 struct AppSession
 {
-    std::shared_ptr<AbstractDataManager> dataMgr;//用抽象接口
+    std::shared_ptr<AbstractDataManager> dataMgr;// 用抽象接口
     std::shared_ptr<SharedStateBroadcaster> sharedStateBroadcaster;
     std::shared_ptr<SharedInteractionState> sharedState; // ban makeshare
     std::shared_ptr<VolumeAnalysisService> analysisService; // std::function<void(bool)> 

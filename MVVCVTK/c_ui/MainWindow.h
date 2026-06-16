@@ -61,6 +61,7 @@ private:
 
     void buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
+    void buildRibbonTabs();
     void connectWindowButtonSignals();
 
     void buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout);
@@ -122,7 +123,6 @@ private:
     QPointer<CADAndThen> pageCAD_;
     QPointer<AnalysisPage> pageAnalysis_;
     QPointer<WindowPage> pageWindow_;
-    QPointer<QWidget> pageGauge_;
     QPointer<ReportPage> pageReport_;
     QPointer<AnimationPage> pageAnimation_;
     QPointer<QStackedWidget> stack_;

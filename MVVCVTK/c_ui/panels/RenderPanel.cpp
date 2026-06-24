@@ -16,6 +16,7 @@
 
 #include "AppController.h"
 #include "Service/VolumeAnalysisService.h"
+#include "c_ui/contextarea/WorkSpaceUIState.h"
 
 static inline double clamp01(double v)
 {
@@ -195,7 +196,9 @@ RenderPanel::RenderPanel(QWidget* parent)
         const auto mode = static_cast<VizMode>(renderMode_->itemData(index).toInt());
         state_->SetElementVisible(VisFlags::Ruler, false);
         rulerAxesToggle_->setChecked(false);
-		emit primary3DModeRequested(mode);
+        if (workSpaceUISpace_) {
+            workSpaceUISpace_->setPrimary3DMode(mode);
+        }
     });
 
     connect(clipPlanesToggle_, &QCheckBox::toggled, this, [this](bool checked) {
@@ -236,10 +239,17 @@ void RenderPanel::setSession(const std::shared_ptr<AppSession>& session)
     setSharedState(session->sharedState,session->sharedStateBroadcaster);
 }
 
+void RenderPanel::setWorkSpaceUIState(WorkSpaceUIState* state)
+{
+    workSpaceUISpace_ = state;
+}
+
 void RenderPanel::setAnalysisService(const std::shared_ptr<VolumeAnalysisService>& analysis)
 {
     analysis_ = analysis;
 }
+
+
 
 void RenderPanel::setSharedState(const std::shared_ptr<SharedInteractionState>& state,
                                  const std::shared_ptr<SharedStateBroadcaster>& broadcaster)

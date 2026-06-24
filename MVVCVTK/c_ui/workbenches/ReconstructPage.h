@@ -21,8 +21,9 @@ public:
         std::shared_ptr<AbstractDataManager> data,
         std::shared_ptr<SharedInteractionState> state,
         std::shared_ptr<SharedStateBroadcaster> broadcaster);
+    void setPrimary3DMode(VizMode mode);
     /*void setToolMode(ToolMode mode);*/
-	void setPrimary3DMode(VizMode mode);
+
     bool saveSliceStackAsync(
         const QString& outputDir,
         VizMode sliceMode,

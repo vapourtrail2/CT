@@ -21,6 +21,7 @@
 #include "c_ui/nav/WorkspaceFlow.h"
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
+#include "c_ui/contextarea/WorkSpaceUIState.h"
 
 #include <qwindow.h>
 #include <QApplication>
@@ -125,12 +126,9 @@ void CTViewer::buildTheMiddle()
 void CTViewer::wireConnect() {
     connectTabSignals();
     connectDocumentSignals();
-    connectReconSignals();
-    connectDistanceSignals();
-	connectAngelSignals();
+    connectStartSignals();
     connectAppSignals();
     connectWindowButtonSignals();
-    connectRenderSwitchSignals();
 }
 
 void CTViewer::buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout) 
@@ -385,7 +383,7 @@ void CTViewer::buildEmptyPage() {
 void CTViewer::applyInitialUiState() {
     if (stack_) {
         stack_->setCurrentWidget(whatEmpty_);
-        // 文件页启动时隐藏顶部图标栏，并清零高度避免首帧占位
+        // 文件页启动时隐藏顶部图标栏，并清零高
         stack_->setFixedHeight(0);  
         stack_->setVisible(false);
     }
@@ -410,31 +408,43 @@ void CTViewer::connectDocumentSignals() {
     connect(pageDocument_, &DocumentPage::openRequested, this, &CTViewer::onOpenRequested);
 }
 
-void CTViewer::connectReconSignals() {
-    connect(pageStart_, &StartPagePage::ctReconRequested, this, [this]() {
-        openCtReconUi();
-        });
-
-    connect(pageStart_, &StartPagePage::sliceStackSaveRequested, this, [this]() {
-        showSaveSliceStackDialog();
-        });
-
-    connect(pageStart_, &StartPagePage::transformedDataSaveRequested, this, [this]() {
-        showSaveTransformedDataDialog();
-        });
+void CTViewer::connectStartSignals()
+{
+    connect(pageStart_, &StartPagePage::commandRequested, this, [this](CommandId command) {
+        dispatchCommand(command);
+    });
 }
 
-void CTViewer::connectDistanceSignals() {
+void CTViewer::dispatchCommand(CommandId command)
+{
+    switch (command)
+    {
+    case CommandId::openReconstruct:
+        //Reconstructworkflow
+        openCtReconUi();
+        break;
+    case CommandId::saveImage:  
+        //export workflow
+        showSaveTransformedDataDialog();
+        break;
+    case CommandId::saveImageSliceStack:
+        //export workflow
+        showSaveSliceStackDialog();
+        break;
+    }
+}
+
+//void CTViewer::connectDistanceSignals() {
   //  connect(pageStart_, &StartPagePage::distanceRequested, this, [this]() {
 		//if (mprViews_) mprViews_->setToolMode(ToolMode::DistanceMeasure); // 切换到距离测量工具
   //  });
-}
+//}
 
-void CTViewer::connectAngelSignals() {
+//void CTViewer::connectAngelSignals() {
     //connect(pageStart_, &StartPagePage::angleRequested, this, [this]() {
     //    if (mprViews_) mprViews_->setToolMode(ToolMode::AngleMeasure); // 切换到距离测量工具
     //    });
-}
+//}
 
 void CTViewer::connectAppSignals() {
     if (!appController_) {
@@ -447,14 +457,14 @@ void CTViewer::connectAppSignals() {
         });
 }
 
-void CTViewer::connectRenderSwitchSignals()
-{
-    connect(workspacePage_->getRenderPanel(), &RenderPanel::primary3DModeRequested, this, [this](VizMode mode) {
-        if (workspacePage_->getViewportPage()) {
-            workspacePage_->getViewportPage()->setPrimary3DMode(mode);
-        }
-        });
-}
+//void CTViewer::connectRenderSwitchSignals()
+//{
+//    connect(workspacePage_->getRenderPanel(),&WorkSpaceUIState::primary3DModeChanged, this, [this](VizMode mode) {
+//        if (primary3DMode_) {
+//            workspacePage_->getViewportPage()->setPrimary3DMode(mode);
+//        }
+//        });
+//}
 
 //架构优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
 UiState CTViewer::buildUiState(int index) const{
@@ -516,6 +526,8 @@ void CTViewer::applyUiState(const UiState& state) {
         break;
     }
 }
+
+
 
 void CTViewer::onTabChanged(int index) {
     const UiState state = buildUiState(index);

@@ -8,6 +8,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
+
 ReconstructPage::ReconstructPage(QWidget* parent)
     : QWidget(parent)
 {
@@ -127,6 +128,23 @@ void ReconstructPage::initWithData(
     refreshViews();
 }
 
+
+void ReconstructPage::setPrimary3DMode(VizMode mode)
+{
+    if (mode != VizMode::CompositeVolume
+        && mode != VizMode::CompositeIsoSurface) {
+        return;
+    }
+
+    m_current3DMode = mode;
+
+    if (!m_svc3D || !m_ctx3D) {
+        return;
+    }
+
+    applyPrimary3DMode(mode);
+}
+
 void ReconstructPage::refreshViews()
 {
     if (m_svcAxial) m_svcAxial->SetPendingUpdatesProcessed();
@@ -152,20 +170,9 @@ void ReconstructPage::refreshViews()
 //		m_ctxSagittal->SetToolMode(mode);
 //}
 
-void ReconstructPage::setPrimary3DMode(VizMode mode)
-{
-    if (mode != VizMode::CompositeVolume && mode != VizMode::CompositeIsoSurface) {
-        return;
-    }
 
-	m_current3DMode = mode;
-    
-    if (!m_svc3D || !m_ctx3D) {
-		return;
-    }
 
-    applyPrimary3DMode(mode);
-}
+
 
 bool ReconstructPage::saveSliceStackAsync(
     const QString& outputDir,

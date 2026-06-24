@@ -5,9 +5,9 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QIcon>
-#include <QDebug>
 #include <QFile>
 #include "c_ui/ribbon/RibbonPage.h"
+#include "c_ui/comandid/CommandId.h"
 
 class QToolButton;
 
@@ -20,11 +20,9 @@ public:
 	QString tabName() const override;
 
 signals:
-	void distanceRequested();
-	void angleRequested();
-	void ctReconRequested();
-    void sliceStackSaveRequested();
-	void transformedDataSaveRequested();
+	//void distanceRequested();
+	//void angleRequested();
+	void commandRequested(CommandId command);
 
 private:
 	QWidget* buildRibbon01(QWidget* parent);

@@ -2,6 +2,8 @@
 #include "c_ui/workbenches/ReconstructPage.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
+#include "c_ui/contextarea/WorkSpaceUIState.h"
+
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -42,11 +44,18 @@ void WorkspacePage::buildUi() {
     rightSplit_->setStretchFactor(1, 1);
     rightSplit_->setSizes({ 520, 260 });
 
+    workSpaceUIState_ = new WorkSpaceUIState(this);
+    renderPanel_->setWorkSpaceUIState(workSpaceUIState_);
+    connect(workSpaceUIState_, &WorkSpaceUIState::primary3DModeChanged, viewportPage_, &ReconstructPage::setPrimary3DMode);
+    
+    viewportPage_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
     //°²×°
     workspaceSplit_->addWidget(viewportPage_);
     workspaceSplit_->addWidget(rightSplit_);
     workspaceSplit_->setStretchFactor(0, 50);
     workspaceSplit_->setStretchFactor(1, 3);
+
+    
 }
 
 ReconstructPage* WorkspacePage::getViewportPage() const

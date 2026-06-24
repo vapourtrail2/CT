@@ -105,14 +105,14 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
 
         if (action.text == QStringLiteral("距离")) {
             connect(button, &QToolButton::clicked, this, [this]() {
-                emit distanceRequested();
-                });
+               /* emit distanceRequested();*/
+               });
         }
 
         if (action.text == QStringLiteral("角度(3个点)")) {
             connect(button, &QToolButton::clicked, this, [this]() {
-                emit angleRequested();
-                });
+               /* emit angleRequested();*/
+               });
         }
 
         if (action.hasMenu == 1) {  
@@ -129,7 +129,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("CT重建"));
 
             connect(actCtRecon, &QAction::triggered, this, [this]() {
-                emit ctReconRequested();
+                emit commandRequested(CommandId::openReconstruct);
                 });
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
@@ -190,7 +190,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("保存图像"));
 
             connect(actSaveTransformedData, &QAction::triggered, this, [this]() {
-                emit transformedDataSaveRequested();
+                emit commandRequested(CommandId::saveImage);
                 });
 
             auto* actSaveSliceStack = menu02->addAction(
@@ -198,7 +198,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("保存影片/图像堆栈"));
 
             connect(actSaveSliceStack, &QAction::triggered, this, [this]() {
-                emit sliceStackSaveRequested();
+                emit commandRequested(CommandId::saveImageSliceStack);
                 });
             button->setMenu(menu02);
             button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单

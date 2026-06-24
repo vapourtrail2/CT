@@ -9,10 +9,11 @@
 #include <memory>
 
 #include "App/AppState.h"
-//#include "App/AppStateEvents.h"
+
 
 struct AppSession;
 class VolumeAnalysisService;
+class WorkSpaceUIState;
 
 class RenderPanel : public QWidget
 {
@@ -25,10 +26,7 @@ public:
     void setSharedState(const std::shared_ptr<SharedInteractionState>& state,
                         const std::shared_ptr<SharedStateBroadcaster>& broadcaster);//是否需要分开 分开成两个函数
     void setAnalysisService(const std::shared_ptr<VolumeAnalysisService>& analysis);
-	/*void setToolMode(const QString& mode); */
-
-signals:
-    void primary3DModeRequested(VizMode mode);
+    void setWorkSpaceUIState(WorkSpaceUIState* state);
 
 protected:
     void resizeEvent(QResizeEvent* e) override;
@@ -73,4 +71,6 @@ private:
 
     QString histCachePath_;
     QPixmap histPixmap_;
+
+    WorkSpaceUIState* workSpaceUISpace_ = nullptr;
 };

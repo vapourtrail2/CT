@@ -7,6 +7,7 @@ class QSplitter;
 class ReconstructPage;
 class SceneTreePanel;
 class RenderPanel;
+class WorkSpaceUIState;
 
 class WorkspacePage : public QWidget {
 	Q_OBJECT
@@ -26,4 +27,5 @@ private:
 	QPointer<ReconstructPage> viewportPage_;
 	QPointer<SceneTreePanel> sceneTreePanel_;
 	QPointer<RenderPanel> renderPanel_;
+	QPointer<WorkSpaceUIState> workSpaceUIState_;
 };

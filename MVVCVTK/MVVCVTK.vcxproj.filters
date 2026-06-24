@@ -90,6 +90,9 @@
     <Filter Include="c_ui\ribbon">
       <UniqueIdentifier>{c40fa0e1-d38b-48e9-857b-d37381c60db0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\commands">
+      <UniqueIdentifier>{492d76d5-1dd8-43d2-8815-eb80575ef09c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">
@@ -254,6 +257,9 @@
     <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h">
       <Filter>c_ui\ribbon</Filter>
     </ClInclude>
+    <ClInclude Include="c_ui\comandid\CommandId.h">
+      <Filter>c_ui\commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\main.cpp">
@@ -382,6 +388,9 @@
     <ClCompile Include="c_ui\ribbon\RibbonPageRegister.cpp">
       <Filter>c_ui\ribbon</Filter>
     </ClCompile>
+    <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp">
+      <Filter>c_ui\workspace</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="c_ui\MainWindow.h">
@@ -446,6 +455,9 @@
     </QtMoc>
     <QtMoc Include="c_ui\ribbon\RibbonPage.h">
       <Filter>c_ui\ribbon</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h">
+      <Filter>c_ui\workspace</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

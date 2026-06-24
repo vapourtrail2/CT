@@ -12,6 +12,7 @@
 #include <QDoubleSpinBox>
 #include "c_ui/workbenches/ReconstructPage.h"
 #include "c_ui/nav/UIState.h"
+#include "c_ui/comandid/CommandId.h"
 
 class QVBoxLayout;
 class DocumentPage;
@@ -72,12 +73,17 @@ private:
 
     void connectTabSignals();
     void connectDocumentSignals();
-    void connectReconSignals();
-    void connectDistanceSignals();
-    void connectAngelSignals();
+    
+    void connectStartSignals();
+ 
+    //void connectDistanceSignals();
+    //void connectAngelSignals();
     void connectAppSignals();
-    void connectRenderSwitchSignals();
+    //void connectRenderSwitchSignals();
     void handleSessionChanged(const std::shared_ptr<AppSession>& session);
+
+    //分类
+    void dispatchCommand(CommandId command);
 
     void onTabChanged(int index);
     void onOpenRequested(const QString& path, 

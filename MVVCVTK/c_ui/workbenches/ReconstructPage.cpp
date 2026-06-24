@@ -142,7 +142,13 @@ void ReconstructPage::setPrimary3DMode(VizMode mode)
         return;
     }
 
-    applyPrimary3DMode(mode);
+    m_svc3D->SetVizMode(m_current3DMode);
+    m_ctx3D->SetCameraStyleByVizMode(m_current3DMode);
+
+    request3DRebuildFromCurrentImage();
+
+    m_svc3D->SetPendingUpdatesProcessed();
+    m_ctx3D->SetRendered();
 }
 
 void ReconstructPage::refreshViews()
@@ -157,21 +163,6 @@ void ReconstructPage::refreshViews()
     if (m_ctxSagittal) m_ctxSagittal->SetRendered();
     if (m_ctx3D) m_ctx3D->SetRendered();
 }
-
-//void ReconstructPage::setToolMode(ToolMode mode)
-//{
-//    if (m_ctxAxial)
-//        m_ctxAxial->SetToolMode(mode);
-//
-//    if (m_ctxCoronal)
-//		m_ctxCoronal->SetToolMode(mode);
-//
-//	if (m_ctxSagittal)
-//		m_ctxSagittal->SetToolMode(mode);
-//}
-
-
-
 
 
 bool ReconstructPage::saveSliceStackAsync(
@@ -229,16 +220,7 @@ bool ReconstructPage::saveTransformedDataAsync(const QString& outputPath, std::f
     return true;
 }
 
-void ReconstructPage::applyPrimary3DMode(VizMode mode)
-{   
-    m_svc3D->SetVizMode(mode);
-    m_ctx3D->SetCameraStyleByVizMode(mode);
 
-    request3DRebuildFromCurrentImage();
-
-    m_svc3D->SetPendingUpdatesProcessed();
-    m_ctx3D->SetRendered();
-}
 
 void ReconstructPage::request3DRebuildFromCurrentImage()
 {

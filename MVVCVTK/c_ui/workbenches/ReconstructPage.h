@@ -39,7 +39,7 @@ private:
     void buildUi();
     void refreshViews();
 
-    void applyPrimary3DMode(VizMode mode);
+   /* void applyPrimary3DMode(VizMode mode);*/
     void request3DRebuildFromCurrentImage();
         
     QPointer<QWidget> viewAxial_;

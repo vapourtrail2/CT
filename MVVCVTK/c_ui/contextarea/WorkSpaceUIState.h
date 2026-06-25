@@ -16,7 +16,6 @@ public:
 signals:
 	void primary3DModeChanged(VizMode mode);
 
-
 private:
 	VizMode primary3DMode_ = VizMode::CompositeIsoSurface;
 };

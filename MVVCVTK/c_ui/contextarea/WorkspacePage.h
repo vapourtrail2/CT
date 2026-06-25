@@ -1,7 +1,13 @@
 #pragma once
 
-#include <QWidget>
+#include "App/AppTypes.h"
+#include <functional>
+#include <memory>
 #include <QPointer>
+#include <QString>
+#include <QWidget>
+
+struct AppSession;
 
 class QSplitter;
 class ReconstructPage;
@@ -17,6 +23,21 @@ public:
 	ReconstructPage* getViewportPage() const;//getter
 	SceneTreePanel* getSceneTreePanel() const;
 	RenderPanel* getRenderPanel() const;
+
+	bool bindSession(const std::shared_ptr<AppSession>& session,
+		QString* err = nullptr);
+
+	bool saveSliceStackAsync(
+		const QString& outputDir,
+		VizMode sliceMode,
+		const double& angle,
+		std::function<void(bool)> onComplete = nullptr);
+
+	bool saveTransformedDataAsync(
+		const QString& outputPath,
+		std::function<void(bool)> onComplete = nullptr);
+
+
 
 private:
 	void buildUi();	

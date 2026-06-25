@@ -1,69 +1,69 @@
-﻿#include "c_ui/MainWindow.h"
-#include "c_ui/workbenches/DocumentPage.h"
-#include "c_ui/workbenches/StartPage.h"
-#include "c_ui/workbenches/EditPage.h"
-#include "c_ui/workbenches/VolumePage.h"
-#include "c_ui/workbenches/SelectPage.h"
-#include "c_ui/workbenches/AlignmentPage.h"
-#include "c_ui/workbenches/GeometryPage.h"
-#include "c_ui/workbenches/MeasurePage.h"
-#include "c_ui/workbenches/CADAndThen.h"
-#include "c_ui/workbenches/AnalysisPage.h"
-#include "c_ui/workbenches/ReportPage.h"
-#include "c_ui/workbenches/WindowPage.h"
-#include "c_ui/workbenches/AnimationPage.h"
-#include "c_ui/workbenches/ReconstructPage.h"
+﻿#include "AppController.h"
 #include "c_ui/contextarea/WorkspacePage.h"
-#include "AppController.h"
-#include "c_ui/panels/RenderPanel.h"
-#include "c_ui/panels/SceneTreePanel.h"
+#include "c_ui/contextarea/WorkSpaceUIState.h"
+#include "c_ui/MainWindow.h"
 #include "c_ui/nav/TabMap.h"
 #include "c_ui/nav/WorkspaceFlow.h"
+#include "c_ui/panels/RenderPanel.h"
+#include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
-#include "c_ui/contextarea/WorkSpaceUIState.h"
+#include "c_ui/workbenches/AlignmentPage.h"
+#include "c_ui/workbenches/AnalysisPage.h"
+#include "c_ui/workbenches/AnimationPage.h"
+#include "c_ui/workbenches/CADAndThen.h"
+#include "c_ui/workbenches/DocumentPage.h"
+#include "c_ui/workbenches/EditPage.h"
+#include "c_ui/workbenches/GeometryPage.h"
+#include "c_ui/workbenches/MeasurePage.h"
+#include "c_ui/workbenches/ReconstructPage.h"
+#include "c_ui/workbenches/ReportPage.h"
+#include "c_ui/workbenches/SelectPage.h"
+#include "c_ui/workbenches/StartPage.h"
+#include "c_ui/workbenches/VolumePage.h"
+#include "c_ui/workbenches/WindowPage.h"
 
-#include <qwindow.h>
-#include <QApplication>
-#include <QSize>
-#include <QStackedWidget>
-#include <QVBoxLayout>
-#include <QToolButton>
-#include <QLabel>
-#include <QStyle>
-#include <QStatusBar>
-#include <QMouseEvent>
-#include <array>
 #include <algorithm>
-#include <QEvent>
-#include <QStringList>
-#include <QGuiApplication>
-#include <QScreen>
-#include <QHBoxLayout>  
-#include <QWidget>      
-#include <QSizePolicy>  
-#include <QRect>        
-#include <QDebug>
+#include <array>
+#include <QApplication>
 #include <QComboBox>
+#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QEvent>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QGuiApplication>
+#include <QHBoxLayout>  
+#include <QLabel>
 #include <QMessageBox>
+#include <QMetaObject>
+#include <QMouseEvent>
 #include <QPointer>
 #include <QProgressDialog>
-#include <QMetaObject>
+#include <QRect>        
+#include <QScreen>
+#include <QSize>
+#include <QSizePolicy>  
+#include <QStackedWidget>
+#include <QStatusBar>
+#include <QStringList>
+#include <QStyle>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>      
+#include <qwindow.h>
 
 #include <QVTKOpenGLNativeWidget.h>
+#include <vtkActor.h>
+#include <vtkAutoInit.h>
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkOpenGLGPUVolumeRayCastMapper.h>
-#include <vtkAutoInit.h>
 
 VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
 
@@ -528,7 +528,6 @@ void CTViewer::applyUiState(const UiState& state) {
 }
 
 
-
 void CTViewer::onTabChanged(int index) {
     const UiState state = buildUiState(index);
     applyUiState(state);
@@ -564,7 +563,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& s
 //保存切片
 void CTViewer::showSaveSliceStackDialog()
 {
-    if (!workspacePage_->getViewportPage() || !workspaceFlow_ || !workspaceFlow_->hasData()) {
+    if (!workspacePage_ || !workspaceFlow_ ||!workspaceFlow_->hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像堆栈"), QStringLiteral("请先加载数据。"));
         return;
     }
@@ -627,7 +626,7 @@ void CTViewer::showSaveSliceStackDialog()
         QPointer<QLabel> statusPtr(statusLabel);
         QPointer<QPushButton> saveButtonPtr(saveButton);
 
-        const bool started = workspacePage_->getViewportPage()->saveSliceStackAsync(
+        const bool started = workspacePage_->saveSliceStackAsync(
             dir,
             mode,
             angleValue,
@@ -687,7 +686,7 @@ void CTViewer::showSaveTransformedDataDialog()
 
     QPointer<CTViewer> self(this);
 
-    const bool started = workspacePage_->getViewportPage()->saveTransformedDataAsync(
+    const bool started = workspacePage_->saveTransformedDataAsync(
         path,
         [this,self](bool ok) {
             QMetaObject::invokeMethod(qApp, [this,self, ok]() {
@@ -740,12 +739,9 @@ void CTViewer::setCloseProgressDialog()
     ProgressDialog_.clear();
 }
 
-
-
-
 void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
 {
-    if (!workspaceFlow_) {
+    if (!workspacePage_) {
         return;
     }
 
@@ -763,9 +759,7 @@ void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
     }
 
     QString err;
-    const bool ok = workspaceFlow_->bindSession(
-        workspacePage_->getViewportPage(), workspacePage_->getSceneTreePanel(), workspacePage_->getRenderPanel(), &err
-    );
+    const bool ok = workspacePage_->bindSession(session, &err);
 
     if (!ok) {
         if (ProgressDialog_) {

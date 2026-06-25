@@ -72,7 +72,7 @@ private:
         View3D
     };
 
-    QGridLayout* m_viewGrid = nullptr;
+    QGridLayout* m_viewGrid = nullptr;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 
     QPointer<QWidget> viewAxialContainer_;
     QPointer<QWidget> viewSagittalContainer_;

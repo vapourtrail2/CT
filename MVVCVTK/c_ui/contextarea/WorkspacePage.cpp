@@ -3,7 +3,7 @@
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
-
+#include "AppController.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -14,7 +14,6 @@ WorkspacePage::WorkspacePage(QWidget* parent)
 {
 	buildUi();
 }
-
 
 void WorkspacePage::buildUi() {
     auto root = new QVBoxLayout(this);
@@ -54,8 +53,6 @@ void WorkspacePage::buildUi() {
     workspaceSplit_->addWidget(rightSplit_);
     workspaceSplit_->setStretchFactor(0, 50);
     workspaceSplit_->setStretchFactor(1, 3);
-
-    
 }
 
 ReconstructPage* WorkspacePage::getViewportPage() const
@@ -73,5 +70,50 @@ RenderPanel* WorkspacePage::getRenderPanel() const
     return renderPanel_;
 }
 
+bool WorkspacePage::bindSession(const std::shared_ptr<AppSession>& session, QString* err)
+{
+    if (!session || !session->dataMgr || !session->sharedState) {
+        if (err) {
+            *err = QStringLiteral("Invalid session.");
+        }
+        return false;
+    }
+
+    if (viewportPage_) {
+        viewportPage_->initWithData(
+            session->dataMgr,
+            session->sharedState,
+            session->sharedStateBroadcaster);
+    }
+
+    if (sceneTreePanel_) {
+        sceneTreePanel_->setSession(
+            session->dataMgr,
+            session->sharedState,
+            session->sharedStateBroadcaster,
+            session->sourcePath);
+    }
+
+    if (renderPanel_) {
+        renderPanel_->setSession(session);
+    }
+    return true;
+}
+
+bool WorkspacePage::saveSliceStackAsync(
+    const QString& outputDir,
+    VizMode sliceMode,
+    const double& angle,
+    std::function<void(bool)> onComplete)    
+{
+    return viewportPage_->saveSliceStackAsync(outputDir, sliceMode, angle, std::move(onComplete));
+}
+
+bool WorkspacePage::saveTransformedDataAsync(
+    const QString& outputPath,
+    std::function<void(bool)> onComplete) 
+{
+    return viewportPage_->saveTransformedDataAsync(outputPath, std::move(onComplete));
+}
 
 

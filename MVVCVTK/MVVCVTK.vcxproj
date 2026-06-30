@@ -219,9 +219,10 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h" />
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h" />
     <QtMoc Include="c_ui\ribbon\RibbonPage.h" />
-    <ClInclude Include="c_ui\comandid\CommandId.h" />
     <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h" />
+    <ClInclude Include="c_ui\command\commands.h" />
     <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h" />
+    <QtMoc Include="c_ui\windows\Titlebar.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="c_ui\app\app.h" />
     <QtMoc Include="c_ui\MainWindow.h" />
@@ -281,12 +282,15 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp" />
     <ClCompile Include="c_ui\main.cpp" />
     <ClCompile Include="c_ui\MainWindow.cpp" />
+    <ClInclude Include="c_ui\window\TitleBar.h" />
+    <ClInclude Include="c_ui\window\TitleBar.cpp" />
     <ClCompile Include="c_ui\nav\TabMap.cpp" />
     <ClCompile Include="c_ui\nav\WorkspaceFlow.cpp" />
     <ClCompile Include="c_ui\panels\RenderPanel.cpp" />
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
     <ClCompile Include="c_ui\qt\QtRenderContext.cpp" />
     <ClCompile Include="c_ui\ribbon\RibbonPageRegister.cpp" />
+    <ClCompile Include="c_ui\windows\TitleBar.cpp" />
     <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp" />
     <ClCompile Include="c_ui\workbenches\AnalysisPage.cpp" />
     <ClCompile Include="c_ui\workbenches\AnimationPage.cpp" />

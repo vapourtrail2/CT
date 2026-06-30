@@ -22,6 +22,7 @@
 #include "c_ui/workbenches/StartPage.h"
 #include "c_ui/workbenches/VolumePage.h"
 #include "c_ui/workbenches/WindowPage.h"
+#include "c_ui/windows/Titlebar.h"
 
 #include <algorithm>
 #include <array>
@@ -67,7 +68,6 @@
 
 VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
 
-// 构造函数
 CTViewer::CTViewer(QWidget* parent)
     : QMainWindow(parent)
 {
@@ -78,11 +78,12 @@ CTViewer::CTViewer(QWidget* parent)
         "QMainWindow{background-color:#121212;}"
         "QMenuBar, QStatusBar{background-color:#1a1a1a; color:#e0e0e0;}"));
 
-    tabMap_ = std::make_unique<TabMap>();//这行的作用是创建一个TabMap对象，并将其指针存储在tabMap_成员变量中。TabMap可能是一个用于管理应用程序中不同标签页或视图的类，负责协调标签页之间的切换和状态管理。通过使用std::make_unique，可以确保tabMap_拥有TabMap对象的所有权，并且在CTViewer对象销毁时会自动释放内存，避免内存泄漏。
+    tabMap_ = std::make_unique<TabMap>();
 
     //结构 
     buildTheTop();
-    buildTheMiddle();  
+    buildTheMiddle(); 
+    setCommands();
     wireConnect();     
 }
 
@@ -128,101 +129,12 @@ void CTViewer::wireConnect() {
     connectDocumentSignals();
     connectStartSignals();
     connectAppSignals();
-    connectWindowButtonSignals();
 }
 
 void CTViewer::buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout) 
 {
-    titleBar_ = new QWidget(topBarContainer);
-    titleBar_->setAttribute(Qt::WA_StyledBackground, true);
-    titleBar_->setObjectName(QStringLiteral("customTitleBar"));
-    titleBar_->setFixedHeight(38);
-    titleBar_->setStyleSheet(QStringLiteral(
-        "QWidget#customTitleBar{background-color:#202020;}"
-        "QToolButton{background:transparent; border:none; color:#f5f5f5; padding:6px;}"
-        "QToolButton:hover{background-color:rgba(255,255,255,0.12);}"
-        "QLabel#titleLabel{color:#f5f5f5; font-size:14px; font-weight:600;}"));
-
-    auto* barLayout = new QHBoxLayout(titleBar_);
-    barLayout->setContentsMargins(0, 0, 0, 0);
-    barLayout->setSpacing(0);
-
-    // 左侧撤回/前进按钮
-    /*titleLeftArea_ = new QWidget(titleBar_);
-    auto* leftLayout = new QHBoxLayout(titleLeftArea_);
-    leftLayout->setContentsMargins(0, 0, 0, 0);
-    leftLayout->setSpacing(6);
-
-    btnTitleUndo_ = new QToolButton(titleLeftArea_);
-    btnTitleUndo_->setToolTip(QStringLiteral("撤回"));
-    btnTitleUndo_->setCursor(Qt::PointingHandCursor);
-    btnTitleUndo_->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
-    btnTitleUndo_->setAutoRaise(true);
-    leftLayout->addWidget(btnTitleUndo_);
-
-    btnTitleUndo02_ = new QToolButton(titleLeftArea_);
-    btnTitleUndo02_->setToolTip(QStringLiteral("前进"));
-    btnTitleUndo02_->setCursor(Qt::PointingHandCursor);
-    btnTitleUndo02_->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
-    btnTitleUndo02_->setAutoRaise(true);
-    leftLayout->addWidget(btnTitleUndo02_);
-
-    titleLeftArea_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-    titleLeftArea_->installEventFilter(this);
-    barLayout->addWidget(titleLeftArea_, 0);*/
-
-    //  中间标题 
-    /*titleCenterArea_ = new QWidget(titleBar_);
-    auto* centerLayout = new QHBoxLayout(titleCenterArea_);
-    centerLayout->setContentsMargins(0, 0, 0, 0);
-    titleLabel_ = new QLabel(windowTitle(), titleCenterArea_);
-    titleLabel_->setObjectName(QStringLiteral("titleLabel"));
-    titleLabel_->setAlignment(Qt::AlignCenter);
-    titleLabel_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    centerLayout->addWidget(titleLabel_);
-    titleCenterArea_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    titleCenterArea_->installEventFilter(this);
-    titleLabel_->installEventFilter(this);
-    barLayout->addWidget(titleCenterArea_, 1);*/
-
-    // 右侧控制按钮 
-    auto* rightContainer = new QWidget(titleBar_);
-    auto* rightLayout = new QHBoxLayout(rightContainer);
-    rightLayout->setContentsMargins(0, 0, 0, 0);
-    rightLayout->setSpacing(0);
-
-
-    const QString titleButtonStyle = QStringLiteral(
-        "QToolButton { background:transparent; border:none; padding:6px; color:#f5f5f5; border-radius:4px; }"
-        "QToolButton:hover { background-color:rgba(255,255,255,0.12); }"
-        "QToolButton:pressed { background-color:rgba(255,255,255,0.20); }");
-
-    auto makeBtn = [&](QPointer<QToolButton>& btn, const QString& text, const QString& tip) {
-        btn = new QToolButton(rightContainer);
-        btn->setToolTip(tip);
-        btn->setText(text);
-        btn->setCursor(Qt::PointingHandCursor);
-        btn->setFixedSize(32, 32);
-        btn->setStyleSheet(titleButtonStyle);
-        rightLayout->addWidget(btn);
-        };
-
-    makeBtn(btnMinimize_, QStringLiteral("—"), QStringLiteral("最小化"));
-    makeBtn(btnMaximize_, QString(QChar(0x2750)), QStringLiteral("最大化"));
-    makeBtn(btnClose_, QStringLiteral("×"), QStringLiteral("关闭"));
-
-    QFont f = btnMaximize_->font();
-    f.setFamily(QStringLiteral("Segoe UI Symbol"));
-    btnMaximize_->setFont(f);
-    
-    barLayout->addStretch(0);
-    barLayout->addWidget(rightContainer, 0);
-
-    //拖动窗口
-	titleBar_->installEventFilter(this);
-    topBarLayout->addWidget(titleBar_);
-    
-	updateMaximizeButtonIcon();//这个函数的作用是根据当前窗口状态（最大化或正常）来更新最大化按钮的图标，使其在不同状态下显示不同的图标，以提供更好的用户体验。
+    auto* titleBar = new TitleBar(topBarContainer);
+    topBarLayout->addWidget(titleBar);
 }
 
 void CTViewer::buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout) {
@@ -260,34 +172,6 @@ void CTViewer::buildRibbonTabs()
     }
 
     tabBar_->setCurrentIndex(TabIndex::File);
-}
-
-void CTViewer::connectWindowButtonSignals() {
-    //连接最小最大关闭的按钮 
-    connect(btnMinimize_, &QToolButton::clicked, this, &CTViewer::showMinimized);
-    connect(btnMaximize_, &QToolButton::clicked, this, [this]() {
-        if (isMaximized()) {
-            showNormal();
-
-            if (QScreen* screen = windowHandle() ? windowHandle()->screen()
-                : QGuiApplication::primaryScreen()) {
-                QRect avail = screen->availableGeometry();
-                int w = avail.width() * 0.75;
-                int h = avail.height() * 0.75;
-
-                resize(w, h);
-                move(
-                    avail.x() + (avail.width() - w) / 2,
-                    avail.y() + (avail.height() - h) / 2
-                );
-            }
-        }
-        else {
-            showMaximized();
-        }
-        updateMaximizeButtonIcon();//点一下就要变换图标
-        });
-    connect(btnClose_, &QToolButton::clicked, this, &CTViewer::close);
 }
 
 void CTViewer::setRibbonPage(RibbonPage* page)
@@ -410,28 +294,23 @@ void CTViewer::connectDocumentSignals() {
 
 void CTViewer::connectStartSignals()
 {
-    connect(pageStart_, &StartPagePage::commandRequested, this, [this](CommandId command) {
-        dispatchCommand(command);
+    connect(pageStart_, &StartPagePage::commandRequested, this, [this](const QString& name) {
+        commands_.run(name);
     });
 }
 
-void CTViewer::dispatchCommand(CommandId command)
+void CTViewer::setCommands()
 {
-    switch (command)
-    {
-    case CommandId::openReconstruct:
-        //Reconstructworkflow
+    //为什么不直接写函数
+    commands_.add(QStringLiteral("recon.open"), [this]() {
         openCtReconUi();
-        break;
-    case CommandId::saveImage:  
-        //export workflow
+        });
+    commands_.add(QStringLiteral("image.save"), [this]() {
         showSaveTransformedDataDialog();
-        break;
-    case CommandId::saveImageSliceStack:
-        //export workflow
+        });
+    commands_.add(QStringLiteral("slicestack.save"), [this]() {
         showSaveSliceStackDialog();
-        break;
-    }
+        });
 }
 
 //void CTViewer::connectDistanceSignals() {
@@ -824,76 +703,3 @@ void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
 
     applyUiState(buildUiState(tabBar_->currentIndex()));
 }
-
-
-bool CTViewer::eventFilter(QObject* watched, QEvent* event)//实现标题栏拖动
-{
-    if (!event) return false;
-    bool titleArea = (watched == titleBar_.data()
-        || watched == titleLeftArea_.data()
-        || watched == titleCenterArea_.data()
-        || watched == titleLabel_.data());
-
-    if (titleArea) {
-        switch (event->type()) {
-        case QEvent::MouseButtonPress: {
-            auto* e = static_cast<QMouseEvent*>(event);
-            if (e->button() == Qt::LeftButton) {
-                draggingWindow_ = true;
-                dragOffset_ = e->globalPos() - frameGeometry().topLeft();
-                return true;
-            }
-            break;
-        }
-        case QEvent::MouseMove: {
-            if (draggingWindow_) {
-                auto* e = static_cast<QMouseEvent*>(event);
-                move(e->globalPos() - dragOffset_);
-                return true;
-            }
-            break;
-        }
-        case QEvent::MouseButtonRelease:
-            draggingWindow_ = false;
-            break;
-        case QEvent::MouseButtonDblClick:
-            draggingWindow_ = false;
-            if (isMaximized()) showNormal();
-            else showMaximized();
-            updateMaximizeButtonIcon();
-            return true;
-        default: break;
-        }
-    }
-    return QMainWindow::eventFilter(watched, event);
-}
-
-void CTViewer::updateMaximizeButtonIcon()
-{
-    if (!btnMaximize_) return;
-
-    // 确保字体里有符号
-    QFont f = btnMaximize_->font();
-    f.setFamily(QStringLiteral("Segoe UI Symbol"));
-    btnMaximize_->setFont(f);
-
-    if (isMaximized()) {
-        btnMaximize_->setText(QString(QChar(0x2750)));
-        btnMaximize_->setToolTip(QStringLiteral("还原"));
-    }
-    else {
-        btnMaximize_->setText(QStringLiteral("□"));
-        btnMaximize_->setToolTip(QStringLiteral("最大化"));
-    }
-    //btnMaximize_->setText(QStringLiteral("□"));
-}
-
-//void CTViewer::setDefaults() {
-//    // 在默认显示时把窗口定位到主屏幕的可用区域左上角，避免每次运行都要手动拖动窗口
-//    if (auto* screen = QGuiApplication::primaryScreen()) {
-//        const QRect availableGeometry = screen->availableGeometry();
-//        move(availableGeometry.topLeft());
-//    }
-//}
-
-

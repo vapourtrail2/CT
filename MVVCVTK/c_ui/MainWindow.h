@@ -12,10 +12,10 @@
 #include <QDoubleSpinBox>
 #include "c_ui/workbenches/ReconstructPage.h"
 #include "c_ui/nav/UIState.h"
-#include "c_ui/comandid/CommandId.h"
+#include "c_ui/command/Commands.h"
 
 class QVBoxLayout;
-class DocumentPage;
+class DocumentPage; 
 class StartPagePage;
 class EditPage;
 class VolumePage;
@@ -50,20 +50,15 @@ public:
     explicit CTViewer(QWidget* parent = nullptr);
     ~CTViewer();
 
-protected:
-    bool eventFilter(QObject* watched, QEvent* event) override;
-
 private:
     void buildTheTop();
     void buildTheMiddle();
     void wireConnect();
-    void updateMaximizeButtonIcon();
     void openCtReconUi();
 
     void buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTabs();
-    void connectWindowButtonSignals();
 
     void buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout);
     void buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayout);
@@ -73,49 +68,29 @@ private:
 
     void connectTabSignals();
     void connectDocumentSignals();
-    
     void connectStartSignals();
- 
-    //void connectDistanceSignals();
-    //void connectAngelSignals();
     void connectAppSignals();
-    //void connectRenderSwitchSignals();
     void handleSessionChanged(const std::shared_ptr<AppSession>& session);
 
-    //分类
-    void dispatchCommand(CommandId command);
+    void setCommands();
 
     void onTabChanged(int index);
+
     void onOpenRequested(const QString& path, 
         const std::array<float,3> & spacing,
         const std::array<float,3>& origin);
-
     void showSaveSliceStackDialog();
     void showSaveTransformedDataDialog();
 
     void setOpenProgressDialog(const QString& text, const QString& title);
     void setCloseProgressDialog();
-
     void setRibbonPage(RibbonPage* page);
 
 private:
-    bool draggingWindow_ = false;
-    QPoint dragOffset_;
-
-    QPointer<QWidget> titleBar_;
-    QPointer<QWidget> titleLeftArea_;
-    QPointer<QWidget> titleCenterArea_;
-
     QPointer<QWidget> whatEmpty_;
    
     QPointer<QWidget> emptyPage_;
 
-    QPointer<QLabel> titleLabel_;
-    QPointer<QToolButton> btnTitleUndo_;
-    QPointer<QToolButton> btnTitleUndo02_;
-    QPointer<QToolButton> btnMinimize_;
-    QPointer<QToolButton> btnMaximize_;
-    QPointer<QToolButton> btnClose_;
     QPointer<QTabBar> tabBar_;
 
     QPointer<DocumentPage> pageDocument_;
@@ -151,4 +126,6 @@ private:
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
 
     int iconHeight_ = 100;
+
+    Commands commands_;
 };

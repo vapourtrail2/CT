@@ -260,6 +260,9 @@
     <ClInclude Include="c_ui\comandid\CommandId.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
+    <ClInclude Include="c_ui\command\commands.h">
+      <Filter>c_ui\commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\main.cpp">

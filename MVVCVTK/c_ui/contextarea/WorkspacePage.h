@@ -37,8 +37,6 @@ public:
 		const QString& outputPath,
 		std::function<void(bool)> onComplete = nullptr);
 
-
-
 private:
 	void buildUi();	
 

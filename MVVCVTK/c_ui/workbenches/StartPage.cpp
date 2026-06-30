@@ -129,7 +129,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("CT重建"));
 
             connect(actCtRecon, &QAction::triggered, this, [this]() {
-                emit commandRequested(CommandId::openReconstruct);
+                emit commandRequested(QStringLiteral("recon.open"));
                 });
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
@@ -190,7 +190,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("保存图像"));
 
             connect(actSaveTransformedData, &QAction::triggered, this, [this]() {
-                emit commandRequested(CommandId::saveImage);
+                emit commandRequested(QStringLiteral("image.save"));
                 });
 
             auto* actSaveSliceStack = menu02->addAction(
@@ -198,7 +198,7 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
                 QStringLiteral("保存影片/图像堆栈"));
 
             connect(actSaveSliceStack, &QAction::triggered, this, [this]() {
-                emit commandRequested(CommandId::saveImageSliceStack);
+                emit commandRequested(QStringLiteral("slicestack.save"));
                 });
             button->setMenu(menu02);
             button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单

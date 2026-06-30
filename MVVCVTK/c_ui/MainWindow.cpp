@@ -127,7 +127,6 @@ void CTViewer::buildTheMiddle()
 void CTViewer::wireConnect() {
     connectTabSignals();
     connectDocumentSignals();
-    connectStartSignals();
     connectAppSignals();
 }
 
@@ -180,6 +179,10 @@ void CTViewer::setRibbonPage(RibbonPage* page)
         return;
     }
 
+    connect(page, &RibbonPage::commandRequested, this, [this](const QString& name) {
+        context_.getCommands().run(name);
+        });
+
     stack_->addWidget(page);
     ribbonPageRegister_->add(page);
     tabMap_->bindTabPage(page->tabIndex(), page);
@@ -195,41 +198,18 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
 	whatEmpty_ = new QWidget(stack_);
     stack_->addWidget(whatEmpty_);
 
-    pageStart_ = new StartPagePage(stack_);
-    setRibbonPage(pageStart_);
-	
-    pageEdit_ = new EditPage(stack_);
-    setRibbonPage(pageEdit_);
-
-    pageVolume_ = new VolumePage(stack_);
-    setRibbonPage(pageVolume_);
-
-    pageSelect_ = new SelectPage(stack_);
-    setRibbonPage(pageSelect_);
-
-    pageAlignment_ = new AlignmentPage(stack_);
-    setRibbonPage(pageAlignment_);
-
-    pageGeometry_ = new GeometryPage(stack_);
-    setRibbonPage(pageGeometry_);
-
-    pageMeasure_ = new MeasurePage(stack_);
-    setRibbonPage(pageMeasure_);
-
-    pageCAD_ = new CADAndThen(stack_);
-    setRibbonPage(pageCAD_);
-
-    pageAnalysis_ = new AnalysisPage(stack_);
-    setRibbonPage(pageAnalysis_);
-
-    pageReport_ = new ReportPage(stack_);
-    setRibbonPage(pageReport_);
-
-    pageAnimation_ = new AnimationPage(stack_);
-    setRibbonPage(pageAnimation_);
-
-    pageWindow_ = new WindowPage(stack_);
-    setRibbonPage(pageWindow_);
+    setRibbonPage(new StartPagePage(stack_));                                                      
+    setRibbonPage(new EditPage(stack_));
+    setRibbonPage(new VolumePage(stack_));
+    setRibbonPage(new SelectPage(stack_));
+    setRibbonPage(new AlignmentPage(stack_));
+    setRibbonPage(new GeometryPage(stack_));
+    setRibbonPage(new MeasurePage(stack_));
+    setRibbonPage(new CADAndThen(stack_));
+    setRibbonPage(new AnalysisPage(stack_));
+    setRibbonPage(new ReportPage(stack_));  
+    setRibbonPage(new AnimationPage(stack_));
+    setRibbonPage(new WindowPage(stack_));
 }
 
 void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
@@ -292,23 +272,17 @@ void CTViewer::connectDocumentSignals() {
     connect(pageDocument_, &DocumentPage::openRequested, this, &CTViewer::onOpenRequested);
 }
 
-void CTViewer::connectStartSignals()
-{
-    connect(pageStart_, &StartPagePage::commandRequested, this, [this](const QString& name) {
-        commands_.run(name);
-    });
-}
 
 void CTViewer::setCommands()
 {
     //为什么不直接写函数
-    commands_.add(QStringLiteral("recon.open"), [this]() {
+    context_.getCommands().add(QStringLiteral("recon.open"), [this]() {
         openCtReconUi();
         });
-    commands_.add(QStringLiteral("image.save"), [this]() {
+    context_.getCommands().add(QStringLiteral("image.save"), [this]() {
         showSaveTransformedDataDialog();
         });
-    commands_.add(QStringLiteral("slicestack.save"), [this]() {
+    context_.getCommands().add(QStringLiteral("slicestack.save"), [this]() {
         showSaveSliceStackDialog();
         });
 }

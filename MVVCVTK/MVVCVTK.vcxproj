@@ -221,6 +221,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\ribbon\RibbonPage.h" />
     <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h" />
     <ClInclude Include="c_ui\command\commands.h" />
+    <ClInclude Include="c_ui\context\AppContext.h" />
     <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h" />
     <QtMoc Include="c_ui\windows\Titlebar.h" />
     <ClInclude Include="resource.h" />

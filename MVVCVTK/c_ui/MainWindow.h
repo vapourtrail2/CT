@@ -12,7 +12,7 @@
 #include <QDoubleSpinBox>
 #include "c_ui/workbenches/ReconstructPage.h"
 #include "c_ui/nav/UIState.h"
-#include "c_ui/command/Commands.h"
+#include "c_ui/context/AppContext.h"
 
 class QVBoxLayout;
 class DocumentPage; 
@@ -68,7 +68,7 @@ private:
 
     void connectTabSignals();
     void connectDocumentSignals();
-    void connectStartSignals();
+
     void connectAppSignals();
     void handleSessionChanged(const std::shared_ptr<AppSession>& session);
 
@@ -94,18 +94,6 @@ private:
     QPointer<QTabBar> tabBar_;
 
     QPointer<DocumentPage> pageDocument_;
-    QPointer<StartPagePage> pageStart_;
-    QPointer<EditPage> pageEdit_;
-    QPointer<VolumePage> pageVolume_;
-    QPointer<SelectPage> pageSelect_;
-    QPointer<AlignmentPage> pageAlignment_;
-    QPointer<GeometryPage> pageGeometry_;
-    QPointer<MeasurePage> pageMeasure_;
-    QPointer<CADAndThen> pageCAD_;
-    QPointer<AnalysisPage> pageAnalysis_;
-    QPointer<WindowPage> pageWindow_;
-    QPointer<ReportPage> pageReport_;
-    QPointer<AnimationPage> pageAnimation_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;
 	QPointer<QtRenderContext> renderContext_;
@@ -127,5 +115,5 @@ private:
 
     int iconHeight_ = 100;
 
-    Commands commands_;
+    AppContext context_;
 };

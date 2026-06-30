@@ -13,4 +13,6 @@ public:
 
 	virtual int tabIndex() const = 0;
 	virtual QString tabName() const = 0;
+signals:
+	void commandRequested(const QString& name);
 };

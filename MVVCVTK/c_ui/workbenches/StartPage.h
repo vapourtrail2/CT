@@ -18,9 +18,6 @@ public:
 	int tabIndex() const override;
 	QString tabName() const override;
 
-signals:
-	void commandRequested(const QString& name);
-
 private:
 	QWidget* buildRibbon01(QWidget* parent);
 };

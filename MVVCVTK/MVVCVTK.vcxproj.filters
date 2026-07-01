@@ -93,6 +93,9 @@
     <Filter Include="c_ui\commands">
       <UniqueIdentifier>{492d76d5-1dd8-43d2-8815-eb80575ef09c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\window">
+      <UniqueIdentifier>{d74b5b1b-ed5e-4aa5-8d39-daa31ed1f132}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">
@@ -102,9 +105,6 @@
       <Filter>c_ui\nav</Filter>
     </ClInclude>
     <ClInclude Include="c_ui\nav\TabMap.h">
-      <Filter>c_ui\nav</Filter>
-    </ClInclude>
-    <ClInclude Include="c_ui\nav\WorkspaceFlow.h">
       <Filter>c_ui\nav</Filter>
     </ClInclude>
     <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
@@ -257,10 +257,13 @@
     <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h">
       <Filter>c_ui\ribbon</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\comandid\CommandId.h">
+    <ClInclude Include="c_ui\command\commands.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\command\commands.h">
+    <ClInclude Include="c_ui\context\AppContext.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\context\DataSet.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
   </ItemGroup>
@@ -334,9 +337,6 @@
     <ClCompile Include="c_ui\nav\TabMap.cpp">
       <Filter>c_ui\nav</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\nav\WorkspaceFlow.cpp">
-      <Filter>c_ui\nav</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\workbenches\ReconstructPage.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -393,6 +393,9 @@
     </ClCompile>
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp">
       <Filter>c_ui\workspace</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\windows\TitleBar.cpp">
+      <Filter>c_ui\window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -461,6 +464,9 @@
     </QtMoc>
     <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h">
       <Filter>c_ui\workspace</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\windows\Titlebar.h">
+      <Filter>c_ui\window</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

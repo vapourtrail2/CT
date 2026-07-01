@@ -99,13 +99,11 @@ private:
 	QPointer<QtRenderContext> renderContext_;
 
     std::unique_ptr<TabMap> tabMap_;
-    std::unique_ptr<WorkspaceFlow> workspaceFlow_;
 
     UiState buildUiState(int index) const;
     void applyUiState(const UiState& state);
 
     UIReconstruct3D* uiRecon3d_ = nullptr;  
-    QPointer<AppController> appController_;
 
     QPointer<QProgressDialog> ProgressDialog_;
     std::shared_ptr<void> loadNotifyToken_;//进度条   

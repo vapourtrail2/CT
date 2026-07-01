@@ -29,7 +29,7 @@ class AppController : public QObject
 public:
     explicit AppController(QObject* parent = nullptr);
 
-    std::shared_ptr<AppSession> session() const { return m_session; }
+    std::shared_ptr<AppSession> getSession() const { return m_session; }
 
     bool openFile(const QString& path,
         const std::array<float, 3>& spacing,

@@ -1,5 +1,6 @@
 #pragma once
 #include "c_ui/command/Commands.h"
+#include "AppController.h"
 
 // 应用中枢：被注入到各处的“唯一共享对象”。
 // 现在先持有命令表；后续会持有 Dataset（打开的数据）/ State 句柄等，
@@ -13,6 +14,23 @@ public:
 		return commands_;
 	}//什么意思
 
+	AppController& getAppController() {
+		return controller_;
+	}
+	const AppController& getAppController() const {
+		return controller_;
+	}
+
+	std::shared_ptr<AppSession> getSession() const {
+		return controller_.getSession();
+	}
+
+	bool hasData()	const {
+		const auto s = getSession();
+		return s && s->dataMgr && s->sharedState;
+	}
+	
 private:
 	Commands commands_;
+	AppController controller_;
 };

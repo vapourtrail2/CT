@@ -3,11 +3,11 @@
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
 #include "c_ui/nav/TabMap.h"
-#include "c_ui/nav/WorkspaceFlow.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
+#include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/AlignmentPage.h"
 #include "c_ui/workbenches/AnalysisPage.h"
 #include "c_ui/workbenches/AnimationPage.h"
@@ -22,7 +22,6 @@
 #include "c_ui/workbenches/StartPage.h"
 #include "c_ui/workbenches/VolumePage.h"
 #include "c_ui/workbenches/WindowPage.h"
-#include "c_ui/windows/Titlebar.h"
 
 #include <algorithm>
 #include <array>
@@ -119,8 +118,6 @@ void CTViewer::buildTheMiddle()
     buildContentStack(totalContainer, v);
 
     setCentralWidget(totalContainer);
-	appController_ = new AppController(this);//持有当前打开数据的整套会话对象，
-	workspaceFlow_ = std::make_unique<WorkspaceFlow>(appController_);//这句话的意思是创建一个WorkspaceFlow对象，并将appController_的指针传递给它，以便WorkspaceFlow能够与AppController进行交互和通信。这种设计通常用于实现应用程序中不同组件之间的协调和数据共享。
     applyInitialUiState();
 }   
 
@@ -287,37 +284,14 @@ void CTViewer::setCommands()
         });
 }
 
-//void CTViewer::connectDistanceSignals() {
-  //  connect(pageStart_, &StartPagePage::distanceRequested, this, [this]() {
-		//if (mprViews_) mprViews_->setToolMode(ToolMode::DistanceMeasure); // 切换到距离测量工具
-  //  });
-//}
-
-//void CTViewer::connectAngelSignals() {
-    //connect(pageStart_, &StartPagePage::angleRequested, this, [this]() {
-    //    if (mprViews_) mprViews_->setToolMode(ToolMode::AngleMeasure); // 切换到距离测量工具
-    //    });
-//}
-
 void CTViewer::connectAppSignals() {
-    if (!appController_) {
-        return;
-    }
-
-    connect(appController_, &AppController::sessionChanged, this,
+    connect(&context_.getAppController(), &AppController::sessionChanged, this,//
         [this](const std::shared_ptr<AppSession>& session) {
             handleSessionChanged(session);
         });
 }
 
-//void CTViewer::connectRenderSwitchSignals()
-//{
-//    connect(workspacePage_->getRenderPanel(),&WorkSpaceUIState::primary3DModeChanged, this, [this](VizMode mode) {
-//        if (primary3DMode_) {
-//            workspacePage_->getViewportPage()->setPrimary3DMode(mode);
-//        }
-//        });
-//}
+
 
 //架构优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
 UiState CTViewer::buildUiState(int index) const{
@@ -325,7 +299,7 @@ UiState CTViewer::buildUiState(int index) const{
     state.tabIndex = index;
 
     //业务集中在一个地方
-    const bool hasData = workspaceFlow_ && workspaceFlow_->hasData();
+    const bool hasData = context_.hasData();
     //文件页
     if (tabMap_ && tabMap_->isFileTab(index)) {
 		state.showRibbon = false;
@@ -393,7 +367,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& s
     setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
     QString err;
-    const bool ok = workspaceFlow_ && workspaceFlow_->openFile(path,spacing,origin, &err);
+    const bool ok =context_.getAppController().openFile(path,spacing,origin, &err);
 
     if (!ok) {
         if (ProgressDialog_) {
@@ -416,7 +390,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& s
 //保存切片
 void CTViewer::showSaveSliceStackDialog()
 {
-    if (!workspacePage_ || !workspaceFlow_ ||!workspaceFlow_->hasData()) {
+    if (!workspacePage_ || !context_.hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像堆栈"), QStringLiteral("请先加载数据。"));
         return;
     }
@@ -516,7 +490,7 @@ void CTViewer::showSaveSliceStackDialog()
 //保存图像
 void CTViewer::showSaveTransformedDataDialog()
 {
-    if (!workspacePage_->getViewportPage() || !workspaceFlow_ || !workspaceFlow_->hasData()) {
+    if (!workspacePage_->getViewportPage() || !context_.hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像"), QStringLiteral("请先加载数据。"));
         return;
     }

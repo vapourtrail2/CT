@@ -4,7 +4,6 @@
 TabMap::TabMap()
 {
 }
-
 //不管 tab 显示名字
 //只负责 tab index->QWidget 页面映射
 
@@ -21,7 +20,7 @@ bool TabMap::isValidTab(int index) const
 }
 
 void TabMap::bindTabPage(int index, QWidget* page)
-{
+{   
     tabPages_[index] = page;
 }
 

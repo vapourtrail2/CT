@@ -1,7 +1,6 @@
 ﻿#include "uireconstruct3d.h"
 #include <array>
 #include "c_ui/MainWindow.h"
-#include "c_ui/nav/WorkspaceFlow.h"
 #include "c_ui/workbenches/StartPage.h"
 #include <QProgressDialog>
 #include <qstatusbar.h>
@@ -29,7 +28,7 @@ void CTViewer::openCtReconUi()
             setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
             QString err;
-            const bool ok = workspaceFlow_ && workspaceFlow_->openReconstructedData(
+            const bool ok =  context_.getAppController().openReconstructedData(
                 data,
                 outSize,
                 spacing,

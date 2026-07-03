@@ -31,9 +31,11 @@ public:
     QString getSourcePath() const {
         return session_ ? session_->sourcePath : QString();
     }
+
     bool getImage() const {
         return session_ && session_->dataMgr && session_->dataMgr->GetVtkImage();
     }
+
     std::array<int, 3> getDims() const {
         std::array<int, 3> d{ 0, 0, 0 };
         if (getImage()) {
@@ -42,10 +44,17 @@ public:
         return d;
     }
 
-    // 过渡期：还没迁的地方（viewport / renderPanel）先用原始 session
+    // 还没迁的地方（viewport / renderPanel）先用原始 session
     std::shared_ptr<AppSession> getSession() const { 
         return session_; 
     }
+
+    // 直方图等分析服务（RenderPanel 要用）
+    std::shared_ptr<VolumeAnalysisService> getAnalysisService() const {
+        return session_ ? session_->analysisService : nullptr;
+    }
+
+
 
 private:
     std::shared_ptr<AppSession> session_;

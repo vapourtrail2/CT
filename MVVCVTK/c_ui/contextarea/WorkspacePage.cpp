@@ -4,6 +4,7 @@
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "AppController.h"
+#include "c_ui/context/DataSet.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -70,33 +71,19 @@ RenderPanel* WorkspacePage::getRenderPanel() const
     return renderPanel_;
 }
 
-bool WorkspacePage::bindSession(const std::shared_ptr<AppSession>& session, QString* err)
+bool WorkspacePage::bindSession(const Dataset& dataset, QString* err)
 {
-    if (!session || !session->dataMgr || !session->sharedState) {
+    if (!dataset.getValid()) {
         if (err) {
             *err = QStringLiteral("Invalid session.");
         }
         return false;
     }
 
-    if (viewportPage_) {
-        viewportPage_->initWithData(
-            session->dataMgr,
-            session->sharedState,
-            session->sharedStateBroadcaster);
-    }
-
-    if (sceneTreePanel_) {
-        sceneTreePanel_->setSession(
-            session->dataMgr,
-            session->sharedState,
-            session->sharedStateBroadcaster,
-            session->sourcePath);
-    }
-
-    if (renderPanel_) {
-        renderPanel_->setSession(session);
-    }
+    viewportPage_->initWithData(dataset);
+    sceneTreePanel_->setSession(dataset);
+    renderPanel_->setSession(dataset);
+  
     return true;
 }
 

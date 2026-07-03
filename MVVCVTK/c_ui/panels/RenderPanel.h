@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "App/AppState.h"
+#include "c_ui/context/DataSet.h"
 
 
 struct AppSession;
@@ -22,21 +23,22 @@ public:
     explicit RenderPanel(QWidget* parent = nullptr);
     ~RenderPanel() override;
 
-    void setSession(const std::shared_ptr<AppSession>& session);
-    void setSharedState(const std::shared_ptr<SharedInteractionState>& state,
-                        const std::shared_ptr<SharedStateBroadcaster>& broadcaster);//是否需要分开 分开成两个函数
-    void setAnalysisService(const std::shared_ptr<VolumeAnalysisService>& analysis);
+    void setSession(const Dataset& dataset);
     void setWorkSpaceUIState(WorkSpaceUIState* state);
 
 protected:
     void resizeEvent(QResizeEvent* e) override;
+    
 
 private:
+    void setSharedState(const std::shared_ptr<SharedInteractionState>& state,
+                        const std::shared_ptr<SharedStateBroadcaster>& broadcaster);
+    void setAnalysisService(const std::shared_ptr<VolumeAnalysisService>& analysis);
     void syncFromState(UpdateFlags flags);
     void applyHistogramPixmap();
     void rebuildHistogramPixmap();
     double currentScalarSpan() const;
-    double currentWindowWidthMin() const;
+    double currentWindowWidthMin() const;   
     double currentWindowWidthMax() const;
     double currentWindowCenterMin() const;
     double currentWindowCenterMax() const;

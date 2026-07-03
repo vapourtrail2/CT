@@ -2,8 +2,7 @@
 #include <QWidget>
 #include <QTreeWidget>
 #include <memory>
-
-#include "App/AppInterfaces.h"
+#include "c_ui/context/DataSet.h"
 #include "App/AppState.h"
 
 class SceneTreePanel : public QWidget
@@ -12,14 +11,10 @@ class SceneTreePanel : public QWidget
 public:
     explicit SceneTreePanel(QWidget* parent = nullptr);
 
-    void setSession(
-        const std::shared_ptr<AbstractDataManager>& dataMgr,
-        const std::shared_ptr<SharedInteractionState>& state,
-		const std::shared_ptr<SharedStateBroadcaster>& broadcaster,
-        const QString& sourcePath);
+    void setSession(const Dataset& dataset);
 
 private:
-    void rebuildTree(const std::shared_ptr<AbstractDataManager>& dataMgr, const QString& sourcePath);
+    void rebuildTree(const Dataset& dataset);
     void syncVisibility();
     void clearTree();
     void onItemChanged(QTreeWidgetItem* item, int column);

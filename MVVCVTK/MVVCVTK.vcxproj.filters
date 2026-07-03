@@ -96,6 +96,15 @@
     <Filter Include="c_ui\window">
       <UniqueIdentifier>{d74b5b1b-ed5e-4aa5-8d39-daa31ed1f132}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\context">
+      <UniqueIdentifier>{a93919bb-f287-4c4b-ac53-3675c0127533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\toolbox">
+      <UniqueIdentifier>{7b9ba883-5488-4f6a-b5dc-920453944f0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\viewport">
+      <UniqueIdentifier>{c6e1bb34-654b-4dca-90f7-373ff422f771}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">
@@ -260,11 +269,17 @@
     <ClInclude Include="c_ui\command\commands.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\context\AppContext.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="c_ui\context\DataSet.h">
-      <Filter>c_ui\commands</Filter>
+      <Filter>c_ui\context</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\context\AppContext.h">
+      <Filter>c_ui\context</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\toolbox\Toolboxes.h">
+      <Filter>c_ui\toolbox</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\viewport\Viewport.h">
+      <Filter>c_ui\viewport</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -396,6 +411,9 @@
     </ClCompile>
     <ClCompile Include="c_ui\windows\TitleBar.cpp">
       <Filter>c_ui\window</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\toolbox\Toolboxes.cpp">
+      <Filter>c_ui\toolbox</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

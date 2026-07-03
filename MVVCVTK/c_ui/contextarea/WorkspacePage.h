@@ -7,7 +7,7 @@
 #include <QString>
 #include <QWidget>
 
-struct AppSession;
+struct Dataset;
 
 class QSplitter;
 class ReconstructPage;
@@ -24,7 +24,7 @@ public:
 	SceneTreePanel* getSceneTreePanel() const;
 	RenderPanel* getRenderPanel() const;
 
-	bool bindSession(const std::shared_ptr<AppSession>& session,
+	bool bindSession(const Dataset& dataset,
 		QString* err = nullptr);
 
 	bool saveSliceStackAsync(

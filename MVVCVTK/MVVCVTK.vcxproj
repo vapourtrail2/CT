@@ -225,6 +225,8 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="c_ui\context\DataSet.h" />
     <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h" />
     <QtMoc Include="c_ui\windows\Titlebar.h" />
+    <ClInclude Include="c_ui\toolbox\Toolboxes.h" />
+    <ClInclude Include="c_ui\viewport\Viewport.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="c_ui\app\app.h" />
     <QtMoc Include="c_ui\MainWindow.h" />
@@ -288,6 +290,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
     <ClCompile Include="c_ui\qt\QtRenderContext.cpp" />
     <ClCompile Include="c_ui\ribbon\RibbonPageRegister.cpp" />
+    <ClCompile Include="c_ui\toolbox\Toolboxes.cpp" />
     <ClCompile Include="c_ui\windows\TitleBar.cpp" />
     <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp" />
     <ClCompile Include="c_ui\workbenches\AnalysisPage.cpp" />

@@ -228,15 +228,15 @@ RenderPanel::~RenderPanel()
     lifeToken_.reset();
 }
 
-void RenderPanel::setSession(const std::shared_ptr<AppSession>& session)
+void RenderPanel::setSession(const Dataset& dataset)
 {
-    if (!session) {
+    if (!dataset.getValid()) {
         setAnalysisService(nullptr);
-        setSharedState(nullptr,nullptr);
+        setSharedState(nullptr, nullptr);
         return;
     }
-    setAnalysisService(session->analysisService);
-    setSharedState(session->sharedState,session->sharedStateBroadcaster);
+    setAnalysisService(dataset.getAnalysisService());
+    setSharedState(dataset.getState(),dataset.getBroadcaster());
 }
 
 void RenderPanel::setWorkSpaceUIState(WorkSpaceUIState* state)

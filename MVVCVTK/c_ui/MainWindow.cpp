@@ -8,20 +8,10 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
 #include "c_ui/windows/Titlebar.h"
-#include "c_ui/workbenches/AlignmentPage.h"
-#include "c_ui/workbenches/AnalysisPage.h"
-#include "c_ui/workbenches/AnimationPage.h"
-#include "c_ui/workbenches/CADAndThen.h"
+
 #include "c_ui/workbenches/DocumentPage.h"
-#include "c_ui/workbenches/EditPage.h"
-#include "c_ui/workbenches/GeometryPage.h"
-#include "c_ui/workbenches/MeasurePage.h"
-#include "c_ui/workbenches/ReconstructPage.h"
-#include "c_ui/workbenches/ReportPage.h"
-#include "c_ui/workbenches/SelectPage.h"
-#include "c_ui/workbenches/StartPage.h"
-#include "c_ui/workbenches/VolumePage.h"
-#include "c_ui/workbenches/WindowPage.h"
+
+#include "c_ui/toolbox/Toolboxes.h"
 
 #include <algorithm>
 #include <array>
@@ -186,27 +176,19 @@ void CTViewer::setRibbonPage(RibbonPage* page)
 }
 
 void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
+
     ribbonPageRegister_ = std::make_unique<RibbonPageRegister>();
 
-    stack_ = new QStackedWidget(totalContainer);
+    stack_ = new QStackedWidget(totalContainer);    
     stack_->setFixedHeight(iconHeight_);
     rootLayout->addWidget(stack_, 0);
 
-	whatEmpty_ = new QWidget(stack_);
+    whatEmpty_ = new QWidget(stack_);
     stack_->addWidget(whatEmpty_);
 
-    setRibbonPage(new StartPagePage(stack_));                                                      
-    setRibbonPage(new EditPage(stack_));
-    setRibbonPage(new VolumePage(stack_));
-    setRibbonPage(new SelectPage(stack_));
-    setRibbonPage(new AlignmentPage(stack_));
-    setRibbonPage(new GeometryPage(stack_));
-    setRibbonPage(new MeasurePage(stack_));
-    setRibbonPage(new CADAndThen(stack_));
-    setRibbonPage(new AnalysisPage(stack_));
-    setRibbonPage(new ReportPage(stack_));  
-    setRibbonPage(new AnimationPage(stack_));
-    setRibbonPage(new WindowPage(stack_));
+    for (RibbonPage* page : createAll(stack_)) {
+        setRibbonPage(page);
+    }
 }
 
 void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
@@ -569,7 +551,7 @@ void CTViewer::setCloseProgressDialog()
 void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
 {
     if (!workspacePage_) {
-        return;
+        return; 
     }
 
     if (!session) {
@@ -585,8 +567,10 @@ void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
         return;
     }
 
+	const Dataset dataset(session);
+
     QString err;
-    const bool ok = workspacePage_->bindSession(session, &err);
+    const bool ok = workspacePage_->bindSession(dataset, &err);
 
     if (!ok) {
         if (ProgressDialog_) {
@@ -605,44 +589,43 @@ void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
 
     loadNotifyToken_ = std::make_shared<int>(1);
 
-    session->sharedStateBroadcaster->SetObserver(loadNotifyToken_, [this](UpdateFlags flags) {
-        if (HasFlag(flags, UpdateFlags::DataReady)) {
-            QMetaObject::invokeMethod(this, [this]() {
-                if (ProgressDialog_) {
-                    setCloseProgressDialog();
-                }
+    if (auto broadcaster = dataset.getBroadcaster()) {
+        broadcaster->SetObserver(loadNotifyToken_, [this](UpdateFlags flags) {
+            if (HasFlag(flags, UpdateFlags::DataReady)) {
+                QMetaObject::invokeMethod(this, [this]() {
+                    if (ProgressDialog_) {
+                        setCloseProgressDialog();
+                    }
 
-                loadNotifyToken_.reset();
+                    loadNotifyToken_.reset();
 
-                if (pageDocument_) {
-                    pageDocument_->notifySucc();
-                }
-                }, Qt::QueuedConnection);
-            return;
-        }
+                    if (pageDocument_) {
+                        pageDocument_->notifySucc();
+                    }
+                    }, Qt::QueuedConnection);
+                return;
+            }
 
-        if (HasFlag(flags, UpdateFlags::LoadFailed)) {
-            QMetaObject::invokeMethod(this, [this]() {
-                if (ProgressDialog_) {
-                    setCloseProgressDialog();
-                }
+            if (HasFlag(flags, UpdateFlags::LoadFailed)) {
+                QMetaObject::invokeMethod(this, [this]() {
+                    if (ProgressDialog_) {
+                        setCloseProgressDialog();
+                    }
 
-                loadNotifyToken_.reset();
+                    loadNotifyToken_.reset();
 
-                if (pageDocument_) {
-                    pageDocument_->notifyFail(QStringLiteral("加载失败"));
-                }
+                    if (pageDocument_) {
+                        pageDocument_->notifyFail(QStringLiteral("加载失败"));
+                    }
 
-                if (auto* bar = statusBar()) {
-                    bar->showMessage(QStringLiteral("加载失败"), 3000);
-                }
-                }, Qt::QueuedConnection);
-        }
-        });
-
-    if (!tabBar_) {
-        return;
+                    if (auto* bar = statusBar()) {
+                        bar->showMessage(QStringLiteral("加载失败"), 3000);
+                    }
+                    }, Qt::QueuedConnection);
+            }
+            });
     }
+
 
     if (tabBar_->currentIndex() == TabIndex::File) {
         tabBar_->setCurrentIndex(TabIndex::Start);

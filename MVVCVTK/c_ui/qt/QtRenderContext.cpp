@@ -204,7 +204,6 @@ void QtRenderContext::SetQtWidget(QVTKOpenGLNativeWidget* widget)
 
     SetupObservers();
     BuildInteractionRouter();
-    //SetToolMode(m_toolMode);
     InstallQtEventFilter();
 
     if (m_renderWindow) {

@@ -39,23 +39,20 @@ SceneTreePanel::SceneTreePanel(QWidget* parent)
 }
 
 void SceneTreePanel::setSession(
-    const std::shared_ptr<AbstractDataManager>& dataMgr,
-    const std::shared_ptr<SharedInteractionState>& state,
-	const std::shared_ptr<SharedStateBroadcaster>& broadcaster,
-    const QString& sourcePath)
+    const Dataset& dataset)
 {
-    state_ = state;
-	broadcaster_ = broadcaster;
+    state_ = dataset.getState();
+	broadcaster_ = dataset.getBroadcaster();
     lifeToken_ = std::make_shared<int>(1);
 
-    rebuildTree(dataMgr, sourcePath);
+    rebuildTree(dataset);
 
-    broadcaster_->SetObserver(lifeToken_, [this,dataMgr,sourcePath](UpdateFlags flags) {
+    broadcaster_->SetObserver(lifeToken_, [this,dataset](UpdateFlags flags) {
 
         if (HasFlag(flags,UpdateFlags::DataReady))
         {
-            QMetaObject::invokeMethod(this, [this, dataMgr, sourcePath]() {
-                rebuildTree(dataMgr, sourcePath);
+            QMetaObject::invokeMethod(this, [this, dataset]() {
+                rebuildTree(dataset);
             }, Qt::QueuedConnection);
         }
 
@@ -74,13 +71,12 @@ void SceneTreePanel::setSession(
 }
 
 void SceneTreePanel::rebuildTree(
-    const std::shared_ptr<AbstractDataManager>& dataMgr,
-    const QString& sourcePath)
+    const Dataset& dataset)
 {
     if (!tree_) {
         return;
     }
-
+        
     const QSignalBlocker blocker(tree_);
 
     clearTree();
@@ -89,20 +85,19 @@ void SceneTreePanel::rebuildTree(
         return;
     }
 
-    if (!dataMgr || !dataMgr->GetVtkImage()) {
+    if (!dataset.getImage()) {
         volumeItem_ = new QTreeWidgetItem(root_, QStringList() << QStringLiteral("(无数据加载)"));
         root_->setExpanded(true);
         return;
     }
 
-    int dims[3] = { 0, 0, 0 };
-    dataMgr->GetVtkImage()->GetDimensions(dims);
+	const std::array<int, 3> dims = dataset.getDims();
 
     const QString name = QStringLiteral(": %1 x %2 x %3  (%4)")
         .arg(dims[0])
         .arg(dims[1])
         .arg(dims[2])
-        .arg(sourcePath);
+        .arg(dataset.getSourcePath());
 
     volumeItem_ = new QTreeWidgetItem(root_, QStringList() << name);
     volumeItem_->setExpanded(true);

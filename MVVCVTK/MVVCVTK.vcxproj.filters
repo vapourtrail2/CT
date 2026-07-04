@@ -155,9 +155,6 @@
     <ClInclude Include="c_ui\workbenches\common\IconMaps\WindowIconMap.h">
       <Filter>c_ui\workbenches\common</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h">
       <Filter>include\App</Filter>
     </ClInclude>
@@ -336,9 +333,6 @@
     </ClCompile>
     <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
       <Filter>c_ui\qt</Filter>
-    </ClCompile>
-    <ClCompile Include="ReconInteraction.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="AppController.cpp">
       <Filter>源文件</Filter>

@@ -79,17 +79,13 @@ void ReconstructPage::initWithData(const Dataset& dataset)
 
 void ReconstructPage::setPrimary3DMode(VizMode mode)
 {
-    if (1) {
-        return;
-    }
-
     if (mode != VizMode::CompositeVolume
         && mode != VizMode::CompositeIsoSurface) {
         return;
     }
 
     m_current3DMode = mode;
-	m_view3d.setMode(m_current3DMode);
+	m_view3d.setMode(m_current3DMode);  
 
     if (!m_view3d.getService() || !m_view3d.getContext()) {
         return;

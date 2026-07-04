@@ -20,7 +20,7 @@ class WorkspacePage : public QWidget {
 public:
 	explicit WorkspacePage(QWidget* parent = nullptr);
 
-	ReconstructPage* getViewportPage() const;//getter
+	ReconstructPage* getViewportPage() const;
 	SceneTreePanel* getSceneTreePanel() const;
 	RenderPanel* getRenderPanel() const;
 

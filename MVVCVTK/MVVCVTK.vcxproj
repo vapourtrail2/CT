@@ -226,7 +226,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\windows\Titlebar.h" />
     <ClInclude Include="c_ui\toolbox\Toolboxes.h" />
     <ClInclude Include="c_ui\viewport\Viewport.h" />
-    <QtMoc Include="c_ui\app\app.h" />
+    <ClInclude Include="c_ui\app\app.h" />
     <QtMoc Include="c_ui\MainWindow.h" />
     <QtMoc Include="c_ui\panels\SceneTreePanel.h" />
     <QtMoc Include="c_ui\panels\RenderPanel.h" />

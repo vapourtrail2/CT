@@ -1,5 +1,5 @@
 #include "c_ui/contextarea/WorkspacePage.h"
-#include "c_ui/workbenches/ReconstructPage.h"
+#include "c_ui/viewport/ViewportGather.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
@@ -26,7 +26,7 @@ void WorkspacePage::buildUi() {
     root->addWidget(workspaceSplit_, 1);
 
     //×ó²à
-    viewportPage_ = new ReconstructPage(workspaceSplit_);
+    viewportGather_ = new ViewportGather(workspaceSplit_);
 
     //ÓÒ²à
     rightSplit_ = new QSplitter(Qt::Vertical, workspaceSplit_);
@@ -46,19 +46,19 @@ void WorkspacePage::buildUi() {
 
     workSpaceUIState_ = new WorkSpaceUIState(this);
     renderPanel_->setWorkSpaceUIState(workSpaceUIState_);
-    connect(workSpaceUIState_, &WorkSpaceUIState::primary3DModeChanged, viewportPage_, &ReconstructPage::setPrimary3DMode);
+    connect(workSpaceUIState_, &WorkSpaceUIState::primary3DModeChanged, viewportGather_, &ViewportGather::setPrimary3DMode);
     
-    viewportPage_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
+    viewportGather_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
     //°²×°
-    workspaceSplit_->addWidget(viewportPage_);
+    workspaceSplit_->addWidget(viewportGather_);
     workspaceSplit_->addWidget(rightSplit_);
     workspaceSplit_->setStretchFactor(0, 50);
     workspaceSplit_->setStretchFactor(1, 3);
 }
 
-ReconstructPage* WorkspacePage::getViewportPage() const
+ViewportGather* WorkspacePage::getViewportGather() const
 {
-    return viewportPage_;
+    return viewportGather_;
 }
 
 SceneTreePanel* WorkspacePage::getSceneTreePanel() const
@@ -80,7 +80,7 @@ bool WorkspacePage::bindSession(const Dataset& dataset, QString* err)
         return false;
     }
 
-    viewportPage_->initWithData(dataset);
+    viewportGather_->initWithData(dataset);
     sceneTreePanel_->setSession(dataset);
     renderPanel_->setSession(dataset);
   
@@ -93,14 +93,14 @@ bool WorkspacePage::saveSliceStackAsync(
     const double& angle,
     std::function<void(bool)> onComplete)    
 {
-    return viewportPage_->saveSliceStackAsync(outputDir, sliceMode, angle, std::move(onComplete));
+    return viewportGather_->saveSliceStackAsync(outputDir, sliceMode, angle, std::move(onComplete));
 }
 
 bool WorkspacePage::saveTransformedDataAsync(
     const QString& outputPath,
     std::function<void(bool)> onComplete) 
 {
-    return viewportPage_->saveTransformedDataAsync(outputPath, std::move(onComplete));
+    return viewportGather_->saveTransformedDataAsync(outputPath, std::move(onComplete));
 }
 
 

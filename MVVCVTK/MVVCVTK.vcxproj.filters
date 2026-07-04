@@ -346,8 +346,8 @@
     <ClCompile Include="c_ui\nav\TabMap.cpp">
       <Filter>c_ui\nav</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\workbenches\ReconstructPage.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="c_ui\viewport\ViewportGather.cpp">
+      <Filter>c_ui\viewport</Filter>
     </ClCompile>
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp">
       <Filter>src\Data</Filter>
@@ -465,8 +465,8 @@
     <QtMoc Include="c_ui\panels\RenderPanel.h">
       <Filter>c_ui\panels</Filter>
     </QtMoc>
-    <QtMoc Include="c_ui\workbenches\ReconstructPage.h">
-      <Filter>头文件</Filter>
+    <QtMoc Include="c_ui\viewport\ViewportGather.h">
+      <Filter>c_ui\viewport</Filter>
     </QtMoc>
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h">
       <Filter>c_ui\workspace</Filter>

@@ -10,7 +10,7 @@
 #include <array>
 #include <memory>
 #include <QDoubleSpinBox>
-#include "c_ui/workbenches/ReconstructPage.h"
+#include "c_ui/qt/QtRenderContext.h"
 #include "c_ui/nav/UIState.h"
 #include "c_ui/context/AppContext.h"
 
@@ -28,7 +28,6 @@ class AnalysisPage;
 class WindowPage;
 class ReportPage;
 class AnimationPage;
-class ReconstructPage;
 class UIReconstruct3D;
 class AppController;
 struct AppSession;

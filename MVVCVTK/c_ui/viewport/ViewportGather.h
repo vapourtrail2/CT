@@ -14,11 +14,11 @@
 class QGridLayout;
 class QToolButton;
 
-class ReconstructPage : public QWidget
+class ViewportGather : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ReconstructPage(QWidget* parent = nullptr);
+    explicit ViewportGather(QWidget* parent = nullptr);
     void initWithData(const Dataset& dataset);
     void setPrimary3DMode(VizMode mode);    
 

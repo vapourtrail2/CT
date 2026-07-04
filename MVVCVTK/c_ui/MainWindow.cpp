@@ -474,7 +474,7 @@ void CTViewer::showSaveSliceStackDialog()
 //保存图像
 void CTViewer::showSaveTransformedDataDialog()
 {
-    if (!workspacePage_->getViewportPage() || !context_.hasData()) {
+    if (!workspacePage_->getViewportGather() || !context_.hasData()) {
         QMessageBox::warning(this, QStringLiteral("保存图像"), QStringLiteral("请先加载数据。"));
         return;
     }

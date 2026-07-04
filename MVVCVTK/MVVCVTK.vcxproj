@@ -256,7 +256,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="c_ui\workbenches\common\IconMaps\VolumeIconMap.h" />
     <ClInclude Include="c_ui\workbenches\common\IconMaps\WindowIconMap.h" />
     <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h" />
-    <QtMoc Include="c_ui\workbenches\ReconstructPage.h" />
+    <QtMoc Include="c_ui\viewport\ViewportGather.h" />
     <QtMoc Include="c_ui\workbenches\ReportPage.h" />
     <QtMoc Include="c_ui\workbenches\StartPage.h" />
     <QtMoc Include="c_ui\workbenches\VolumePage.h" />
@@ -300,7 +300,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\workbenches\GeometryPage.cpp" />
     <ClCompile Include="c_ui\workbenches\HelpPage.cpp" />
     <ClCompile Include="c_ui\workbenches\MeasurePage.cpp" />
-    <ClCompile Include="c_ui\workbenches\ReconstructPage.cpp" />
+    <ClCompile Include="c_ui\viewport\ViewportGather.cpp" />
     <ClCompile Include="c_ui\workbenches\ReportPage.cpp" />
     <ClCompile Include="c_ui\workbenches\SelectPage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

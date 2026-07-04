@@ -1,4 +1,4 @@
-#include "ReconstructPage.h"
+#include "ViewportGather.h"
 #include <QGridLayout>
 #include <QMetaObject>
 #include <QWidget>
@@ -9,13 +9,13 @@
 #include <vtkRenderWindowInteractor.h>
 
 
-ReconstructPage::ReconstructPage(QWidget* parent)
+ViewportGather::ViewportGather(QWidget* parent)
     : QWidget(parent)
 {
     buildUi();
 }
 
-void ReconstructPage::buildUi()
+void ViewportGather::buildUi()
 {
     m_viewGrid = new QGridLayout(this);
     m_viewGrid->setContentsMargins(6, 6, 6, 6);
@@ -30,7 +30,7 @@ void ReconstructPage::buildUi()
     setViewportLayout();
 }
 
-void ReconstructPage::initWithData(const Dataset& dataset)
+void ViewportGather::initWithData(const Dataset& dataset)
 {
 	// 这里的reset是为了提前断开与旧数据和状态的关联，确保在后续赋新值时不会有旧数据触发的回调干扰界面更新。通过先reset，再赋新值，可以保证界面在整个过程中保持一致性和稳定性。
 	m_lifeToken.reset();
@@ -77,7 +77,7 @@ void ReconstructPage::initWithData(const Dataset& dataset)
     refreshViews();
 }
 
-void ReconstructPage::setPrimary3DMode(VizMode mode)
+void ViewportGather::setPrimary3DMode(VizMode mode)
 {
     if (mode != VizMode::CompositeVolume
         && mode != VizMode::CompositeIsoSurface) {
@@ -100,7 +100,7 @@ void ReconstructPage::setPrimary3DMode(VizMode mode)
     m_view3d.getContext()->SetRendered();
 }
 
-void ReconstructPage::refreshViews()
+void ViewportGather::refreshViews()
 {
     m_axial.refresh();
     m_coronal.refresh();
@@ -109,7 +109,7 @@ void ReconstructPage::refreshViews()
 }
 
 
-bool ReconstructPage::saveSliceStackAsync(
+bool ViewportGather::saveSliceStackAsync(
     const QString& outputDir,
     VizMode sliceMode,
     const double& angel,
@@ -144,7 +144,7 @@ bool ReconstructPage::saveSliceStackAsync(
     return true;
 }
 
-bool ReconstructPage::saveTransformedDataAsync(const QString& outputPath, std::function<void(bool)> onComplete)
+bool ViewportGather::saveTransformedDataAsync(const QString& outputPath, std::function<void(bool)> onComplete)
 {
     const QString path = outputPath.trimmed();
     if (path.isEmpty()) {
@@ -162,7 +162,7 @@ bool ReconstructPage::saveTransformedDataAsync(const QString& outputPath, std::f
 
 
 
-void ReconstructPage::request3DRebuildFromCurrentImage()
+void ViewportGather::request3DRebuildFromCurrentImage()
 {
     if (!m_dataMgr || !m_sharedState) {
 		return;
@@ -193,7 +193,7 @@ void ReconstructPage::request3DRebuildFromCurrentImage()
 	m_sharedState->SetCursorAxis(cursorAxis);
 }
 
-QWidget* ReconstructPage::createViewportContainer(Viewport& vp, ViewportId id)
+QWidget* ViewportGather::createViewportContainer(Viewport& vp, ViewportId id)
 {
     auto* container = new QWidget(this);
     auto* layout = new QGridLayout(container);
@@ -221,7 +221,7 @@ QWidget* ReconstructPage::createViewportContainer(Viewport& vp, ViewportId id)
     return container;
 }
 
-void ReconstructPage::switchViewMaximized(ViewportId id)
+void ViewportGather::switchViewMaximized(ViewportId id)
 {
     if (m_maximizedViewport == id) {
         m_maximizedViewport = ViewportId::None;
@@ -234,7 +234,7 @@ void ReconstructPage::switchViewMaximized(ViewportId id)
     refreshViews();
 }
 
-void ReconstructPage::setViewportLayout()
+void ViewportGather::setViewportLayout()
 {
     if (!m_viewGrid) {
         return;

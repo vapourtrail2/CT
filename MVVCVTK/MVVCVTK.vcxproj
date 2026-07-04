@@ -162,8 +162,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\MeasureAlgoService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Utils;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\MeasurementAlgo;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\MeasureAlgoStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>
- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
@@ -181,7 +180,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <QtMoc Include="AppController.h" />
+    <QtMoc Include="c_ui\context\SessionManager.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateCommands.h" />
@@ -263,7 +262,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\workbenches\WindowPage.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AppController.cpp" />
+    <ClCompile Include="c_ui\context\SessionManager.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp" />

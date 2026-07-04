@@ -26,7 +26,7 @@ static QIcon loadIconFor(const QString& text) {
 WindowPage::WindowPage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("windowEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#pageWindow{background-color:#2b2b2b;}"
@@ -38,7 +38,7 @@ WindowPage::WindowPage(QWidget* parent)
     layout12->setContentsMargins(0, 0, 0, 0);
     layout12->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout12->addWidget(buildRibbon12(this));
 }
 
@@ -49,12 +49,12 @@ int WindowPage::tabIndex() const
 
 QString WindowPage::tabName() const
 {
-    return QStringLiteral("´°¿Ú");
+    return QStringLiteral("çª—å£");
 }
 
 QWidget* WindowPage::buildRibbon12(QWidget* parent)
 {
-    auto* ribbon12 = new QFrame(parent);//ribbon12ÊÇ--¹¦ÄÜÇøµÄÈÝÆ÷
+    auto* ribbon12 = new QFrame(parent);//ribbon12æ˜¯--åŠŸèƒ½åŒºçš„å®¹å™¨
     ribbon12->setObjectName(QStringLiteral("measureRibbon"));
     ribbon12->setStyleSheet(QStringLiteral(
         "QFrame#measureRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
@@ -70,53 +70,53 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
     };
 
     const QList<RibbonAction12> actions12 = {
-        { QStringLiteral("ËÄ·Ö"), 0 },
-        { QStringLiteral("ÇÐÆ¬Í¼¿¿×ó"), 0 },
-        { QStringLiteral("ÇÐÆ¬Í¼¿¿ÓÒ"), 0 },
-        { QStringLiteral("ÇÐÆ¬Í¼¿¿ÏÂ"), 0 },
-        { QStringLiteral("Ðý×ª"), 0 },
-        { QStringLiteral("ËÄ·Ö£¬·Ö²¼Í¼"), 0 },
-        { QStringLiteral("·ÇÆ½Ãæ"), 0 },
-        { QStringLiteral("²¼¾Ö±à¼­Æ÷"), 0 },
-        { QStringLiteral("2D±³¾°"), 0 },
-        { QStringLiteral("3D±³¾°"), 0 },
-        { QStringLiteral("·Å´ó"), 0 },
-        { QStringLiteral("ËõÐ¡"), 0 },
-        { QStringLiteral("ÌåËØ·Ö±æÂÊ"), 0 },
-        { QStringLiteral("ÉèÖÃËõ·Å±ÈÀý"), 0 },
-        { QStringLiteral("µ÷Õû¶ÔÏóÒÔÊÊÓ¦´°¿Ú"), 0 },
-        { QStringLiteral("µ÷Õû³¡¾°ÒÔÊÊÓ¦´°¿Ú"), 0 },
-        { QStringLiteral("ÖØÖÃ"), 0 },
-        { QStringLiteral("ÏÔÊ¾Ä£Ê½"), 1 },
-        { QStringLiteral("ºñ°å"), 0 },
-        { QStringLiteral("ÇÐÆ¬Í¼²½¿í"), 0 },
-        { QStringLiteral("Ë®Æ½/´°¿ÚÄ£Ê½"), 0 },
-        { QStringLiteral("±ê³ß"), 0 },
-        { QStringLiteral("×¢½â"), 2 },
-        { QStringLiteral("ÎÄ±¾µþ¼Ó²ã±à¼­Æ÷"), 0 },
-        { QStringLiteral("¹¤¾ß"), 3 },
-        { QStringLiteral("¹¤¾ßÍ£¿¿À¸"), 4 },
-        { QStringLiteral("ÖØÖÃ¹¤¾ß"), 0 },
+        { QStringLiteral("å››åˆ†"), 0 },
+        { QStringLiteral("åˆ‡ç‰‡å›¾é å·¦"), 0 },
+        { QStringLiteral("åˆ‡ç‰‡å›¾é å³"), 0 },
+        { QStringLiteral("åˆ‡ç‰‡å›¾é ä¸‹"), 0 },
+        { QStringLiteral("æ—‹è½¬"), 0 },
+        { QStringLiteral("å››åˆ†ï¼Œåˆ†å¸ƒå›¾"), 0 },
+        { QStringLiteral("éžå¹³é¢"), 0 },
+        { QStringLiteral("å¸ƒå±€ç¼–è¾‘å™¨"), 0 },
+        { QStringLiteral("2DèƒŒæ™¯"), 0 },
+        { QStringLiteral("3DèƒŒæ™¯"), 0 },
+        { QStringLiteral("æ”¾å¤§"), 0 },
+        { QStringLiteral("ç¼©å°"), 0 },
+        { QStringLiteral("ä½“ç´ åˆ†è¾¨çŽ‡"), 0 },
+        { QStringLiteral("è®¾ç½®ç¼©æ”¾æ¯”ä¾‹"), 0 },
+        { QStringLiteral("è°ƒæ•´å¯¹è±¡ä»¥é€‚åº”çª—å£"), 0 },
+        { QStringLiteral("è°ƒæ•´åœºæ™¯ä»¥é€‚åº”çª—å£"), 0 },
+        { QStringLiteral("é‡ç½®"), 0 },
+        { QStringLiteral("æ˜¾ç¤ºæ¨¡å¼"), 1 },
+        { QStringLiteral("åŽšæ¿"), 0 },
+        { QStringLiteral("åˆ‡ç‰‡å›¾æ­¥å®½"), 0 },
+        { QStringLiteral("æ°´å¹³/çª—å£æ¨¡å¼"), 0 },
+        { QStringLiteral("æ ‡å°º"), 0 },
+        { QStringLiteral("æ³¨è§£"), 2 },
+        { QStringLiteral("æ–‡æœ¬å åŠ å±‚ç¼–è¾‘å™¨"), 0 },
+        { QStringLiteral("å·¥å…·"), 3 },
+        { QStringLiteral("å·¥å…·åœé æ "), 4 },
+        { QStringLiteral("é‡ç½®å·¥å…·"), 0 },
     };
 
     const QStringList twoRowGroup = {
-         QStringLiteral("ËÄ·Ö"), 
-         QStringLiteral("ÇÐÆ¬Í¼¿¿×ó"), 
-         QStringLiteral("ÇÐÆ¬Í¼¿¿ÓÒ"),
-         QStringLiteral("ÇÐÆ¬Í¼¿¿ÏÂ"),
-         QStringLiteral("Ðý×ª"), 
-         QStringLiteral("ËÄ·Ö£¬·Ö²¼Í¼"),
-         QStringLiteral("·ÇÆ½Ãæ"), 
+         QStringLiteral("å››åˆ†"),
+         QStringLiteral("åˆ‡ç‰‡å›¾é å·¦"),
+         QStringLiteral("åˆ‡ç‰‡å›¾é å³"),
+         QStringLiteral("åˆ‡ç‰‡å›¾é ä¸‹"),
+         QStringLiteral("æ—‹è½¬"),
+         QStringLiteral("å››åˆ†ï¼Œåˆ†å¸ƒå›¾"),
+         QStringLiteral("éžå¹³é¢"),
     };
 
 
-    QWidget* gridHolder_12 = nullptr;//Õâ¸öÖ¸ÕëµÄÒâË¼ÊÇ ÓÃÀ´³ÐÔØÄÇ¸ö 2¡Á4 µÄÐ¡·½Õó
-    QGridLayout* grid_12 = nullptr;//Õâ¸öÖ¸ÕëÊÇÓÃÀ´¹ÜÀíÄÇ¸öÐ¡·½ÕóµÄ²¼¾Ö
-    int groupedCount_12 = 0;//¼ÇÂ¼ÒÑ¾­·Å½øÐ¡·½ÕóµÄ°´Å¥ÊýÁ¿
+    QWidget* gridHolder_12 = nullptr;//è¿™ä¸ªæŒ‡é’ˆçš„æ„æ€æ˜¯ ç”¨æ¥æ‰¿è½½é‚£ä¸ª 2Ã—4 çš„å°æ–¹é˜µ
+    QGridLayout* grid_12 = nullptr;//è¿™ä¸ªæŒ‡é’ˆæ˜¯ç”¨æ¥ç®¡ç†é‚£ä¸ªå°æ–¹é˜µçš„å¸ƒå±€
+    int groupedCount_12 = 0;//è®°å½•å·²ç»æ”¾è¿›å°æ–¹é˜µçš„æŒ‰é’®æ•°é‡
 
     for (const auto& action : actions12)
     {
-        const bool inGroup_12 = twoRowGroup.contains(action.text);//containsº¯Êý¼ì²éÄ³¸öÔªËØÊÇ·ñÔÚÁÐ±íÖÐ ·µ»Øtrue»òfalse
+        const bool inGroup_12 = twoRowGroup.contains(action.text);//containså‡½æ•°æ£€æŸ¥æŸä¸ªå…ƒç´ æ˜¯å¦åœ¨åˆ—è¡¨ä¸­ è¿”å›žtrueæˆ–false
         auto* button = new QToolButton(ribbon12);
         button->setIcon(loadIconFor(action.text));
         button->setIconSize(QSize(32, 32));
@@ -125,30 +125,30 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
         button->setText(RibbonCommon::shiftNewLine(action.text, button->font(), 43));
         if (inGroup_12)
         {
-            if (!gridHolder_12) {//µÈ¼ÛÓÚgridholder == nullptr
+            if (!gridHolder_12) {//ç­‰ä»·äºŽgridholder == nullptr
                 gridHolder_12 = new QWidget(ribbon12);
                 grid_12 = new QGridLayout(gridHolder_12);
                 grid_12->setContentsMargins(4, 2, 4, 2);
-                grid_12->setHorizontalSpacing(8);//Ë®Æ½¼ä¾à
-                grid_12->setVerticalSpacing(4);//´¹Ö±¼ä¾à
-                layout12->addWidget(gridHolder_12); // °ÑÐ¡·½Õó²åÈëµ½Ö÷ ribbon
+                grid_12->setHorizontalSpacing(8);//æ°´å¹³é—´è·
+                grid_12->setVerticalSpacing(4);//åž‚ç›´é—´è·
+                layout12->addWidget(gridHolder_12); // æŠŠå°æ–¹é˜µæ’å…¥åˆ°ä¸» ribbon
             }
             button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            button->setIconSize(QSize(20, 20));           // Ð¡ icon
+            button->setIconSize(QSize(20, 20));           // å° icon
             button->setMinimumSize(QSize(90, 20));
             button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
             button->setText(action.text);
 
             int row = groupedCount_12 / 4;
             int col = groupedCount_12 % 4;
-            grid_12->addWidget(button, row, col);//Èý¸ö²ÎÊýµÄÒâË¼ÊÇ£ºÒªÌí¼ÓµÄ¿Ø¼þ¡¢ÐÐºÅ¡¢ÁÐºÅ
+            grid_12->addWidget(button, row, col);//ä¸‰ä¸ªå‚æ•°çš„æ„æ€æ˜¯ï¼šè¦æ·»åŠ çš„æŽ§ä»¶ã€è¡Œå·ã€åˆ—å·
             ++groupedCount_12;
             continue;
-        
+
         }
 
         else {
-            // ·Ç¸Ã·Ö×é£ºÈÔ¾ÉÒ»ÐÐºáÅÅ
+            // éžè¯¥åˆ†ç»„ï¼šä»æ—§ä¸€è¡Œæ¨ªæŽ’
             layout12->addWidget(button);
         }
 
@@ -158,9 +158,9 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/origin.png"), QStringLiteral("Ô­Ê¼"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/color.png"), QStringLiteral("ÑÕÉ«"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/color_and_transparency.png"), QStringLiteral("ÑÕÉ«ºÍ²»Í¸Ã÷¶È"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/origin.png"), QStringLiteral("åŽŸå§‹"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/color.png"), QStringLiteral("é¢œè‰²"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/display_pattern_pull_down_menu/color_and_transparency.png"), QStringLiteral("é¢œè‰²å’Œä¸é€æ˜Žåº¦"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -170,10 +170,10 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/sort.png"), QStringLiteral("ÅÅÁÐ"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/min.png"), QStringLiteral("×îÐ¡»¯"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/max.png"), QStringLiteral("×î´ó»¯"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/set.png"), QStringLiteral("ÅäÖÃ"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/sort.png"), QStringLiteral("æŽ’åˆ—"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/min.png"), QStringLiteral("æœ€å°åŒ–"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/max.png"), QStringLiteral("æœ€å¤§åŒ–"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/annotation_pull_down_menu/set.png"), QStringLiteral("é…ç½®"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -183,14 +183,14 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("äÖÈ¾"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("¹âÔ´"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("ÉãÏñ»ú"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("²Ã¼ô"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("×Ô¶¯»¯"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("³¡¾°Ê÷"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("¶¯»­"));
-            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("ÊéÇ©"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("æ¸²æŸ“"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("å…‰æº"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("æ‘„åƒæœº"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("è£å‰ª"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("è‡ªåŠ¨åŒ–"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("åœºæ™¯æ ‘"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("åŠ¨ç”»"));
+            menu->addAction(QIcon(":/window_icons02/icons_other/window_icons/tool_pull_down_menu/same.PNG"), QStringLiteral("ä¹¦ç­¾"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -202,12 +202,12 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
                 "QCheckBox{padding:6px 24px;}"));
 
             auto addCheck = [&](const QString& text, bool checked,std::function<void(bool)> onToggled)
-            {//onToggled£ºÓÃ»§¹´/È¡ÏûÊ±Òª×öµÄÊÂ£¨»Øµ÷£©
-                    auto* cb = new QCheckBox(text, menu);//checkbox¿Ø¼þ
+            {//onToggledï¼šç”¨æˆ·å‹¾/å–æ¶ˆæ—¶è¦åšçš„äº‹ï¼ˆå›žè°ƒï¼‰
+                    auto* cb = new QCheckBox(text, menu);//checkboxæŽ§ä»¶
                     cb->setChecked(checked);
-                    cb->setAttribute(Qt::WA_Hover, true);// ¿ªÆôÐüÍ£ÊÂ¼þ
-					auto* wa = new QWidgetAction(menu);//²Ëµ¥Ä¬ÈÏ²»ÄÜ·Å¿Ø¼þ  ²Ëµ¥ÄÜ·ÅQAction  ËùÒÔÓÃQWidgetAction°ü×°Ò»ÏÂ
-                    //ÄÜ°ÑQCheckboxÏÔÊ¾µ½²Ëµ¥À¸Àï
+                    cb->setAttribute(Qt::WA_Hover, true);// å¼€å¯æ‚¬åœäº‹ä»¶
+					auto* wa = new QWidgetAction(menu);//èœå•é»˜è®¤ä¸èƒ½æ”¾æŽ§ä»¶  èœå•èƒ½æ”¾QAction  æ‰€ä»¥ç”¨QWidgetActionåŒ…è£…ä¸€ä¸‹
+                    //èƒ½æŠŠQCheckboxæ˜¾ç¤ºåˆ°èœå•æ é‡Œ
                     wa->setDefaultWidget(cb);
                     menu->addAction(wa);
                     QObject::connect(cb, &QCheckBox::toggled, menu, [=](bool on) {
@@ -218,17 +218,17 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
                     });
             };
 
-            addCheck(QStringLiteral("ÏÔÊ¾/Òþ²ØÓÒ²à¹¤¾ßÍ£¿¿À¸"), true, [=](bool on) {
+            addCheck(QStringLiteral("æ˜¾ç¤º/éšè—å³ä¾§å·¥å…·åœé æ "), true, [=](bool on) {
                 // rightDock->setVisible(on);
-                // emit requestToggleDock(Qt::RightDockWidgetArea, on); // Èç¹ûÄã×ßÐÅºÅ
+                // emit requestToggleDock(Qt::RightDockWidgetArea, on); // å¦‚æžœä½ èµ°ä¿¡å·
                 });
-            addCheck(QStringLiteral("ÏÔÊ¾/Òþ²Ø×ó²à¹¤¾ßÍ£¿¿À¸"), true, [=](bool on) {
+            addCheck(QStringLiteral("æ˜¾ç¤º/éšè—å·¦ä¾§å·¥å…·åœé æ "), true, [=](bool on) {
                 // leftDock->setVisible(on);
                 });
-            addCheck(QStringLiteral("ÏÔÊ¾/Òþ²ØÏÂ·½¹¤¾ßÍ£¿¿À¸"), false, [=](bool on) {
+            addCheck(QStringLiteral("æ˜¾ç¤º/éšè—ä¸‹æ–¹å·¥å…·åœé æ "), false, [=](bool on) {
                 // bottomDock->setVisible(on);
                 });
-            addCheck(QStringLiteral("ÏÔÊ¾/Òþ²ØÉÏ·½¹¤¾ßÍ£¿¿À¸"), false, [=](bool on) {
+            addCheck(QStringLiteral("æ˜¾ç¤º/éšè—ä¸Šæ–¹å·¥å…·åœé æ "), false, [=](bool on) {
                 // topDock->setVisible(on);
                 });
 

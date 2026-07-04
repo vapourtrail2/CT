@@ -25,7 +25,7 @@ static QIcon loadIconFor(const QString& text) {
 AlignmentPage::AlignmentPage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("alignmentEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#alignmentEdit{background-color:#2b2b2b;}"
@@ -37,7 +37,7 @@ AlignmentPage::AlignmentPage(QWidget* parent)
     layout04->setContentsMargins(0, 0, 0, 0);
     layout04->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout04->addWidget(buildRibbon04(this));
 }
 
@@ -48,7 +48,7 @@ int AlignmentPage::tabIndex() const
 
 QString AlignmentPage::tabName() const
 {
-    return QStringLiteral("¶ÔÆë");
+    return QStringLiteral("å¯¹é½");
 }
 
 QWidget* AlignmentPage::buildRibbon04(QWidget* parent)
@@ -69,25 +69,25 @@ QWidget* AlignmentPage::buildRibbon04(QWidget* parent)
     };
 
     const QList<RibbonAction04> actions04 = {
-        { QStringLiteral("×î¼ÑÄâºÏ¶ÔÆë"), 0 },
-        { QStringLiteral("3-2-1¶ÔÆë"), 0 },
-        { QStringLiteral("»ùÓÚÌØÕ÷µÄ¶ÔÆë"),0 },
-        { QStringLiteral("°´´ÎĞò¶ÔÆë"), 0 },
-        { QStringLiteral("RPS¶ÔÆë"), 0 },
-        { QStringLiteral("»ùÓÚ¼¸ºÎÔªËØµÄÄâºÏ"), 0 },
-        { QStringLiteral("±à¼­µ±Ç°¶ÔÆë"), 0 },
-        { QStringLiteral("¼òµ¥3-2-1¶ÔÆë"), 0 },
-        { QStringLiteral("¼òµ¥¶ÔÆë"), 0 },
-        { QStringLiteral("½«ÇĞÆ¬Í¼¶ÔÆëµ½¶ÔÏó"), 0 },
-        { QStringLiteral("×ø±êÏµÔ­µã"), 0 },
-        { QStringLiteral("×ø±êÏµ±à¼­Æ÷"), 0 },
-        { QStringLiteral("´æ´¢¶ÔÆë"), 0 },
-        { QStringLiteral("Ó¦ÓÃ¶ÔÆë"), 0 },
-        { QStringLiteral("¸´ÖÆ×ª»»"), 0 },
-        { QStringLiteral("Õ³Ìù×ª»»"), 0 },
-        { QStringLiteral("ÖØÖÃ×ª»»"), 0 },
-        { QStringLiteral("Ëø¶¨"), 0 },
-        { QStringLiteral("½âËø"), 0 },
+        { QStringLiteral("æœ€ä½³æ‹Ÿåˆå¯¹é½"), 0 },
+        { QStringLiteral("3-2-1å¯¹é½"), 0 },
+        { QStringLiteral("åŸºäºç‰¹å¾çš„å¯¹é½"),0 },
+        { QStringLiteral("æŒ‰æ¬¡åºå¯¹é½"), 0 },
+        { QStringLiteral("RPSå¯¹é½"), 0 },
+        { QStringLiteral("åŸºäºå‡ ä½•å…ƒç´ çš„æ‹Ÿåˆ"), 0 },
+        { QStringLiteral("ç¼–è¾‘å½“å‰å¯¹é½"), 0 },
+        { QStringLiteral("ç®€å•3-2-1å¯¹é½"), 0 },
+        { QStringLiteral("ç®€å•å¯¹é½"), 0 },
+        { QStringLiteral("å°†åˆ‡ç‰‡å›¾å¯¹é½åˆ°å¯¹è±¡"), 0 },
+        { QStringLiteral("åæ ‡ç³»åŸç‚¹"), 0 },
+        { QStringLiteral("åæ ‡ç³»ç¼–è¾‘å™¨"), 0 },
+        { QStringLiteral("å­˜å‚¨å¯¹é½"), 0 },
+        { QStringLiteral("åº”ç”¨å¯¹é½"), 0 },
+        { QStringLiteral("å¤åˆ¶è½¬æ¢"), 0 },
+        { QStringLiteral("ç²˜è´´è½¬æ¢"), 0 },
+        { QStringLiteral("é‡ç½®è½¬æ¢"), 0 },
+        { QStringLiteral("é”å®š"), 0 },
+        { QStringLiteral("è§£é”"), 0 },
     };
     for (const auto& action : actions04)
     {

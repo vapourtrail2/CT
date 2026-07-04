@@ -1,31 +1,31 @@
 #pragma once
 #include "c_ui/workbenches/common/RibbonCommon.h"
 
-// ¸¨Öúº¯Êı  ¸ù¾İ°´Å¥ÎÄ±¾¼ÓÔØ¶ÔÓ¦Í¼±ê
+// è¾…åŠ©å‡½æ•°  æ ¹æ®æŒ‰é’®æ–‡æœ¬åŠ è½½å¯¹åº”å›¾æ ‡
 namespace IconMaps10 {
     static const RibbonCommon::IconMapItem kAnaIconMap[] = {
-        { QStringLiteral("×¢½â"),  ":/analyisis_icons/icons_other/analysis_icons/annotation.PNG" },
-        { QStringLiteral("ÊµÊ±Öµ"),  ":/analyisis_icons/icons_other/analysis_icons/realtime_value_on.PNG" },
-        { QStringLiteral("¿×Ï¶/¼ĞÔÓÎï"), ":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/a.PNG" },
+        { QStringLiteral("æ³¨è§£"),  ":/analyisis_icons/icons_other/analysis_icons/annotation.PNG" },
+        { QStringLiteral("å®æ—¶å€¼"),  ":/analyisis_icons/icons_other/analysis_icons/realtime_value_on.PNG" },
+        { QStringLiteral("å­”éš™/å¤¹æ‚ç‰©"), ":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/a.PNG" },
         { QStringLiteral("P203"),  ":/analyisis_icons/icons_other/analysis_icons/P203.PNG" },
         { QStringLiteral("P202/P201"),  ":/analyisis_icons/icons_other/analysis_icons/P202_P201.PNG" },
-        { QStringLiteral("Éè¼Æ¼ş/ÊµÎï¶Ô±È"),  ":/analyisis_icons/icons_other/analysis_icons/design_to_actual_compare.PNG" },
-        { QStringLiteral("±Úºñ"),  ":/analyisis_icons/icons_other/analysis_icons/wall_thickness.PNG" },
-        { QStringLiteral("Î»ÒÆ"),  ":/analyisis_icons/icons_other/analysis_icons/displacement.PNG" },
-        { QStringLiteral("ÏËÎ¬¸´ºÏ²ÄÁÏ"),  ":/analyisis_icons/icons_other/analysis_icons/fiber_recombination_material.PNG" },
-        { QStringLiteral("Åİ×´/·ÛÄ©½á¹¹"),      ":/analyisis_icons/icons_other/analysis_icons/paozhuang_fenmu_struct.PNG" },
-        { QStringLiteral("Êı×ÖÌå»ıÏà¹Ø¼ÆËã"),        ":/analyisis_icons/icons_other/analysis_icons/data_volume_cal.PNG" },
-        { QStringLiteral("»Ò¶ÈÖµ"),        ":/analyisis_icons/icons_other/analysis_icons/grey_value.PNG" },
-        { QStringLiteral("Êı¾İÖÊÁ¿"),        ":/analyisis_icons/icons_other/analysis_icons/data_quality.PNG" },
-        { QStringLiteral("ÇĞÆ¬Í¼Ãæ»ı"),":/analyisis_icons/icons_other/analysis_icons/slice_area.PNG" },
+        { QStringLiteral("è®¾è®¡ä»¶/å®ç‰©å¯¹æ¯”"),  ":/analyisis_icons/icons_other/analysis_icons/design_to_actual_compare.PNG" },
+        { QStringLiteral("å£åš"),  ":/analyisis_icons/icons_other/analysis_icons/wall_thickness.PNG" },
+        { QStringLiteral("ä½ç§»"),  ":/analyisis_icons/icons_other/analysis_icons/displacement.PNG" },
+        { QStringLiteral("çº¤ç»´å¤åˆææ–™"),  ":/analyisis_icons/icons_other/analysis_icons/fiber_recombination_material.PNG" },
+        { QStringLiteral("æ³¡çŠ¶/ç²‰æœ«ç»“æ„"),      ":/analyisis_icons/icons_other/analysis_icons/paozhuang_fenmu_struct.PNG" },
+        { QStringLiteral("æ•°å­—ä½“ç§¯ç›¸å…³è®¡ç®—"),        ":/analyisis_icons/icons_other/analysis_icons/data_volume_cal.PNG" },
+        { QStringLiteral("ç°åº¦å€¼"),        ":/analyisis_icons/icons_other/analysis_icons/grey_value.PNG" },
+        { QStringLiteral("æ•°æ®è´¨é‡"),        ":/analyisis_icons/icons_other/analysis_icons/data_quality.PNG" },
+        { QStringLiteral("åˆ‡ç‰‡å›¾é¢ç§¯"),":/analyisis_icons/icons_other/analysis_icons/slice_area.PNG" },
         { QStringLiteral("OCR"),":/analyisis_icons/icons_other/analysis_icons/OCR.PNG" },
-        { QStringLiteral("¼Ğ½ôÄ£Äâ"),  ":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG" },
-        { QStringLiteral("½á¹¹Á¦Ñ§Ä£Äâ"),  ":/analyisis_icons/icons_other/analysis_icons/struct_simulation.PNG" },
-        { QStringLiteral("´«µİÏÖÏó"),  ":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/transfer_phenomenon.PNG" },
-        { QStringLiteral("µç³Ø¼«Æ¬¶ÔÆë·ÖÎö"),  ":/analyisis_icons/icons_other/analysis_icons/battery_analysis.PNG" },
-        { QStringLiteral("µ¼Èë¼¯³ÉÍø¸ñ"),  ":/analyisis_icons/icons_other/analysis_icons/input_integration_mesh.PNG" },
-        { QStringLiteral("´´½¨¼¯³ÉÍø¸ñ"),  ":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/create_integration_mesh.PNG" },
-        { QStringLiteral("ÆÀ¹À"),  ":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/evaluate.PNG" },
-        { QStringLiteral("¸üĞÂËùÓĞ·ÖÎö"),  ":/analyisis_icons/icons_other/analysis_icons/update_analysis.PNG" },
+        { QStringLiteral("å¤¹ç´§æ¨¡æ‹Ÿ"),  ":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG" },
+        { QStringLiteral("ç»“æ„åŠ›å­¦æ¨¡æ‹Ÿ"),  ":/analyisis_icons/icons_other/analysis_icons/struct_simulation.PNG" },
+        { QStringLiteral("ä¼ é€’ç°è±¡"),  ":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/transfer_phenomenon.PNG" },
+        { QStringLiteral("ç”µæ± æç‰‡å¯¹é½åˆ†æ"),  ":/analyisis_icons/icons_other/analysis_icons/battery_analysis.PNG" },
+        { QStringLiteral("å¯¼å…¥é›†æˆç½‘æ ¼"),  ":/analyisis_icons/icons_other/analysis_icons/input_integration_mesh.PNG" },
+        { QStringLiteral("åˆ›å»ºé›†æˆç½‘æ ¼"),  ":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/create_integration_mesh.PNG" },
+        { QStringLiteral("è¯„ä¼°"),  ":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/evaluate.PNG" },
+        { QStringLiteral("æ›´æ–°æ‰€æœ‰åˆ†æ"),  ":/analyisis_icons/icons_other/analysis_icons/update_analysis.PNG" },
     };
 };

@@ -1,11 +1,11 @@
 #pragma once
 #include "c_ui/command/Commands.h"
-#include "AppController.h"
+#include "c_ui/context/SessionManager.h"
 #include "c_ui/context/Dataset.h"
 
-// Ó¦ÓÃÖĞÊà£º±»×¢Èëµ½¸÷´¦µÄ¡°Î¨Ò»¹²Ïí¶ÔÏó¡±
-// ÏÖÔÚÏÈ³ÖÓĞÃüÁî±í£»ºóĞø»á³ÖÓĞ Dataset£¨´ò¿ªµÄÊı¾İ£©/ State ¾ä±úµÈ£¬
-// ÈÃÃæ°åºÍÑ¡Ïî¿¨Ö»ÒÀÀµ¡°ËüÒ»¸ö¡±
+// åº”ç”¨ä¸­æ¢ï¼šè¢«æ³¨å…¥åˆ°å„å¤„çš„â€œå”¯ä¸€å…±äº«å¯¹è±¡â€
+// ç°åœ¨å…ˆæŒæœ‰å‘½ä»¤è¡¨ï¼›åç»­ä¼šæŒæœ‰ Datasetï¼ˆæ‰“å¼€çš„æ•°æ®ï¼‰/ State å¥æŸ„ç­‰ï¼Œ
+// è®©é¢æ¿å’Œé€‰é¡¹å¡åªä¾èµ–â€œå®ƒä¸€ä¸ªâ€
 class AppContext {
 public:
 	Commands& getCommands() {
@@ -13,21 +13,21 @@ public:
 	}
 	const Commands& getCommands() const{
 		return commands_;
-	}// Ê²Ã´ÒâË¼
+	}// ä»€ä¹ˆæ„æ€
 
-	AppController& getAppController() {
-		return controller_;
+	SessionManager& getSessionManager() {
+		return sessionManager_;
 	}
-	const AppController& getAppController() const {
-		return controller_;
+	const SessionManager& getSessionManager() const {
+		return sessionManager_;
 	}
 
 	Dataset getDataset() const {
-		return Dataset(controller_.getSession());
+		return Dataset(sessionManager_.getSession());
 	}
 
 	std::shared_ptr<AppSession> getSession() const {
-		return controller_.getSession();
+		return sessionManager_.getSession();
 	}
 
 	bool hasData()	const {
@@ -37,5 +37,5 @@ public:
 	
 private:
 	Commands commands_;
-	AppController controller_;
+	SessionManager sessionManager_;
 };

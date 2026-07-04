@@ -1,12 +1,12 @@
 #pragma once
-#include "AppController.h"      // AppSession ¶¨ÒåÔÚÕâ
+#include "c_ui/context/SessionManager.h"      // AppSession å®šä¹‰åœ¨è¿™
 #include <vtkImageData.h>
 #include <QString>
 #include <array>
 #include <memory>
 
-// ´ò¿ªµÄÊı¾İ£¨Model µÄÍâ¹Û£©£º°ü×¡ core µÄ AppSession£¬
-// ¶Ô UI Ö»±©Â¶¡°Ö»¶ÁÊÓÍ¼¡± + ×´Ì¬/¹ã²¥¾ä±ú£¬±ÜÃâ UI Ö±½ÓÃş DataManager¡£
+// æ‰“å¼€çš„æ•°æ®ï¼ˆModel çš„å¤–è§‚ï¼‰ï¼šåŒ…ä½ core çš„ AppSessionï¼Œ
+// å¯¹ UI åªæš´éœ²â€œåªè¯»è§†å›¾â€ + çŠ¶æ€/å¹¿æ’­å¥æŸ„ï¼Œé¿å… UI ç›´æ¥æ‘¸ DataManagerã€‚
 class Dataset
 {
 public:
@@ -19,7 +19,7 @@ public:
         return session_ && session_->dataMgr && session_->sharedState;
     }
 
-    // ×´Ì¬ÖĞĞÄ
+    // çŠ¶æ€ä¸­å¿ƒ
     std::shared_ptr<SharedInteractionState> getState() const {
         return session_ ? session_->sharedState : nullptr;
     }
@@ -27,7 +27,7 @@ public:
         return session_ ? session_->sharedStateBroadcaster : nullptr;
     }
 
-    // Ö»¶ÁÊÓÍ¼£ºUI ÏëÖªµÀµÄ¡°¾²Ì¬ĞÅÏ¢¡±£¬´ÓÕâÀïÎÊ£¬²»Òª×Ô¼ºÈ¥·­ DataManager
+    // åªè¯»è§†å›¾ï¼šUI æƒ³çŸ¥é“çš„â€œé™æ€ä¿¡æ¯â€ï¼Œä»è¿™é‡Œé—®ï¼Œä¸è¦è‡ªå·±å»ç¿» DataManager
     QString getSourcePath() const {
         return session_ ? session_->sourcePath : QString();
     }
@@ -44,12 +44,12 @@ public:
         return d;
     }
 
-    // »¹Ã»Ç¨µÄµØ·½£¨viewport / renderPanel£©ÏÈÓÃÔ­Ê¼ session
+    // è¿˜æ²¡è¿çš„åœ°æ–¹ï¼ˆviewport / renderPanelï¼‰å…ˆç”¨åŸå§‹ session
     std::shared_ptr<AppSession> getSession() const { 
         return session_; 
     }
 
-    // Ö±·½Í¼µÈ·ÖÎö·şÎñ£¨RenderPanel ÒªÓÃ£©
+    // ç›´æ–¹å›¾ç­‰åˆ†ææœåŠ¡ï¼ˆRenderPanel è¦ç”¨ï¼‰
     std::shared_ptr<VolumeAnalysisService> getAnalysisService() const {
         return session_ ? session_->analysisService : nullptr;
     }

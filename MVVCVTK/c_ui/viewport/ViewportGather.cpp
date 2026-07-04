@@ -32,7 +32,7 @@ void ViewportGather::buildUi()
 
 void ViewportGather::initWithData(const Dataset& dataset)
 {
-	// ÕâÀïµÄresetÊÇÎªÁËÌáÇ°¶Ï¿ªÓë¾ÉÊý¾ÝºÍ×´Ì¬µÄ¹ØÁª£¬È·±£ÔÚºóÐø¸³ÐÂÖµÊ±²»»áÓÐ¾ÉÊý¾Ý´¥·¢µÄ»Øµ÷¸ÉÈÅ½çÃæ¸üÐÂ¡£Í¨¹ýÏÈreset£¬ÔÙ¸³ÐÂÖµ£¬¿ÉÒÔ±£Ö¤½çÃæÔÚÕû¸ö¹ý³ÌÖÐ±£³ÖÒ»ÖÂÐÔºÍÎÈ¶¨ÐÔ¡£
+	// è¿™é‡Œçš„resetæ˜¯ä¸ºäº†æå‰æ–­å¼€ä¸Žæ—§æ•°æ®å’ŒçŠ¶æ€çš„å…³è”ï¼Œç¡®ä¿åœ¨åŽç»­èµ‹æ–°å€¼æ—¶ä¸ä¼šæœ‰æ—§æ•°æ®è§¦å‘çš„å›žè°ƒå¹²æ‰°ç•Œé¢æ›´æ–°ã€‚é€šè¿‡å…ˆresetï¼Œå†èµ‹æ–°å€¼ï¼Œå¯ä»¥ä¿è¯ç•Œé¢åœ¨æ•´ä¸ªè¿‡ç¨‹ä¸­ä¿æŒä¸€è‡´æ€§å’Œç¨³å®šæ€§ã€‚
 	m_lifeToken.reset();
     m_axial.reset();
     m_coronal.reset();
@@ -59,7 +59,7 @@ void ViewportGather::initWithData(const Dataset& dataset)
     m_sagittal.setBuild(m_dataMgr, m_sharedState, m_stateBroadcaster);
 	m_view3d.setBuild(m_dataMgr, m_sharedState, m_stateBroadcaster);
 
-	//¼ÓÕâ¸öµÄÄ¿µÄÊÇÎªÁËÔÚÊý¾Ý×¼±¸ºÃ»òÕßspacing¸Ä±äÊ±Ë¢ÐÂ½çÃæ£¬Ö®Ç°µÄ°æ±¾ÊÇÖ±½ÓÔÚÍâÃæµ÷ÓÃrefreshViews()£¬µ«ÕâÑù¿ÉÄÜ»áÓÐÊ±ÐòÎÊÌâ£¬µ¼ÖÂ½çÃæÃ»ÓÐ¼°Ê±¸üÐÂ¡£Í¨¹ýÉèÖÃ¹Û²ìÕß£¬µ±Êý¾Ý×¼±¸ºÃ»òÕßspacing¸Ä±äÊ±×Ô¶¯µ÷ÓÃrefreshViews()£¬¿ÉÒÔÈ·±£½çÃæÊ¼ÖÕÓëÊý¾Ý×´Ì¬±£³ÖÍ¬²½¡£
+	//åŠ è¿™ä¸ªçš„ç›®çš„æ˜¯ä¸ºäº†åœ¨æ•°æ®å‡†å¤‡å¥½æˆ–è€…spacingæ”¹å˜æ—¶åˆ·æ–°ç•Œé¢ï¼Œä¹‹å‰çš„ç‰ˆæœ¬æ˜¯ç›´æŽ¥åœ¨å¤–é¢è°ƒç”¨refreshViews()ï¼Œä½†è¿™æ ·å¯èƒ½ä¼šæœ‰æ—¶åºé—®é¢˜ï¼Œå¯¼è‡´ç•Œé¢æ²¡æœ‰åŠæ—¶æ›´æ–°ã€‚é€šè¿‡è®¾ç½®è§‚å¯Ÿè€…ï¼Œå½“æ•°æ®å‡†å¤‡å¥½æˆ–è€…spacingæ”¹å˜æ—¶è‡ªåŠ¨è°ƒç”¨refreshViews()ï¼Œå¯ä»¥ç¡®ä¿ç•Œé¢å§‹ç»ˆä¸Žæ•°æ®çŠ¶æ€ä¿æŒåŒæ­¥ã€‚
     m_stateBroadcaster->SetObserver(m_lifeToken, [this](UpdateFlags flags) {
         const bool needsRefresh =
             HasFlag(flags, UpdateFlags::All) || HasFlag(flags, UpdateFlags::DataReady);
@@ -204,8 +204,8 @@ QWidget* ViewportGather::createViewportContainer(Viewport& vp, ViewportId id)
     vp.setAttach(vtkWidget);
 
     auto* button = new QToolButton(container);
-    button->setText(QStringLiteral("¡õ"));
-    button->setToolTip(QStringLiteral("·Å´ó/»¹Ô­ÊÓ¿Ú"));
+    button->setText(QStringLiteral("â–¡"));
+    button->setToolTip(QStringLiteral("æ”¾å¤§/è¿˜åŽŸè§†å£"));
     button->setFixedSize(26, 26);
     button->setStyleSheet(QStringLiteral(
         "QToolButton{background:rgba(30,30,30,180); color:white; border:1px solid #666;}"

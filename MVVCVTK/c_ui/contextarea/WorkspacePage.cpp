@@ -3,7 +3,6 @@
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
-#include "AppController.h"
 #include "c_ui/context/DataSet.h"
 
 #include <QSplitter>
@@ -21,14 +20,14 @@ void WorkspacePage::buildUi() {
     root->setContentsMargins(0, 0, 0, 0);
     root->setSpacing(0);
 
-    workspaceSplit_ = new QSplitter(Qt::Horizontal, this);//第一个参数是水平分割
+    workspaceSplit_ = new QSplitter(Qt::Horizontal, this);//绗竴涓弬鏁版槸姘村钩鍒嗗壊
     workspaceSplit_->setObjectName("workspaceSplit");
     root->addWidget(workspaceSplit_, 1);
 
-    //左侧
+    //宸︿晶
     viewportGather_ = new ViewportGather(workspaceSplit_);
 
-    //右侧
+    //鍙充晶
     rightSplit_ = new QSplitter(Qt::Vertical, workspaceSplit_);
     rightSplit_->setObjectName("rightsplit");
 
@@ -49,7 +48,7 @@ void WorkspacePage::buildUi() {
     connect(workSpaceUIState_, &WorkSpaceUIState::primary3DModeChanged, viewportGather_, &ViewportGather::setPrimary3DMode);
     
     viewportGather_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
-    //安装
+    //瀹夎
     workspaceSplit_->addWidget(viewportGather_);
     workspaceSplit_->addWidget(rightSplit_);
     workspaceSplit_->setStretchFactor(0, 50);

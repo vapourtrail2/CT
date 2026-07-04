@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 AnalysisPage::AnalysisPage (QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("analysisEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#analysisEdit{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ AnalysisPage::AnalysisPage (QWidget* parent)
     layout08->setContentsMargins(0, 0, 0, 0);
     layout08->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout08->addWidget(buildRibbon08(this));
 }
 
@@ -47,12 +47,12 @@ int AnalysisPage::tabIndex() const
 
 QString AnalysisPage::tabName() const
 {
-    return QStringLiteral("·ÖÎö");
+    return QStringLiteral("åˆ†æž");
 }
 
 QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
 {
-    // ´´½¨¹¦ÄÜÇøÈÝÆ÷
+    // åˆ›å»ºåŠŸèƒ½åŒºå®¹å™¨
     auto* ribbon08 = new QFrame(parent);
     ribbon08->setObjectName(QStringLiteral("analysisRibbon"));
     ribbon08->setStyleSheet(QStringLiteral(
@@ -70,32 +70,32 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
     };
 
     const QList<RibbonAction08> actions08 = {
-        { QStringLiteral("×¢½â"), 0 },
-        { QStringLiteral("ÊµÊ±Öµ"), 0 },
-        { QStringLiteral("¿×Ï¶/¼ÐÔÓÎï"), 1 },
+        { QStringLiteral("æ³¨è§£"), 0 },
+        { QStringLiteral("å®žæ—¶å€¼"), 0 },
+        { QStringLiteral("å­”éš™/å¤¹æ‚ç‰©"), 1 },
         { QStringLiteral("P203"), 0 },
         { QStringLiteral("P202/P201"), 0 },
-        { QStringLiteral("Éè¼Æ¼þ/ÊµÎï¶Ô±È"), 0 },
-        { QStringLiteral("±Úºñ"), 2 },
-        { QStringLiteral("Î»ÒÆ"), 0 },
-        { QStringLiteral("ÏËÎ¬¸´ºÏ²ÄÁÏ"), 0 },
-        { QStringLiteral("ÅÝ×´/·ÛÄ©½á¹¹"), 0 },
-        { QStringLiteral("Êý×ÖÌå»ýÏà¹Ø¼ÆËã"), 0 },
-        { QStringLiteral("»Ò¶ÈÖµ"), 0 },
-        { QStringLiteral("Êý¾ÝÖÊÁ¿"), 0 },
-        { QStringLiteral("ÇÐÆ¬Í¼Ãæ»ý"), 0 },
+        { QStringLiteral("è®¾è®¡ä»¶/å®žç‰©å¯¹æ¯”"), 0 },
+        { QStringLiteral("å£åŽš"), 2 },
+        { QStringLiteral("ä½ç§»"), 0 },
+        { QStringLiteral("çº¤ç»´å¤åˆææ–™"), 0 },
+        { QStringLiteral("æ³¡çŠ¶/ç²‰æœ«ç»“æž„"), 0 },
+        { QStringLiteral("æ•°å­—ä½“ç§¯ç›¸å…³è®¡ç®—"), 0 },
+        { QStringLiteral("ç°åº¦å€¼"), 0 },
+        { QStringLiteral("æ•°æ®è´¨é‡"), 0 },
+        { QStringLiteral("åˆ‡ç‰‡å›¾é¢ç§¯"), 0 },
         { QStringLiteral("OCR"), 0 },
-        { QStringLiteral("¼Ð½ôÄ£Äâ"), 3 },
-        { QStringLiteral("½á¹¹Á¦Ñ§Ä£Äâ"), 0 },
-        { QStringLiteral("´«µÝÏÖÏó"), 4 },
-        { QStringLiteral("µç³Ø¼«Æ¬¶ÔÆë·ÖÎö"), 0 },
-        { QStringLiteral("µ¼Èë¼¯³ÉÍø¸ñ"), 0 },
-        { QStringLiteral("´´½¨¼¯³ÉÍø¸ñ"), 5 },
-        { QStringLiteral("ÆÀ¹À"), 6 },
-        { QStringLiteral("¸üÐÂËùÓÐ·ÖÎö"),0 }
+        { QStringLiteral("å¤¹ç´§æ¨¡æ‹Ÿ"), 3 },
+        { QStringLiteral("ç»“æž„åŠ›å­¦æ¨¡æ‹Ÿ"), 0 },
+        { QStringLiteral("ä¼ é€’çŽ°è±¡"), 4 },
+        { QStringLiteral("ç”µæ± æžç‰‡å¯¹é½åˆ†æž"), 0 },
+        { QStringLiteral("å¯¼å…¥é›†æˆç½‘æ ¼"), 0 },
+        { QStringLiteral("åˆ›å»ºé›†æˆç½‘æ ¼"), 5 },
+        { QStringLiteral("è¯„ä¼°"), 6 },
+        { QStringLiteral("æ›´æ–°æ‰€æœ‰åˆ†æž"),0 }
     };
     for (const auto& action : actions08) {
-        // Ã¿¸ö¹¦ÄÜ¶¼Ê¹ÓÃÍ¼±ê,ÎÄ×ÖµÄÐÎÊ½Õ¹Ê¾
+        // æ¯ä¸ªåŠŸèƒ½éƒ½ä½¿ç”¨å›¾æ ‡,æ–‡å­—çš„å½¢å¼å±•ç¤º
         auto* button = new QToolButton(ribbon08);
         // Shared wrap rule avoids duplicate text-layout code in each page.
         QString afterShiftText = RibbonCommon::shiftNewLine(action.text, button->font(), 55);
@@ -105,17 +105,17 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
         button->setIconSize(QSize(40, 40));
         button->setMinimumSize(QSize(70, 90));
         if (action.hasMenu == 1) {
-            // ×ª»»Îª¹¦ÄÜ ÐèÒªºóÆÚÍØÕ¹
+            // è½¬æ¢ä¸ºåŠŸèƒ½ éœ€è¦åŽæœŸæ‹“å±•
             auto* menu = new QMenu(button);
             menu->setStyleSheet(QStringLiteral(
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/EasyPore.PNG"), QStringLiteral("EASYPOREËã·¨"));
-            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/defeat_ROI.PNG"), QStringLiteral("À´×ÔÈ±ÏÝµÄROI"));
-            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/DefX_threshold.PNG"), QStringLiteral("DefX/½öãÐÖµËã·¨"));
+            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/EasyPore.PNG"), QStringLiteral("EASYPOREç®—æ³•"));
+            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/defeat_ROI.PNG"), QStringLiteral("æ¥è‡ªç¼ºé™·çš„ROI"));
+            menu->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/DefX_threshold.PNG"), QStringLiteral("DefX/ä»…é˜ˆå€¼ç®—æ³•"));
             button->setMenu(menu);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 2) {
             auto* menu02 = new QMenu(button);
@@ -123,10 +123,10 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/wall_thickness.PNG"), QStringLiteral("ÉäÏß·¨"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/ball.png"), QStringLiteral("ÇòÌå·¨"));
+            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/wall_thickness.PNG"), QStringLiteral("å°„çº¿æ³•"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/ball.png"), QStringLiteral("çƒä½“æ³•"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 3) {
             auto* menu02 = new QMenu(button);
@@ -134,10 +134,10 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG"), QStringLiteral("¼Ð½ôÄ£Äâ"));
-            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG"), QStringLiteral("½«¼Ð½ôÍø¸ñ·ÅÔÚ³¡¾°ÖÐ"));
+            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG"), QStringLiteral("å¤¹ç´§æ¨¡æ‹Ÿ"));
+            menu02->addAction(QIcon(":/analyisis_icons/icons_other/analysis_icons/clip_simulation.PNG"), QStringLiteral("å°†å¤¹ç´§ç½‘æ ¼æ”¾åœ¨åœºæ™¯ä¸­"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 4) {
             auto* menu02 = new QMenu(button);
@@ -145,17 +145,17 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/absolute_shentou_experiment.PNG"), QStringLiteral("¾ø¶ÔÉøÍ¸ÂÊÊµÑé"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/absolute_shentou_tensor.PNG"), QStringLiteral("¾ø¶ÔÉøÍ¸ÂÊÕÅÁ¿"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/molecule_diffusion_experical.PNG"), QStringLiteral("·Ö×ÓÀ©É¢ÊµÑé"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/molecule_diffusion_tensor.PNG"), QStringLiteral("·Ö×ÓÀ©É¢ÕÅÁ¿"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/daore_experiment.PNG"), QStringLiteral("µ¼ÈÈÂÊÊµÑé"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/daore_tensor.PNG"), QStringLiteral("µ¼ÈÈÂÊÕÅÁ¿"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/diandaolv_experiment.PNG"), QStringLiteral("µçµ¼ÂÊÊµÑé"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/diandaolv_tensor.PNG"), QStringLiteral("µçµ¼ÂÊÕÅÁ¿"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/line.PNG"), QStringLiteral("Ã«Ï¸¹ÜÑ¹Á¦ÇúÏß"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/absolute_shentou_experiment.PNG"), QStringLiteral("ç»å¯¹æ¸—é€çŽ‡å®žéªŒ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/absolute_shentou_tensor.PNG"), QStringLiteral("ç»å¯¹æ¸—é€çŽ‡å¼ é‡"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/molecule_diffusion_experical.PNG"), QStringLiteral("åˆ†å­æ‰©æ•£å®žéªŒ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/molecule_diffusion_tensor.PNG"), QStringLiteral("åˆ†å­æ‰©æ•£å¼ é‡"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/daore_experiment.PNG"), QStringLiteral("å¯¼çƒ­çŽ‡å®žéªŒ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/daore_tensor.PNG"), QStringLiteral("å¯¼çƒ­çŽ‡å¼ é‡"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/diandaolv_experiment.PNG"), QStringLiteral("ç”µå¯¼çŽ‡å®žéªŒ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/diandaolv_tensor.PNG"), QStringLiteral("ç”µå¯¼çŽ‡å¼ é‡"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/transfor_phenomenon_pull_down_menu/line.PNG"), QStringLiteral("æ¯›ç»†ç®¡åŽ‹åŠ›æ›²çº¿"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 5) {
             auto* menu02 = new QMenu(button);
@@ -163,11 +163,11 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/create_regular_mesh.PNG"), QStringLiteral("´´½¨¹æÔò¼¯³ÉÍø¸ñ"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/geometry_create_integration_mesh.PNG"), QStringLiteral("´Ó¼¸ºÎÔªËØÖÐ´´½¨¼¯³ÉÍø¸ñ"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/mesh.PNG"), QStringLiteral("´ÓËÄÃæÌåÌå»ýÍø¸ñ´´½¨¼¯³ÉÍø¸ñ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/create_regular_mesh.PNG"), QStringLiteral("åˆ›å»ºè§„åˆ™é›†æˆç½‘æ ¼"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/geometry_create_integration_mesh.PNG"), QStringLiteral("ä»Žå‡ ä½•å…ƒç´ ä¸­åˆ›å»ºé›†æˆç½‘æ ¼"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/create_integration_mesh_pull_down_menu/mesh.PNG"), QStringLiteral("ä»Žå››é¢ä½“ä½“ç§¯ç½‘æ ¼åˆ›å»ºé›†æˆç½‘æ ¼"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 6) {
             auto* menu02 = new QMenu(button);
@@ -175,11 +175,11 @@ QWidget* AnalysisPage::buildRibbon08(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/input_evaluate_mold.PNG"), QStringLiteral("µ¼ÈëÆÀ¹ÀÄ£°å"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/output_evaluate_mold.PNG"), QStringLiteral("µ¼³öÆÀ¹ÀÄ£°å"));
-            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/evaluate_property.PNG"), QStringLiteral("ÆÀ¹ÀÊôÐÔ"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/input_evaluate_mold.PNG"), QStringLiteral("å¯¼å…¥è¯„ä¼°æ¨¡æ¿"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/output_evaluate_mold.PNG"), QStringLiteral("å¯¼å‡ºè¯„ä¼°æ¨¡æ¿"));
+            menu02->addAction(QIcon(":/analysis_icons02/icons_other/analysis_icons/evaluate_pull_down_menu/evaluate_property.PNG"), QStringLiteral("è¯„ä¼°å±žæ€§"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         layout08->addWidget(button);
     }

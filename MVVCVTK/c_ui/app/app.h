@@ -8,6 +8,6 @@ namespace app {
         App();
         int run(int argc, char** argv);
     private:
-        void applyGlobalStyle() const;//≈‰÷√
+        void applyGlobalStyle() const;//ÈÖçÁΩÆ
     };
 } // namespace app

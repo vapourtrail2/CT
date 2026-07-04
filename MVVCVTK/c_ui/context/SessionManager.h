@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <QObject>
 #include <array>
 #include <memory>
@@ -23,11 +23,11 @@ struct AppSession
     QString sourcePath; // ban
 };
 
-class AppController : public QObject
+class SessionManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit AppController(QObject* parent = nullptr);
+    explicit SessionManager(QObject* parent = nullptr);
 
     std::shared_ptr<AppSession> getSession() const { return m_session; }
 

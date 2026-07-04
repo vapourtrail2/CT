@@ -6,16 +6,16 @@
 #include <QString>
 #include <cstddef>
 
-//Ç¨ÒÆÒ»Ğ©Í¨ÓÃµÄ¹¦ÄÜº¯ÊıºÍ½á¹¹Ìå£¬±ÜÃâÖØ¸´´úÂë£¬·½±ãÎ¬»¤
+//è¿ç§»ä¸€äº›é€šç”¨çš„åŠŸèƒ½å‡½æ•°å’Œç»“æ„ä½“ï¼Œé¿å…é‡å¤ä»£ç ï¼Œæ–¹ä¾¿ç»´æŠ¤
 namespace RibbonCommon {
 
-    // ÎÄ±¾ºÍÍ¼±êÂ·¾¶Ó³ÉäÏî
+    // æ–‡æœ¬å’Œå›¾æ ‡è·¯å¾„æ˜ å°„é¡¹
     struct IconMapItem {
         QString key;
         const char* iconPath;
     };
 
-    // °´ÏñËØ¿í¶È¸ø°´Å¥ÎÄ±¾»»ĞĞ
+    // æŒ‰åƒç´ å®½åº¦ç»™æŒ‰é’®æ–‡æœ¬æ¢è¡Œ
     inline QString shiftNewLine(
         const QString& text,
         const QFont& font,
@@ -51,7 +51,7 @@ namespace RibbonCommon {
         return out;
     }
 
-    // °´ÎÄ±¾´ÓÓ³Éä±íÈ¡Í¼±ê£¬Ã»ÃüÖĞÊ±·µ»ØÄ¬ÈÏÍ¼±ê
+    // æŒ‰æ–‡æœ¬ä»æ˜ å°„è¡¨å–å›¾æ ‡ï¼Œæ²¡å‘½ä¸­æ—¶è¿”å›é»˜è®¤å›¾æ ‡
     template <std::size_t N>
     inline QIcon loadIconByText(
         const QString& text,

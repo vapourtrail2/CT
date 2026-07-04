@@ -14,7 +14,7 @@ namespace app {
 
     int App::run(int argc, char** argv)
     {
-        // ´´½¨²¢³ÖÓĞ QApplication ¶ÔÏó£¬È·±£ Qt ÊÂ¼şÑ­»·´æÔÚ
+        // åˆ›å»ºå¹¶æŒæœ‰ QApplication å¯¹è±¡ï¼Œç¡®ä¿ Qt äº‹ä»¶å¾ªç¯å­˜åœ¨
         QApplication qtApp(argc, argv);
 		applyGlobalStyle();
 
@@ -29,7 +29,7 @@ namespace app {
     {
         QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
 
-        // ÅäÉ«±í
+        // é…è‰²è¡¨
         QPalette palette;
         palette.setColor(QPalette::Window, QColor(30, 30, 30));
         palette.setColor(QPalette::WindowText, QColor(220, 220, 220));
@@ -45,7 +45,7 @@ namespace app {
         palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
         QApplication::setPalette(palette);
 
-        // Ô¤¼ÓÔØ³£ÓÃ×ÖÌå
+        // é¢„åŠ è½½å¸¸ç”¨å­—ä½“
         QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/SourceHanSansCN-Regular.otf"));
     }
 } // namespace app

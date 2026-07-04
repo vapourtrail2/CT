@@ -1,4 +1,4 @@
-﻿#include "AppController.h"
+#include "c_ui/context/SessionManager.h"
 #include "c_ui/contextarea/WorkspacePage.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
@@ -269,7 +269,7 @@ void CTViewer::setCommands()
 }
 
 void CTViewer::connectAppSignals() {
-    connect(&context_.getAppController(), &AppController::sessionChanged, this,//
+    connect(&context_.getSessionManager(), &SessionManager::sessionChanged, this,//
         [this](const std::shared_ptr<AppSession>& session) {
             handleSessionChanged(session);
         });
@@ -351,7 +351,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& s
     setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
     QString err;
-    const bool ok =context_.getAppController().openFile(path,spacing,origin, &err);
+    const bool ok =context_.getSessionManager().openFile(path,spacing,origin, &err);
 
     if (!ok) {
         if (ProgressDialog_) {
@@ -543,7 +543,7 @@ void CTViewer::openCtReconUi()
             setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
             QString err;
-            const bool ok = context_.getAppController().openReconstructedData(
+            const bool ok = context_.getSessionManager().openReconstructedData(
                 data,
                 outSize,
                 spacing,

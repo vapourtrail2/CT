@@ -14,7 +14,6 @@
 #include <algorithm>
 #include <cmath>
 
-#include "AppController.h"
 #include "Service/VolumeAnalysisService.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 
@@ -32,16 +31,16 @@ RenderPanel::RenderPanel(QWidget* parent)
     v->setContentsMargins(6, 6, 6, 6);
     v->setSpacing(8);
 
-    // Ö±·½Í¼ÆÁ±Î£¬²»ÄÜÓÃËÀÊı¾İ
-    // Ö±·½Í¼ÇøÓò
-    auto* histGroup = new QGroupBox(QStringLiteral("Ö±·½Í¼"), this);
+    // ç›´æ–¹å›¾å±è”½ï¼Œä¸èƒ½ç”¨æ­»æ•°æ®
+    // ç›´æ–¹å›¾åŒºåŸŸ
+    auto* histGroup = new QGroupBox(QStringLiteral("ç›´æ–¹å›¾"), this);
     histGroup->setStyleSheet(
         "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
         "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
     );
     auto* hv = new QVBoxLayout(histGroup);
 
-    histLabel_ = new QLabel(QStringLiteral("(Î´¼ÓÔØ)"), histGroup);
+    histLabel_ = new QLabel(QStringLiteral("(æœªåŠ è½½)"), histGroup);
     histLabel_->setFixedHeight(160);
     histLabel_->setMinimumWidth(0);
     histLabel_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
@@ -51,25 +50,25 @@ RenderPanel::RenderPanel(QWidget* parent)
 
     v->addWidget(histGroup);
 
-    //µ÷½ÚÇøÓò
-    auto* isoGroup = new QGroupBox(QStringLiteral("µ÷½Ú"), this);
+    //è°ƒèŠ‚åŒºåŸŸ
+    auto* isoGroup = new QGroupBox(QStringLiteral("è°ƒèŠ‚"), this);
     isoGroup->setStyleSheet(
         "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
         "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
     );
     auto* iv = new QVBoxLayout(isoGroup);
 
-    isoValueLabel_ = new QLabel(QStringLiteral("ãĞÖµ: -"), isoGroup);
+    isoValueLabel_ = new QLabel(QStringLiteral("é˜ˆå€¼: -"), isoGroup);
     isoSlider_ = new QSlider(Qt::Horizontal, isoGroup);
     isoSlider_->setRange(0, 1000);
     
-    // ÓÃÎÒÌá¹©µÄ½µ²ÉÑù½Ó¿Ú
+    // ç”¨æˆ‘æä¾›çš„é™é‡‡æ ·æ¥å£
     iv->addWidget(isoValueLabel_);
     iv->addWidget(isoSlider_);
     v->addWidget(isoGroup);
 
-    //ÉèÖÃÇøÓò
-    auto* wlGroup = new QGroupBox(QStringLiteral("ÉèÖÃ"), this);
+    //è®¾ç½®åŒºåŸŸ
+    auto* wlGroup = new QGroupBox(QStringLiteral("è®¾ç½®"), this);
     wlGroup->setStyleSheet(
         "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
         "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
@@ -77,31 +76,31 @@ RenderPanel::RenderPanel(QWidget* parent)
     auto* wv = new QVBoxLayout(wlGroup);
 
     renderMode_ = new QComboBox(wlGroup);
-    renderMode_->addItem(QStringLiteral("µÈÖµÃæäÖÈ¾"), static_cast<int>(VizMode::CompositeIsoSurface));
-    renderMode_->addItem(QStringLiteral("ÌåäÖÈ¾"), static_cast<int>(VizMode::CompositeVolume));
+    renderMode_->addItem(QStringLiteral("ç­‰å€¼é¢æ¸²æŸ“"), static_cast<int>(VizMode::CompositeIsoSurface));
+    renderMode_->addItem(QStringLiteral("ä½“æ¸²æŸ“"), static_cast<int>(VizMode::CompositeVolume));
 
     auto* renderModeRow = new QHBoxLayout();
-    renderModeRow->addWidget(new QLabel(QStringLiteral("3D Ä£ĞÍ"), wlGroup));
+    renderModeRow->addWidget(new QLabel(QStringLiteral("3D æ¨¡å‹"), wlGroup));
     renderModeRow->addWidget(renderMode_, 1);
     wv->addLayout(renderModeRow);
 
-    clipPlanesToggle_ = new QCheckBox(QStringLiteral("ÏÔÊ¾ MPR Æ½Ãæ"), wlGroup);
+    clipPlanesToggle_ = new QCheckBox(QStringLiteral("æ˜¾ç¤º MPR å¹³é¢"), wlGroup);
     wv->addWidget(clipPlanesToggle_);
 
-    crosshairToggle_ = new QCheckBox(QStringLiteral("Ê®×ÖÏß"), wlGroup);
+    crosshairToggle_ = new QCheckBox(QStringLiteral("åå­—çº¿"), wlGroup);
     wv->addWidget(crosshairToggle_);
 
-    //±êÁ¿³ß¿Ø¼ş
-    rulerAxesToggle_ = new QCheckBox(QStringLiteral("±êÁ¿³ß"),wlGroup);
+    //æ ‡é‡å°ºæ§ä»¶
+    rulerAxesToggle_ = new QCheckBox(QStringLiteral("æ ‡é‡å°º"),wlGroup);
     wv->addWidget(rulerAxesToggle_);
 
-    windowWidthLabel_ = new QLabel(QStringLiteral("´°¿í: -"), wlGroup);
+    windowWidthLabel_ = new QLabel(QStringLiteral("çª—å®½: -"), wlGroup);
     windowWidthSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     windowWidthSlider_->setRange(0, 1000);
     wv->addWidget(windowWidthLabel_);
     wv->addWidget(windowWidthSlider_);
 
-    windowCenterLabel_ = new QLabel(QStringLiteral("´°Î»: -"), wlGroup);
+    windowCenterLabel_ = new QLabel(QStringLiteral("çª—ä½: -"), wlGroup);
     windowCenterSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     windowCenterSlider_->setRange(0, 1000);
     wv->addWidget(windowCenterLabel_);
@@ -116,8 +115,8 @@ RenderPanel::RenderPanel(QWidget* parent)
     };
 
     auto updateWindowLevelLabels = [this](double ww, double wc) {
-        windowWidthLabel_->setText(QStringLiteral("´°¿í: %1").arg(ww, 0, 'f', 2));
-        windowCenterLabel_->setText(QStringLiteral("´°Î»: %1").arg(wc, 0, 'f', 2));
+        windowWidthLabel_->setText(QStringLiteral("çª—å®½: %1").arg(ww, 0, 'f', 2));
+        windowCenterLabel_->setText(QStringLiteral("çª—ä½: %1").arg(wc, 0, 'f', 2));
     };
 
     auto pushWindowLevel = [this, updateWindowLevelLabels]() {
@@ -144,7 +143,7 @@ RenderPanel::RenderPanel(QWidget* parent)
         }
 
         const double iso = sliderToIso(value);
-        isoValueLabel_->setText(QStringLiteral("ãĞÖµ: %1").arg(iso, 0, 'f', 2));
+        isoValueLabel_->setText(QStringLiteral("é˜ˆå€¼: %1").arg(iso, 0, 'f', 2));
         state_->SetIsoValue(iso);
     });
 
@@ -260,9 +259,9 @@ void RenderPanel::setSharedState(const std::shared_ptr<SharedInteractionState>& 
 
     if (!state_) {
         updatingUi_ = true;
-        isoValueLabel_->setText("ãĞÖµ: -");
-        windowWidthLabel_->setText("´°¿í: -");
-        windowCenterLabel_->setText("´°Î»: -");
+        isoValueLabel_->setText("é˜ˆå€¼: -");
+        windowWidthLabel_->setText("çª—å®½: -");
+        windowCenterLabel_->setText("çª—ä½: -");
         isoSlider_->setValue(0);
         windowWidthSlider_->setValue(0);
         windowCenterSlider_->setValue(0);
@@ -274,7 +273,7 @@ void RenderPanel::setSharedState(const std::shared_ptr<SharedInteractionState>& 
 
         histPixmap_ = QPixmap();
         histLabel_->setPixmap(QPixmap());
-        histLabel_->setText(QStringLiteral("(Î´¼ÓÔØ)"));
+        histLabel_->setText(QStringLiteral("(æœªåŠ è½½)"));
         return;
     }
 
@@ -340,7 +339,7 @@ void RenderPanel::syncFromState(UpdateFlags flags)
         }
         t = clamp01(t);
         isoSlider_->setValue(static_cast<int>(std::round(t * 1000.0)));
-        isoValueLabel_->setText(QStringLiteral("ãĞÖµ: %1").arg(iso, 0, 'f', 2));
+        isoValueLabel_->setText(QStringLiteral("é˜ˆå€¼: %1").arg(iso, 0, 'f', 2));
     }
 
     if (HasFlag(flags, UpdateFlags::WindowLevel)
@@ -349,8 +348,8 @@ void RenderPanel::syncFromState(UpdateFlags flags)
         const auto wl = state_->GetWindowLevel();
         windowWidthSlider_->setValue(windowWidthToSlider(wl.windowWidth));
         windowCenterSlider_->setValue(windowCenterToSlider(wl.windowCenter));
-        windowWidthLabel_->setText(QStringLiteral("´°¿í: %1").arg(wl.windowWidth, 0, 'f', 2));
-        windowCenterLabel_->setText(QStringLiteral("´°Î»: %1").arg(wl.windowCenter, 0, 'f', 2));
+        windowWidthLabel_->setText(QStringLiteral("çª—å®½: %1").arg(wl.windowWidth, 0, 'f', 2));
+        windowCenterLabel_->setText(QStringLiteral("çª—ä½: %1").arg(wl.windowCenter, 0, 'f', 2));
     }
 
     updatingUi_ = false;
@@ -361,12 +360,12 @@ void RenderPanel::rebuildHistogramPixmap()
     histPixmap_ = QPixmap();
     histLabel_->setPixmap(QPixmap());
     if (!analysis_) {
-        histLabel_->setText(QStringLiteral("(Î´¼ÓÔØ)"));
+        histLabel_->setText(QStringLiteral("(æœªåŠ è½½)"));
         return;
     }
     vtkSmartPointer<vtkTable> table = analysis_->GetHistogramData(512);
     if (!table || table->GetNumberOfRows() <= 0) {
-        histLabel_->setText(QStringLiteral("(Î´¼ÓÔØ)"));
+        histLabel_->setText(QStringLiteral("(æœªåŠ è½½)"));
         return;
     }
     vtkDataArray* values = vtkDataArray::SafeDownCast(table->GetColumnByName("LogFrequency"));
@@ -374,7 +373,7 @@ void RenderPanel::rebuildHistogramPixmap()
         values = vtkDataArray::SafeDownCast(table->GetColumnByName("Frequency"));
     }
     if (!values || values->GetNumberOfTuples() <= 0) {
-        histLabel_->setText(QStringLiteral("(Î´¼ÓÔØ)"));
+        histLabel_->setText(QStringLiteral("(æœªåŠ è½½)"));
         return;
     }
     const int imageWidth = 512;
@@ -394,7 +393,7 @@ void RenderPanel::rebuildHistogramPixmap()
     }
     if (maxValue <= 0.0) {
         painter.end();
-        histLabel_->setText(QStringLiteral("(Ö±·½Í¼Îª¿Õ)"));
+        histLabel_->setText(QStringLiteral("(ç›´æ–¹å›¾ä¸ºç©º)"));
         return;
     }
     const vtkIdType count = values->GetNumberOfTuples();

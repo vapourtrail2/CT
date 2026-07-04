@@ -8,14 +8,14 @@
 
 class QVTKOpenGLNativeWidget;
 
-// Ò»¸öäÖÈ¾ÊÓ¿Ú£º×Ô´ø VTK ¿Ø¼ş + äÖÈ¾ÉÏÏÂÎÄ + äÖÈ¾·şÎñ + ÏÔÊ¾Ä£Ê½¡£
+// ä¸€ä¸ªæ¸²æŸ“è§†å£ï¼šè‡ªå¸¦ VTK æ§ä»¶ + æ¸²æŸ“ä¸Šä¸‹æ–‡ + æ¸²æŸ“æœåŠ¡ + æ˜¾ç¤ºæ¨¡å¼ã€‚
 class Viewport
 {
 public:
     void setAttach(QVTKOpenGLNativeWidget* widget) { widget_ = widget; }
     void setMode(VizMode mode) { mode_ = mode; }
 
-    // ÓÃÊı¾İ/×´Ì¬×°ÅäÕâ¸öÊÓ¿ÚµÄäÖÈ¾¹ÜÏß
+    // ç”¨æ•°æ®/çŠ¶æ€è£…é…è¿™ä¸ªè§†å£çš„æ¸²æŸ“ç®¡çº¿
     void setBuild(const std::shared_ptr<AbstractDataManager>& dataMgr,
         const std::shared_ptr<SharedInteractionState>& state,
         const std::shared_ptr<SharedStateBroadcaster>& broadcaster)

@@ -1,4 +1,4 @@
-﻿#include "AppController.h"
+#include "c_ui/context/SessionManager.h"
 #include <QFileInfo>
 #include <qapplication.h>
 #include <QDir>
@@ -16,12 +16,12 @@ std::shared_ptr<AbstractDataManager> CreateManagerForPath(const QString& path)
 }
 }
 
-AppController::AppController(QObject* parent)
+SessionManager::SessionManager(QObject* parent)
     : QObject(parent)
 {
 }
 
-bool AppController::openFile(const QString& path, 
+bool SessionManager::openFile(const QString& path, 
     const std::array<float, 3>& spacing,
     const std::array<float, 3>& origin,
     QString* errorOut
@@ -59,7 +59,7 @@ bool AppController::openFile(const QString& path,
 	return true;
 }
 
-bool AppController::openReconstructedData(
+bool SessionManager::openReconstructedData(
     const float* data,
     const std::array<int, 3>& dims,
     const std::array<float, 3>& spacing,
@@ -100,12 +100,12 @@ bool AppController::openReconstructedData(
     return true;
 }
 
-std::shared_ptr<AbstractDataManager> AppController::createDataManagerForPath(const QString& path) const
+std::shared_ptr<AbstractDataManager> SessionManager::createDataManagerForPath(const QString& path) const
 {
     return CreateManagerForPath(path);
 }
 
-void AppController::clearSession()
+void SessionManager::clearSession()
 {
     m_session.reset();
     emit sessionChanged(nullptr);

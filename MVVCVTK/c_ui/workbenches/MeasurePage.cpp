@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 MeasurePage::MeasurePage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("measureEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#pageMeasure{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ MeasurePage::MeasurePage(QWidget* parent)
     layout06->setContentsMargins(0, 0, 0, 0);
     layout06->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout06->addWidget(buildRibbon06(this));
 }
 
@@ -47,12 +47,12 @@ int MeasurePage::tabIndex() const
 
 QString MeasurePage::tabName() const
 {
-    return QStringLiteral("²âÁ¿");
+    return QStringLiteral("æµ‹é‡");
 }
 
 QWidget* MeasurePage::buildRibbon06(QWidget* parent)
 {
-    auto* ribbon06 = new QFrame(parent);//ribbon03ÊÇ--¹¦ÄÜÇøµÄÈÝÆ÷
+    auto* ribbon06 = new QFrame(parent);//ribbon03æ˜¯--åŠŸèƒ½åŒºçš„å®¹å™¨
     ribbon06->setObjectName(QStringLiteral("measureRibbon"));
     ribbon06->setStyleSheet(QStringLiteral(
         "QFrame#measureRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
@@ -68,64 +68,64 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
     };
 
     const QList<RibbonAction06> actions06 = {
-        { QStringLiteral("³ß´ç±ê×¢"), 0 },
-        { QStringLiteral("ÏßÐÔ³ß´ç"), 0 },
-        { QStringLiteral("Ö±Ïß¶È"), 0 },
-        { QStringLiteral("Æ½Ãæ¶È"), 0 },
-        { QStringLiteral("Ô²¶È"), 0 },
-        { QStringLiteral("Ô²Öù¶È"), 0 },
-        { QStringLiteral("Ô²×¶¶È"), 0 },
-        { QStringLiteral("Çò¶È"), 0 },
-        { QStringLiteral("´¹Ö±¶È"), 0 },
-        { QStringLiteral("Æ½ÐÐ¶È"), 0 },
-        { QStringLiteral("ÇãÐ±¶È"), 0 },
-        { QStringLiteral("Î»ÖÃ¶È"), 0 },
-        { QStringLiteral("Í¬Öá¶È"), 0 },
-        { QStringLiteral("¶Ô³Æ¶È"), 0 },
-        { QStringLiteral("ÏßÂÖÀª¶È"), 0 },
-        { QStringLiteral("ÃæÂÖÀª¶È"), 0 },
-        { QStringLiteral("Ô²Ìø¶¯"), 0 },
-        { QStringLiteral("È«Ìø¶¯"), 0 },
+        { QStringLiteral("å°ºå¯¸æ ‡æ³¨"), 0 },
+        { QStringLiteral("çº¿æ€§å°ºå¯¸"), 0 },
+        { QStringLiteral("ç›´çº¿åº¦"), 0 },
+        { QStringLiteral("å¹³é¢åº¦"), 0 },
+        { QStringLiteral("åœ†åº¦"), 0 },
+        { QStringLiteral("åœ†æŸ±åº¦"), 0 },
+        { QStringLiteral("åœ†é”¥åº¦"), 0 },
+        { QStringLiteral("çƒåº¦"), 0 },
+        { QStringLiteral("åž‚ç›´åº¦"), 0 },
+        { QStringLiteral("å¹³è¡Œåº¦"), 0 },
+        { QStringLiteral("å€¾æ–œåº¦"), 0 },
+        { QStringLiteral("ä½ç½®åº¦"), 0 },
+        { QStringLiteral("åŒè½´åº¦"), 0 },
+        { QStringLiteral("å¯¹ç§°åº¦"), 0 },
+        { QStringLiteral("çº¿è½®å»“åº¦"), 0 },
+        { QStringLiteral("é¢è½®å»“åº¦"), 0 },
+        { QStringLiteral("åœ†è·³åŠ¨"), 0 },
+        { QStringLiteral("å…¨è·³åŠ¨"), 0 },
 
-        { QStringLiteral("ÉèÖÃ"), 1 },
-        { QStringLiteral("Ö¸Ê¾Æ÷"), 0 },
-        { QStringLiteral("Á¿¾ß"), 2 },
-        { QStringLiteral("²¶×½Ä£Ê½"), 3 },
-        { QStringLiteral("ÖØÐÂ²¶×½Á¿¾ß¿Øµã"), 0 },
-        { QStringLiteral("²âÁ¿Ä£°å"), 4 },
-        { QStringLiteral("Á¿¾ßÄ£°å"), 5 },
-        { QStringLiteral("Ö¸Ê¾Æ÷Ä£°å"), 6 },
-        { QStringLiteral("¹«²î×¢½â"), 0 },
-        { QStringLiteral("CM½á¹û"), 0 },
+        { QStringLiteral("è®¾ç½®"), 1 },
+        { QStringLiteral("æŒ‡ç¤ºå™¨"), 0 },
+        { QStringLiteral("é‡å…·"), 2 },
+        { QStringLiteral("æ•æ‰æ¨¡å¼"), 3 },
+        { QStringLiteral("é‡æ–°æ•æ‰é‡å…·æŽ§ç‚¹"), 0 },
+        { QStringLiteral("æµ‹é‡æ¨¡æ¿"), 4 },
+        { QStringLiteral("é‡å…·æ¨¡æ¿"), 5 },
+        { QStringLiteral("æŒ‡ç¤ºå™¨æ¨¡æ¿"), 6 },
+        { QStringLiteral("å…¬å·®æ³¨è§£"), 0 },
+        { QStringLiteral("CMç»“æžœ"), 0 },
     };
 
-    // ÐèÒª×ö³ÉÁ½ÐÐËÄÁÐµÄÄÇ 8 ¸ö°´Å¥
+    // éœ€è¦åšæˆä¸¤è¡Œå››åˆ—çš„é‚£ 8 ä¸ªæŒ‰é’®
     const QStringList twoRowGroup = {
-        QStringLiteral("Ö±Ïß¶È"), 
-        QStringLiteral("Æ½Ãæ¶È"), 
-        QStringLiteral("Ô²¶È"), 
-        QStringLiteral("Ô²Öù¶È"), 
-        QStringLiteral("Ô²×¶¶È"), 
-        QStringLiteral("Çò¶È"), 
-        QStringLiteral("´¹Ö±¶È"), 
-        QStringLiteral("Æ½ÐÐ¶È"), 
-        QStringLiteral("ÇãÐ±¶È"), 
-        QStringLiteral("Î»ÖÃ¶È"), 
-        QStringLiteral("Í¬Öá¶È"), 
-        QStringLiteral("¶Ô³Æ¶È"), 
-        QStringLiteral("ÏßÂÖÀª¶È"), 
-        QStringLiteral("ÃæÂÖÀª¶È"), 
-        QStringLiteral("Ô²Ìø¶¯"), 
-        QStringLiteral("È«Ìø¶¯"),
+        QStringLiteral("ç›´çº¿åº¦"),
+        QStringLiteral("å¹³é¢åº¦"),
+        QStringLiteral("åœ†åº¦"),
+        QStringLiteral("åœ†æŸ±åº¦"),
+        QStringLiteral("åœ†é”¥åº¦"),
+        QStringLiteral("çƒåº¦"),
+        QStringLiteral("åž‚ç›´åº¦"),
+        QStringLiteral("å¹³è¡Œåº¦"),
+        QStringLiteral("å€¾æ–œåº¦"),
+        QStringLiteral("ä½ç½®åº¦"),
+        QStringLiteral("åŒè½´åº¦"),
+        QStringLiteral("å¯¹ç§°åº¦"),
+        QStringLiteral("çº¿è½®å»“åº¦"),
+        QStringLiteral("é¢è½®å»“åº¦"),
+        QStringLiteral("åœ†è·³åŠ¨"),
+        QStringLiteral("å…¨è·³åŠ¨"),
     };
 
-    QWidget* gridHolder_06 = nullptr;//Õâ¸öÖ¸ÕëµÄÒâË¼ÊÇ ÓÃÀ´³ÐÔØÄÇ¸ö 2¡Á4 µÄÐ¡·½Õó
-    QGridLayout* grid_06 = nullptr;//Õâ¸öÖ¸ÕëÊÇÓÃÀ´¹ÜÀíÄÇ¸öÐ¡·½ÕóµÄ²¼¾Ö
-    int groupedCount_06 = 0;//¼ÇÂ¼ÒÑ¾­·Å½øÐ¡·½ÕóµÄ°´Å¥ÊýÁ¿
+    QWidget* gridHolder_06 = nullptr;//è¿™ä¸ªæŒ‡é’ˆçš„æ„æ€æ˜¯ ç”¨æ¥æ‰¿è½½é‚£ä¸ª 2Ã—4 çš„å°æ–¹é˜µ
+    QGridLayout* grid_06 = nullptr;//è¿™ä¸ªæŒ‡é’ˆæ˜¯ç”¨æ¥ç®¡ç†é‚£ä¸ªå°æ–¹é˜µçš„å¸ƒå±€
+    int groupedCount_06 = 0;//è®°å½•å·²ç»æ”¾è¿›å°æ–¹é˜µçš„æŒ‰é’®æ•°é‡
 
     for (const auto& action : actions06)
     {
-        const bool inGroup_06 = twoRowGroup.contains(action.text);//containsº¯Êý¼ì²éÄ³¸öÔªËØÊÇ·ñÔÚÁÐ±íÖÐ ·µ»Øtrue»òfalse
+        const bool inGroup_06 = twoRowGroup.contains(action.text);//containså‡½æ•°æ£€æŸ¥æŸä¸ªå…ƒç´ æ˜¯å¦åœ¨åˆ—è¡¨ä¸­ è¿”å›žtrueæˆ–false
         auto* button = new QToolButton(ribbon06);
         button->setIcon(loadIconFor(action.text));
         button->setIconSize(QSize(32, 32));
@@ -134,29 +134,29 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
         button->setText(RibbonCommon::shiftNewLine(action.text, button->font(), 43));
         if (inGroup_06)
         {
-            if (!gridHolder_06) {//µÈ¼ÛÓÚgridholder == nullptr
+            if (!gridHolder_06) {//ç­‰ä»·äºŽgridholder == nullptr
                 gridHolder_06 = new QWidget(ribbon06);
                 grid_06 = new QGridLayout(gridHolder_06);
                 grid_06->setContentsMargins(4, 2, 4, 2);
-                grid_06->setHorizontalSpacing(8);//Ë®Æ½¼ä¾à
-                grid_06->setVerticalSpacing(4);//´¹Ö±¼ä¾à
-                layout06->addWidget(gridHolder_06); // °ÑÐ¡·½Õó²åÈëµ½Ö÷ ribbon
+                grid_06->setHorizontalSpacing(8);//æ°´å¹³é—´è·
+                grid_06->setVerticalSpacing(4);//åž‚ç›´é—´è·
+                layout06->addWidget(gridHolder_06); // æŠŠå°æ–¹é˜µæ’å…¥åˆ°ä¸» ribbon
             }
             button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            button->setIconSize(QSize(20, 20));           // Ð¡ icon
-            button->setMinimumSize(QSize(90, 20));       
+            button->setIconSize(QSize(20, 20));           // å° icon
+            button->setMinimumSize(QSize(90, 20));
             button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-            button->setText(action.text);                 
+            button->setText(action.text);
 
             int row = groupedCount_06 / 6;
             int col = groupedCount_06 % 6;
-            grid_06->addWidget(button, row, col);//Èý¸ö²ÎÊýµÄÒâË¼ÊÇ£ºÒªÌí¼ÓµÄ¿Ø¼þ¡¢ÐÐºÅ¡¢ÁÐºÅ
+            grid_06->addWidget(button, row, col);//ä¸‰ä¸ªå‚æ•°çš„æ„æ€æ˜¯ï¼šè¦æ·»åŠ çš„æŽ§ä»¶ã€è¡Œå·ã€åˆ—å·
             ++groupedCount_06;
             continue;
         }
-        
+
         else {
-            // ·Ç¸Ã·Ö×é£ºÈÔ¾ÉÒ»ÐÐºáÅÅ
+            // éžè¯¥åˆ†ç»„ï¼šä»æ—§ä¸€è¡Œæ¨ªæŽ’
             layout06->addWidget(button);
         }
 
@@ -166,8 +166,8 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/option_pull_down_menu/regular_tolerance_preset.png"), QStringLiteral("³£¹æ¹«²îÔ¤Éè"));
-            menu->addAction(QIcon(":/measure_icons03/icons_other/measure_icons/option_pull_down_menu/tolerance_visible_setting.png"), QStringLiteral("¹«²î¿ÉÊÓ»¯ÉèÖÃ"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/option_pull_down_menu/regular_tolerance_preset.png"), QStringLiteral("å¸¸è§„å…¬å·®é¢„è®¾"));
+            menu->addAction(QIcon(":/measure_icons03/icons_other/measure_icons/option_pull_down_menu/tolerance_visible_setting.png"), QStringLiteral("å…¬å·®å¯è§†åŒ–è®¾ç½®"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -180,16 +180,16 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
 
             auto* actDistance = menu->addAction(
                 QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"),
-                QStringLiteral("²â¾à"));
+                QStringLiteral("æµ‹è·"));
 
           /*  connect(actDistance, &QAction::triggered, this, [this]() {
                 emit laodengshigou();
                 });*/
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_4points.PNG"), QStringLiteral("½Ç¶È(4¸öµã)"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_3points.PNG"), QStringLiteral("½Ç¶È(3¸öµã)"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/fold_line_length.PNG"), QStringLiteral("ÕÛÏß³¤¶È"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/max_min_distance.PNG"), QStringLiteral("×î´ó/×îÐ¡¾àÀë"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/caliper.PNG"), QStringLiteral("¿¨³ß"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_4points.PNG"), QStringLiteral("è§’åº¦(4ä¸ªç‚¹)"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_3points.PNG"), QStringLiteral("è§’åº¦(3ä¸ªç‚¹)"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/fold_line_length.PNG"), QStringLiteral("æŠ˜çº¿é•¿åº¦"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/max_min_distance.PNG"), QStringLiteral("æœ€å¤§/æœ€å°è·ç¦»"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/caliper.PNG"), QStringLiteral("å¡å°º"));
 
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
@@ -200,12 +200,12 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/min.PNG"), QStringLiteral("×îÐ¡"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/max.PNG"), QStringLiteral("×î´ó"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/gradient.PNG"), QStringLiteral("ÌÝ¶È"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/surface.PNG"), QStringLiteral("±íÃæ"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/local.PNG"), QStringLiteral("¾Ö²¿"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/off.PNG"), QStringLiteral("¹Ø"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/min.PNG"), QStringLiteral("æœ€å°"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/max.PNG"), QStringLiteral("æœ€å¤§"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/gradient.PNG"), QStringLiteral("æ¢¯åº¦"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/surface.PNG"), QStringLiteral("è¡¨é¢"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/local.PNG"), QStringLiteral("å±€éƒ¨"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/off.PNG"), QStringLiteral("å…³"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -216,8 +216,8 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_template_pull_down_menu/input_measure_template.PNG"), QStringLiteral("µ¼Èë²âÁ¿Ä£°å"));
-            menu->addAction(QIcon(":/measure_icons03/icons_other/measure_icons/measure_template_pull_down_menu/output_measure_template.png"), QStringLiteral("µ¼³ö²âÁ¿Ä£°å"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_template_pull_down_menu/input_measure_template.PNG"), QStringLiteral("å¯¼å…¥æµ‹é‡æ¨¡æ¿"));
+            menu->addAction(QIcon(":/measure_icons03/icons_other/measure_icons/measure_template_pull_down_menu/output_measure_template.png"), QStringLiteral("å¯¼å‡ºæµ‹é‡æ¨¡æ¿"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -228,8 +228,8 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_template_pull_down_menu/intput_measure_tool_template.PNG"), QStringLiteral("µ¼ÈëÁ¿¾ßÄ£°å"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_template_pull_down_menu/output_measure_tool_template.PNG"), QStringLiteral("µ¼³öÁ¿¾ßÄ£°å"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_template_pull_down_menu/intput_measure_tool_template.PNG"), QStringLiteral("å¯¼å…¥é‡å…·æ¨¡æ¿"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_template_pull_down_menu/output_measure_tool_template.PNG"), QStringLiteral("å¯¼å‡ºé‡å…·æ¨¡æ¿"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }
@@ -239,8 +239,8 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/indicator_template_pull_down_menu/input_indicator_template.PNG"), QStringLiteral("µ¼ÈëÖ¸Ê¾Æ÷Ä£°å"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/indicator_template_pull_down_menu/output_indicator_template.PNG"), QStringLiteral("µ¼³öÖ¸Ê¾Æ÷Ä£°å"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/indicator_template_pull_down_menu/input_indicator_template.PNG"), QStringLiteral("å¯¼å…¥æŒ‡ç¤ºå™¨æ¨¡æ¿"));
+            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/indicator_template_pull_down_menu/output_indicator_template.PNG"), QStringLiteral("å¯¼å‡ºæŒ‡ç¤ºå™¨æ¨¡æ¿"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }

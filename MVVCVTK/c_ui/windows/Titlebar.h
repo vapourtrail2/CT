@@ -5,8 +5,8 @@
 
 class QToolButton;
 
-// �Զ������������С��/���/�ر� + �϶����� + ˫����󻯡�
-// ��ֻ�������Լ����ڵĶ��㴰�ڡ�window()����ȫ����ʶ CTViewer��
+// 自定义标题栏：最小化/最大化/关闭 + 拖动窗口 + 双击最大化。
+// 它只操作“自己所在的顶层窗口”window()，完全不认识 CTViewer。
 class TitleBar : public QWidget
 {
     Q_OBJECT

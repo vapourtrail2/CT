@@ -9,7 +9,7 @@ public:
         table_.insert(name, std::move(handler));
     }
 
-    // 按名字执行；没注册就安全返回 false，不会崩
+    // 鎸夊悕瀛楁墽琛岋紱娌℃敞鍐屽氨瀹夊叏杩斿洖 false锛屼笉浼氬穿
     bool run(const QString& name) const {
         auto it = table_.find(name);
         if (it == table_.end() || !*it) {

@@ -48,9 +48,9 @@ void TitleBar::buildUi()
         rightLayout->addWidget(btn);
         };
 
-    makeBtn(btnMinimize_, QStringLiteral("¡ª"), QStringLiteral("×îÐ¡»¯"));
-    makeBtn(btnMaximize_, QString(QChar(0x2750)), QStringLiteral("×î´ó»¯"));
-    makeBtn(btnClose_, QStringLiteral("¡Á"), QStringLiteral("¹Ø±Õ"));
+    makeBtn(btnMinimize_, QStringLiteral("â€”"), QStringLiteral("æœ€å°åŒ–"));
+    makeBtn(btnMaximize_, QString(QChar(0x2750)), QStringLiteral("æœ€å¤§åŒ–"));
+    makeBtn(btnClose_, QStringLiteral("Ã—"), QStringLiteral("å…³é—­"));
 
     QFont f = btnMaximize_->font();
     f.setFamily(QStringLiteral("Segoe UI Symbol"));
@@ -102,11 +102,11 @@ void TitleBar::updateMaximizeIcon()
     btnMaximize_->setFont(f);
     if (window()->isMaximized()) {
         btnMaximize_->setText(QString(QChar(0x2750)));
-        btnMaximize_->setToolTip(QStringLiteral("»¹Ô­"));
+        btnMaximize_->setToolTip(QStringLiteral("è¿˜åŽŸ"));
     }
     else {
-        btnMaximize_->setText(QStringLiteral("¡õ"));
-        btnMaximize_->setToolTip(QStringLiteral("×î´ó»¯"));
+        btnMaximize_->setText(QStringLiteral("â–¡"));
+        btnMaximize_->setToolTip(QStringLiteral("æœ€å¤§åŒ–"));
     }
 }
 

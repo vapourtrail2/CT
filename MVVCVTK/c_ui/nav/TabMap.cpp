@@ -4,10 +4,10 @@
 TabMap::TabMap()
 {
 }
-//²»¹Ü tab ÏÔÊ¾Ãû×Ö
-//Ö»¸ºÔğ tab index->QWidget Ò³ÃæÓ³Éä
+//ä¸ç®¡ tab æ˜¾ç¤ºåå­—
+//åªè´Ÿè´£ tab index->QWidget é¡µé¢æ˜ å°„
 
-//tab ÏÔÊ¾Ãû×Ö RibbonPage::tabName()
+//tab æ˜¾ç¤ºåå­— RibbonPage::tabName()
 
 bool TabMap::isFileTab(int index) const
 {

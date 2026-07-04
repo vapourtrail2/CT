@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 CADAndThen::CADAndThen(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("CADEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#CADEdit{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ CADAndThen::CADAndThen(QWidget* parent)
     layout07->setContentsMargins(0, 0, 0, 0);
     layout07->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout07->addWidget(buildRibbon07(this));
 }
 
@@ -47,12 +47,12 @@ int CADAndThen::tabIndex() const
 
 QString CADAndThen::tabName() const
 {
-    return QStringLiteral("CAD/±íÃæ²âÁ¿");
+    return QStringLiteral("CAD/è¡¨é¢æµ‹é‡");
 }
 
 QWidget* CADAndThen::buildRibbon07(QWidget* parent)
 {
-    // ´´½¨¹¦ÄÜÇøÈİÆ÷
+    // åˆ›å»ºåŠŸèƒ½åŒºå®¹å™¨
     auto* ribbon07 = new QFrame(parent);
     ribbon07->setObjectName(QStringLiteral("CADRibbon"));
     ribbon07->setStyleSheet(QStringLiteral(
@@ -70,16 +70,16 @@ QWidget* CADAndThen::buildRibbon07(QWidget* parent)
     };
 
     const QList<RibbonAction07> actions07 = {
-        { QStringLiteral("¼ò»¯±íÃæÍø¸ñ"), 0 },
-        { QStringLiteral("É¾³ı¹ÂÁ¢µÄ·ÖÁ¿"), 0 },
-        { QStringLiteral("·­×ª±íÃæ·½Ïò"), 0 },
-        { QStringLiteral("ÖØĞÂ¼ÆËãCADÍø¸ñ"), 0 },
-        { QStringLiteral("ºÏ²¢±íÃæÍø¸ñ¶ÔÏó"), 0 },
-        { QStringLiteral("±äĞÎÍø¸ñ"), 0 },
-        { QStringLiteral("Ä£¾ßĞŞÕı"), 0 },
-        { QStringLiteral("²¹³¥Íø¸ñ"), 0 },
-        { QStringLiteral("µü´ú²¹³¥Íø¸ñ"), 0 },
-        { QStringLiteral("±äĞÎ³¡"), 0 }
+        { QStringLiteral("ç®€åŒ–è¡¨é¢ç½‘æ ¼"), 0 },
+        { QStringLiteral("åˆ é™¤å­¤ç«‹çš„åˆ†é‡"), 0 },
+        { QStringLiteral("ç¿»è½¬è¡¨é¢æ–¹å‘"), 0 },
+        { QStringLiteral("é‡æ–°è®¡ç®—CADç½‘æ ¼"), 0 },
+        { QStringLiteral("åˆå¹¶è¡¨é¢ç½‘æ ¼å¯¹è±¡"), 0 },
+        { QStringLiteral("å˜å½¢ç½‘æ ¼"), 0 },
+        { QStringLiteral("æ¨¡å…·ä¿®æ­£"), 0 },
+        { QStringLiteral("è¡¥å¿ç½‘æ ¼"), 0 },
+        { QStringLiteral("è¿­ä»£è¡¥å¿ç½‘æ ¼"), 0 },
+        { QStringLiteral("å˜å½¢åœº"), 0 }
     };
 
     for (const auto& action : actions07) {

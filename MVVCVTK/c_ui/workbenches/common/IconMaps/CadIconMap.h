@@ -1,19 +1,19 @@
 #pragma once
 #include "c_ui/workbenches/common/RibbonCommon.h"
 
-// ¸¨Öúº¯Êı  ¸ù¾İ°´Å¥ÎÄ±¾¼ÓÔØ¶ÔÓ¦Í¼±ê
+// è¾…åŠ©å‡½æ•°  æ ¹æ®æŒ‰é’®æ–‡æœ¬åŠ è½½å¯¹åº”å›¾æ ‡
 namespace IconMaps09 {
     static const RibbonCommon::IconMapItem kCadIconMap[] = {
-        { QStringLiteral("¼ò»¯±íÃæÍø¸ñ"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/simplify_surface_mesh.PNG" },
-        { QStringLiteral("É¾³ı¹ÂÁ¢µÄ·ÖÁ¿"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/delete_lonely_component.PNG" },
-        { QStringLiteral("·­×ª±íÃæ·½Ïò"), ":/cad_icons/icons_other/CAD_surfacemesh_icons/reverse_surface_direction.PNG" },
-        { QStringLiteral("ÖØĞÂ¼ÆËãCADÍø¸ñ"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/re-cal_CAD_mesh.PNG" },
-        { QStringLiteral("ºÏ²¢±íÃæÍø¸ñ¶ÔÏó"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/merge_surface_mesh_obj.PNG" },
-        { QStringLiteral("±äĞÎÍø¸ñ"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/deformation_mesh.PNG" },
-        { QStringLiteral("Ä£¾ßĞŞÕı"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/mold_modify.PNG" },
-        { QStringLiteral("²¹³¥Íø¸ñ"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/compensation_mesh.PNG" },
-        { QStringLiteral("µü´ú²¹³¥Íø¸ñ"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/lteration_compensation_mesh.PNG" },
-        { QStringLiteral("±äĞÎ³¡"),      ":/cad_icons/icons_other/CAD_surfacemesh_icons/deformation_field.PNG" },
+        { QStringLiteral("ç®€åŒ–è¡¨é¢ç½‘æ ¼"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/simplify_surface_mesh.PNG" },
+        { QStringLiteral("åˆ é™¤å­¤ç«‹çš„åˆ†é‡"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/delete_lonely_component.PNG" },
+        { QStringLiteral("ç¿»è½¬è¡¨é¢æ–¹å‘"), ":/cad_icons/icons_other/CAD_surfacemesh_icons/reverse_surface_direction.PNG" },
+        { QStringLiteral("é‡æ–°è®¡ç®—CADç½‘æ ¼"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/re-cal_CAD_mesh.PNG" },
+        { QStringLiteral("åˆå¹¶è¡¨é¢ç½‘æ ¼å¯¹è±¡"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/merge_surface_mesh_obj.PNG" },
+        { QStringLiteral("å˜å½¢ç½‘æ ¼"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/deformation_mesh.PNG" },
+        { QStringLiteral("æ¨¡å…·ä¿®æ­£"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/mold_modify.PNG" },
+        { QStringLiteral("è¡¥å¿ç½‘æ ¼"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/compensation_mesh.PNG" },
+        { QStringLiteral("è¿­ä»£è¡¥å¿ç½‘æ ¼"),  ":/cad_icons/icons_other/CAD_surfacemesh_icons/lteration_compensation_mesh.PNG" },
+        { QStringLiteral("å˜å½¢åœº"),      ":/cad_icons/icons_other/CAD_surfacemesh_icons/deformation_field.PNG" },
     };
 }; 
 

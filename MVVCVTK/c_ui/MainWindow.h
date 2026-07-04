@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <QMainWindow>
 #include <QPointer>
 #include <QPoint>
@@ -29,7 +29,6 @@ class WindowPage;
 class ReportPage;
 class AnimationPage;
 class UIReconstruct3D;
-class AppController;
 struct AppSession;
 class RenderPanel;
 class SceneTreePanel;

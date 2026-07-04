@@ -20,6 +20,6 @@ public:
     QString tabName() const override;
 
 private:
-	QWidget* buildRibbon(QWidget* parent);//¸¨Öúº¯Êý
+	QWidget* buildRibbon(QWidget* parent);//è¾…åŠ©å‡½æ•°
 };
 

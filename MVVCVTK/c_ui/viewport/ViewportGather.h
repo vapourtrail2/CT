@@ -40,7 +40,7 @@ private:
     std::shared_ptr<AbstractDataManager> m_dataMgr;
 	std::shared_ptr<SharedStateBroadcaster> m_stateBroadcaster;
     std::shared_ptr<SharedInteractionState> m_sharedState;
-    std::shared_ptr<void> m_lifeToken;//状态位管理
+    std::shared_ptr<void> m_lifeToken;//鐘舵�佷綅绠＄悊
 
     Viewport m_axial;//z
 	Viewport m_coronal;//y
@@ -49,7 +49,7 @@ private:
 
     VizMode m_current3DMode = VizMode::CompositeIsoSurface;
 
-	//以下是放大缩小视口相关的成员
+	//浠ヤ笅鏄斁澶х缉灏忚鍙ｇ浉鍏崇殑鎴愬憳
     enum class ViewportId {
         None,
         Axial,

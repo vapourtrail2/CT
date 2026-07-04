@@ -4,6 +4,6 @@
 class QWidget;
 class RibbonPage;
 
-// ËùÓĞ Ribbon Ñ¡Ïî¿¨£¨¹¤¾ßÏä£©µÄ¼¯ÖĞµÇ¼Ç´¦¡£
+// æ‰€æœ‰ Ribbon é€‰é¡¹å¡ï¼ˆå·¥å…·ç®±ï¼‰çš„é›†ä¸­ç™»è®°å¤„ã€‚
 
 QList<RibbonPage*> createAll(QWidget* parent);

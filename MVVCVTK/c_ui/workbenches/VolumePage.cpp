@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 VolumePage::VolumePage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("volumeEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#pageEdit{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ VolumePage::VolumePage(QWidget* parent)
     layout02->setContentsMargins(0, 0, 0, 0);
     layout02->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout02->addWidget(buildRibbon02(this));
 }
 
@@ -47,12 +47,12 @@ int VolumePage::tabIndex() const
 
 QString VolumePage::tabName() const
 {
-    return QStringLiteral("Ìå»ý");
+    return QStringLiteral("ä½“ç§¯");
 }
 
 QWidget* VolumePage::buildRibbon02(QWidget* parent)
 {
-    // ´´½¨¹¦ÄÜÇøÈÝÆ÷
+    // åˆ›å»ºåŠŸèƒ½åŒºå®¹å™¨
     auto* ribbon02 = new QFrame(parent);
     ribbon02->setObjectName(QStringLiteral("volumeRibbon"));
     ribbon02->setStyleSheet(QStringLiteral(
@@ -70,33 +70,33 @@ QWidget* VolumePage::buildRibbon02(QWidget* parent)
     };
 
     const QList<RibbonAction02> actions02 = {
-        { QStringLiteral("²ð·ÖÌå»ý"), 0 },
-        { QStringLiteral("±íÃæ²â¶¨"), 1 },
-        { QStringLiteral("É¾³ý±íÃæ²â¶¨"), 0 },
-        { QStringLiteral("Ìå»ýÊý¾Ý"), 2 },
-        { QStringLiteral("»ùÓÚÌØÕ÷µÄËõ·Å"), 0 },
-        { QStringLiteral("ÊÖ¶¯Ëõ·Å"), 0 },
-        { QStringLiteral("»æÖÆÊý¾Ý"), 0 },
-        { QStringLiteral("Ñ¡ÔñÑÕÉ«"), 0 },
-        { QStringLiteral("Ìî³ä"), 0 },
-        { QStringLiteral("×ÔÊÊÓ¦¸ßË¹"), 0 },
-        { QStringLiteral("·Ç¾Ö²¿¾ùÖµ"), 0 },
-        { QStringLiteral("¾í»ý"), 0 },
-        { QStringLiteral("¸ßË¹"), 0 },
-        { QStringLiteral("¿ò"), 0 },
-        { QStringLiteral("Æ«²î"), 0 },
-        { QStringLiteral("ÖÐÖµ"), 0 },
-        { QStringLiteral("ÇÖÊ´"), 0 },
-        { QStringLiteral("ÅòÕÍ"), 0 },
-        { QStringLiteral("Ó¦ÓÃ²»Í¸Ã÷Ó³Éä"), 0 },
-        { QStringLiteral("FIB-SEM ÐÞÕý"), 0 },
-        { QStringLiteral("ºÏ²¢ºÍÖØÐÂ²ÉÑù"), 0 },
-        { QStringLiteral("Ìå»ýÍ¶Ó°Æ÷"), 0 }
+        { QStringLiteral("æ‹†åˆ†ä½“ç§¯"), 0 },
+        { QStringLiteral("è¡¨é¢æµ‹å®š"), 1 },
+        { QStringLiteral("åˆ é™¤è¡¨é¢æµ‹å®š"), 0 },
+        { QStringLiteral("ä½“ç§¯æ•°æ®"), 2 },
+        { QStringLiteral("åŸºäºŽç‰¹å¾çš„ç¼©æ”¾"), 0 },
+        { QStringLiteral("æ‰‹åŠ¨ç¼©æ”¾"), 0 },
+        { QStringLiteral("ç»˜åˆ¶æ•°æ®"), 0 },
+        { QStringLiteral("é€‰æ‹©é¢œè‰²"), 0 },
+        { QStringLiteral("å¡«å……"), 0 },
+        { QStringLiteral("è‡ªé€‚åº”é«˜æ–¯"), 0 },
+        { QStringLiteral("éžå±€éƒ¨å‡å€¼"), 0 },
+        { QStringLiteral("å·ç§¯"), 0 },
+        { QStringLiteral("é«˜æ–¯"), 0 },
+        { QStringLiteral("æ¡†"), 0 },
+        { QStringLiteral("åå·®"), 0 },
+        { QStringLiteral("ä¸­å€¼"), 0 },
+        { QStringLiteral("ä¾µèš€"), 0 },
+        { QStringLiteral("è†¨èƒ€"), 0 },
+        { QStringLiteral("åº”ç”¨ä¸é€æ˜Žæ˜ å°„"), 0 },
+        { QStringLiteral("FIB-SEM ä¿®æ­£"), 0 },
+        { QStringLiteral("åˆå¹¶å’Œé‡æ–°é‡‡æ ·"), 0 },
+        { QStringLiteral("ä½“ç§¯æŠ•å½±å™¨"), 0 }
     };
 
 
     for (const auto& action : actions02) {
-        // Ã¿¸ö¹¦ÄÜ¶¼Ê¹ÓÃÍ¼±ê,ÎÄ×ÖµÄÐÎÊ½Õ¹Ê¾
+        // æ¯ä¸ªåŠŸèƒ½éƒ½ä½¿ç”¨å›¾æ ‡,æ–‡å­—çš„å½¢å¼å±•ç¤º
         auto* button = new QToolButton(ribbon02);
         // Shared wrap rule avoids duplicate text-layout code in each page.
         QString afterShiftText = RibbonCommon::shiftNewLine(action.text, button->font(), 51);
@@ -108,19 +108,19 @@ QWidget* VolumePage::buildRibbon02(QWidget* parent)
 
 
         if (action.hasMenu == 1) {
-            // ×ª»»Îª¹¦ÄÜ ÐèÒªºóÆÚÍØÕ¹
+            // è½¬æ¢ä¸ºåŠŸèƒ½ éœ€è¦åŽæœŸæ‹“å±•
             auto* menu = new QMenu(button);
             menu->setStyleSheet(QStringLiteral(
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/surface_measure_and_based_on_iosvalue.png"), QStringLiteral("»ùÓÚµÈÖµ"));
-            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/advanced_classic.png"), QStringLiteral("¸ß¼¶(¾­µä)"));
-            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/advanced_multi_material.png"), QStringLiteral("¸ß¼¶(¶à²ÄÁÏ)"));
-            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/fixed_contour.png"), QStringLiteral("¹Ì¶¨ÂÖÀª"));
-            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/edit_surface_measure.png"), QStringLiteral("±à¼­±íÃæ²â¶¨"));
+            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/surface_measure_and_based_on_iosvalue.png"), QStringLiteral("åŸºäºŽç­‰å€¼"));
+            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/advanced_classic.png"), QStringLiteral("é«˜çº§(ç»å…¸)"));
+            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/advanced_multi_material.png"), QStringLiteral("é«˜çº§(å¤šææ–™)"));
+            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/fixed_contour.png"), QStringLiteral("å›ºå®šè½®å»“"));
+            menu->addAction(QIcon(":/volume_icons/icons_other/volume_icons/surface_measure_pull_down_menu/edit_surface_measure.png"), QStringLiteral("ç¼–è¾‘è¡¨é¢æµ‹å®š"));
             button->setMenu(menu);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         if (action.hasMenu == 2) {
             auto* menu02 = new QMenu(button);
@@ -128,13 +128,13 @@ QWidget* VolumePage::buildRibbon02(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/volume_icons_2/icons_other/volume_icons/volume_data_pull_down_menu/volume_data.png"), QStringLiteral("Ìå»ýÊý¾Ý"));
-            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/create_synthetic_volume_data.png"), QStringLiteral("´´½¨ºÏ³ÉÌå»ýÊý¾Ý"));
-            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/delete_volume_data.png"), QStringLiteral("É¾³ýÌå»ýÊý¾Ý"));
-            menu02->addAction(QIcon(":/volume_icons_2/icons_other/volume_icons/volume_data_pull_down_menu/uninstall_volume_data.png"), QStringLiteral("Ð¶ÔØÌå»ýÊý¾Ý"));
-            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/reload_volume_data.png"), QStringLiteral("ÖØÐÂ¼ÓÔØÌå»ýÊý¾Ý"));
+            menu02->addAction(QIcon(":/volume_icons_2/icons_other/volume_icons/volume_data_pull_down_menu/volume_data.png"), QStringLiteral("ä½“ç§¯æ•°æ®"));
+            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/create_synthetic_volume_data.png"), QStringLiteral("åˆ›å»ºåˆæˆä½“ç§¯æ•°æ®"));
+            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/delete_volume_data.png"), QStringLiteral("åˆ é™¤ä½“ç§¯æ•°æ®"));
+            menu02->addAction(QIcon(":/volume_icons_2/icons_other/volume_icons/volume_data_pull_down_menu/uninstall_volume_data.png"), QStringLiteral("å¸è½½ä½“ç§¯æ•°æ®"));
+            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/reload_volume_data.png"), QStringLiteral("é‡æ–°åŠ è½½ä½“ç§¯æ•°æ®"));
             button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//µã»÷°´Å¥Ê±Ö±½Óµ¯³ö²Ëµ¥
+            button->setPopupMode(QToolButton::InstantPopup);//ç‚¹å‡»æŒ‰é’®æ—¶ç›´æŽ¥å¼¹å‡ºèœå•
         }
         layout02->addWidget(button);
     }

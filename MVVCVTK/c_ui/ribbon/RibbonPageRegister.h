@@ -8,7 +8,7 @@ class RibbonPage;
 class RibbonPageRegister
 {
 public:
-	//ÎªÊ²Ã´²»ĞèÒª¹¹Ôìº¯Êı
+	//ä¸ºä»€ä¹ˆä¸éœ€è¦æ„é€ å‡½æ•°
 	/*RibbonPageRegister() {}*/
 	void add(RibbonPage* page);
 

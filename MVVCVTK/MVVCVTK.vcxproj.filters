@@ -334,8 +334,8 @@
     <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
       <Filter>c_ui\qt</Filter>
     </ClCompile>
-    <ClCompile Include="AppController.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="c_ui\context\SessionManager.cpp">
+      <Filter>c_ui\context</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp">
       <Filter>c_ui\panels</Filter>
@@ -456,8 +456,8 @@
     <QtMoc Include="c_ui\workbenches\WindowPage.h">
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
-    <QtMoc Include="AppController.h">
-      <Filter>头文件</Filter>
+    <QtMoc Include="c_ui\context\SessionManager.h">
+      <Filter>c_ui\context</Filter>
     </QtMoc>
     <QtMoc Include="c_ui\panels\SceneTreePanel.h">
       <Filter>c_ui\panels</Filter>

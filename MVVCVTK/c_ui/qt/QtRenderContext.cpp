@@ -292,7 +292,7 @@ void QtRenderContext::BuildInteractionRouter()
             m_renderer.GetPointer()));
 }
 
-void QtRenderContext::SetInteractorInitialized()//»ùÀà´¿Ğé ÔÚÕâÀïÊµÏÖ
+void QtRenderContext::SetInteractorInitialized()//åŸºç±»çº¯è™š åœ¨è¿™é‡Œå®ç°
 {
     if (m_interactor && !m_interactor->GetInitialized()) {
         m_interactor->Initialize();
@@ -325,7 +325,7 @@ void QtRenderContext::SetCameraStyleByVizMode(VizMode mode)
     }
 }
 
- /*²âÁ¿ĞèÒªÖØĞ´ 5/13*/
+ /*æµ‹é‡éœ€è¦é‡å†™ 5/13*/
 //void QtRenderContext::SetToolMode(ToolMode mode)
 //{
 //    if (m_toolMode == ToolMode::ModelTransform && m_interactiveService) {

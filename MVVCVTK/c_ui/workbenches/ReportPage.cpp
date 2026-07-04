@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 ReportPage::ReportPage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("reportEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#pageReport{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ ReportPage::ReportPage(QWidget* parent)
     layout10->setContentsMargins(0, 0, 0, 0);
     layout10->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout10->addWidget(buildRibbon10(this));
 }
 
@@ -47,12 +47,12 @@ int ReportPage::tabIndex() const
 
 QString ReportPage::tabName() const
 {
-    return QStringLiteral("±¨¸æ");
+    return QStringLiteral("æŠ¥å‘Š");
 }
 
 QWidget* ReportPage::buildRibbon10(QWidget* parent)
 {
-    auto* ribbon10 = new QFrame(parent);//ribbon03ÊÇ--¹¦ÄÜÇøµÄÈÝÆ÷
+    auto* ribbon10 = new QFrame(parent);//ribbon03æ˜¯--åŠŸèƒ½åŒºçš„å®¹å™¨
     ribbon10->setObjectName(QStringLiteral("reportRibbon"));
     ribbon10->setStyleSheet(QStringLiteral(
         "QFrame#reportRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
@@ -68,36 +68,36 @@ QWidget* ReportPage::buildRibbon10(QWidget* parent)
     };
 
     const QList<RibbonAction10> actions10 = {
-        { QStringLiteral("´´½¨±¨¸æ"), 0 },
-        { QStringLiteral("´ò¿ª±¨¸æ"), 0 },
-        { QStringLiteral("¸üÐÂ±¨¸æ"), 0 },
-        { QStringLiteral("É¾³ý±¨¸æ"), 0 },
-        { QStringLiteral("µ¼³öPDF"), 0 },
-        { QStringLiteral("µ¼³öHTML"), 0 },
-        { QStringLiteral("µ¼³öÄ¬ÈÏ²¼¾Ö"), 0 },
-        { QStringLiteral("µ¼³öÌØ¶¨²¼¾Ö"), 0 },
-        { QStringLiteral("´´½¨ÊéÇ©"), 0 },
-        { QStringLiteral("ÊéÇ©±à¼­Æ÷"), 0 },
-        { QStringLiteral("±£´æÍ¼Ïñ"), 0 },
-        { QStringLiteral("±£´æÓ°Æ¬/Í¼Ïñ¶ÑÕ»"), 0 },
-        { QStringLiteral("µ¼³öÎªQ-DASÎÄ¼þ"), 0 },
+        { QStringLiteral("åˆ›å»ºæŠ¥å‘Š"), 0 },
+        { QStringLiteral("æ‰“å¼€æŠ¥å‘Š"), 0 },
+        { QStringLiteral("æ›´æ–°æŠ¥å‘Š"), 0 },
+        { QStringLiteral("åˆ é™¤æŠ¥å‘Š"), 0 },
+        { QStringLiteral("å¯¼å‡ºPDF"), 0 },
+        { QStringLiteral("å¯¼å‡ºHTML"), 0 },
+        { QStringLiteral("å¯¼å‡ºé»˜è®¤å¸ƒå±€"), 0 },
+        { QStringLiteral("å¯¼å‡ºç‰¹å®šå¸ƒå±€"), 0 },
+        { QStringLiteral("åˆ›å»ºä¹¦ç­¾"), 0 },
+        { QStringLiteral("ä¹¦ç­¾ç¼–è¾‘å™¨"), 0 },
+        { QStringLiteral("ä¿å­˜å›¾åƒ"), 0 },
+        { QStringLiteral("ä¿å­˜å½±ç‰‡/å›¾åƒå †æ ˆ"), 0 },
+        { QStringLiteral("å¯¼å‡ºä¸ºQ-DASæ–‡ä»¶"), 0 },
     };
 
-    // ÐèÒª×ö³ÉÁ½ÐÐËÄÁÐµÄÄÇ 8 ¸ö°´Å¥
+    // éœ€è¦åšæˆä¸¤è¡Œå››åˆ—çš„é‚£ 8 ä¸ªæŒ‰é’®
     const QStringList twoRowGroup = {
-        QStringLiteral("µ¼³öPDF"),
-        QStringLiteral("µ¼³öHTML"),
-        QStringLiteral("µ¼³öÄ¬ÈÏ²¼¾Ö"),
-        QStringLiteral("µ¼³öÌØ¶¨²¼¾Ö"),
+        QStringLiteral("å¯¼å‡ºPDF"),
+        QStringLiteral("å¯¼å‡ºHTML"),
+        QStringLiteral("å¯¼å‡ºé»˜è®¤å¸ƒå±€"),
+        QStringLiteral("å¯¼å‡ºç‰¹å®šå¸ƒå±€"),
     };
 
-    QWidget* gridHolder_10 = nullptr;//Õâ¸öÖ¸ÕëµÄÒâË¼ÊÇ ÓÃÀ´³ÐÔØÄÇ¸ö 2¡Á4 µÄÐ¡·½Õó
-    QGridLayout* grid_10 = nullptr;//Õâ¸öÖ¸ÕëÊÇÓÃÀ´¹ÜÀíÄÇ¸öÐ¡·½ÕóµÄ²¼¾Ö
-    int groupedCount_10 = 0;//¼ÇÂ¼ÒÑ¾­·Å½øÐ¡·½ÕóµÄ°´Å¥ÊýÁ¿
+    QWidget* gridHolder_10 = nullptr;//è¿™ä¸ªæŒ‡é’ˆçš„æ„æ€æ˜¯ ç”¨æ¥æ‰¿è½½é‚£ä¸ª 2Ã—4 çš„å°æ–¹é˜µ
+    QGridLayout* grid_10 = nullptr;//è¿™ä¸ªæŒ‡é’ˆæ˜¯ç”¨æ¥ç®¡ç†é‚£ä¸ªå°æ–¹é˜µçš„å¸ƒå±€
+    int groupedCount_10 = 0;//è®°å½•å·²ç»æ”¾è¿›å°æ–¹é˜µçš„æŒ‰é’®æ•°é‡
 
     for (const auto& action : actions10)
     {
-        const bool inGroup_10 = twoRowGroup.contains(action.text);//containsº¯Êý¼ì²éÄ³¸öÔªËØÊÇ·ñÔÚÁÐ±íÖÐ ·µ»Øtrue»òfalse
+        const bool inGroup_10 = twoRowGroup.contains(action.text);//containså‡½æ•°æ£€æŸ¥æŸä¸ªå…ƒç´ æ˜¯å¦åœ¨åˆ—è¡¨ä¸­ è¿”å›žtrueæˆ–false
         auto* button = new QToolButton(ribbon10);
         button->setIcon(loadIconFor(action.text));
         button->setIconSize(QSize(32, 32));
@@ -107,29 +107,29 @@ QWidget* ReportPage::buildRibbon10(QWidget* parent)
         button->setText(RibbonCommon::shiftNewLine(action.text, button->font(), 43));
         if (inGroup_10)
         {
-            if (!gridHolder_10) {//µÈ¼ÛÓÚgridholder == nullptr
+            if (!gridHolder_10) {//ç­‰ä»·äºŽgridholder == nullptr
                 gridHolder_10 = new QWidget(ribbon10);
                 grid_10 = new QGridLayout(gridHolder_10);
                 grid_10->setContentsMargins(4, 2, 4, 2);
-                grid_10->setHorizontalSpacing(8);//Ë®Æ½¼ä¾à
-                grid_10->setVerticalSpacing(4);//´¹Ö±¼ä¾à
-                layout10->addWidget(gridHolder_10); // °ÑÐ¡·½Õó²åÈëµ½Ö÷ ribbon
+                grid_10->setHorizontalSpacing(8);//æ°´å¹³é—´è·
+                grid_10->setVerticalSpacing(4);//åž‚ç›´é—´è·
+                layout10->addWidget(gridHolder_10); // æŠŠå°æ–¹é˜µæ’å…¥åˆ°ä¸» ribbon
             }
             button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            button->setIconSize(QSize(20, 20));           // Ð¡ icon
+            button->setIconSize(QSize(20, 20));           // å° icon
             button->setMinimumSize(QSize(90, 20));
             button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
             button->setText(action.text);
 
             int row = groupedCount_10 / 2;
             int col = groupedCount_10 % 2;
-            grid_10->addWidget(button, row, col);//Èý¸ö²ÎÊýµÄÒâË¼ÊÇ£ºÒªÌí¼ÓµÄ¿Ø¼þ¡¢ÐÐºÅ¡¢ÁÐºÅ
+            grid_10->addWidget(button, row, col);//ä¸‰ä¸ªå‚æ•°çš„æ„æ€æ˜¯ï¼šè¦æ·»åŠ çš„æŽ§ä»¶ã€è¡Œå·ã€åˆ—å·
             ++groupedCount_10;
             continue;
         }
 
         else {
-            // ·Ç¸Ã·Ö×é£ºÈÔ¾ÉÒ»ÐÐºáÅÅ
+            // éžè¯¥åˆ†ç»„ï¼šä»æ—§ä¸€è¡Œæ¨ªæŽ’
             layout10->addWidget(button);
         }
     }

@@ -29,10 +29,10 @@ public:
     void SetQtWidget(QVTKOpenGLNativeWidget* widget);
     void SetStarted() override;
     void SetCameraStyleByVizMode(VizMode mode) override;
-	/*   void SetToolMode(ToolMode mode);*/ //²âÁ¿¹¤¾ßĞèÒªÖØĞ´
+	/*   void SetToolMode(ToolMode mode);*/ //æµ‹é‡å·¥å…·éœ€è¦é‡å†™
     void SetServiceBound(std::shared_ptr<AbstractAppService> service) override;
     void ToggleOrientationAxes(bool show);
-    void SetInteractorInitialized() override;//²¹ÉÏ
+    void SetInteractorInitialized() override;//è¡¥ä¸Š
 
 protected:
     void SetVTKEventHandled(vtkObject* caller, long unsigned int eventId, void* callData) override;

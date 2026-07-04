@@ -24,7 +24,7 @@ static QIcon loadIconFor(const QString& text) {
 GeometryPage::GeometryPage(QWidget* parent)
     : RibbonPage(parent)
 {
-    // ÉèÖÃÒ³ÃæÍâ¹Û
+    // è®¾ç½®é¡µé¢å¤–è§‚
     setObjectName(QStringLiteral("volumeEdit"));
     setStyleSheet(QStringLiteral(
         "QWidget#pageEdit{background-color:#2b2b2b;}"
@@ -36,7 +36,7 @@ GeometryPage::GeometryPage(QWidget* parent)
     layout05->setContentsMargins(0, 0, 0, 0);
     layout05->setSpacing(3);
 
-    // ¹¦ÄÜÇøµ÷ÓÃ
+    // åŠŸèƒ½åŒºè°ƒç”¨
     layout05->addWidget(buildRibbon05(this));
 }
 
@@ -47,12 +47,12 @@ int GeometryPage::tabIndex() const
 
 QString GeometryPage::tabName() const
 {
-    return QStringLiteral("¼¸ºÎ");
+    return QStringLiteral("å‡ ä½•");
 }
 
 QWidget* GeometryPage::buildRibbon05(QWidget* parent)
 {
-    auto* ribbon05 = new QFrame(parent);//ribbon0-ÊÇ--¹¦ÄÜÇøµÄÈÝÆ÷
+    auto* ribbon05 = new QFrame(parent);//ribbon0-æ˜¯--åŠŸèƒ½åŒºçš„å®¹å™¨
     ribbon05->setObjectName(QStringLiteral("geometryRibbon"));
     ribbon05->setStyleSheet(QStringLiteral(
         "QFrame#geometryRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
@@ -68,77 +68,77 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
     };
 
     const QList<RibbonAction05> actions05 = {
-        { QStringLiteral("×Ô¶¯"), 0 },
+        { QStringLiteral("è‡ªåŠ¨"), 0 },
 
-        // ÏÂÃæÕâ¶ÎÒª·Å³ÉÁ½ÐÐ¡ÁËÄÁÐ£¨Í¼±ê×ó¡¢ÎÄ×ÖÓÒ£©
-        { QStringLiteral("µã"), 0 },
-        { QStringLiteral("Ïß"), 0 },
-        { QStringLiteral("Ô²"), 0 },
-        { QStringLiteral("½ÇÔ²"), 0 },
-        { QStringLiteral("Æ½Ãæ"), 0 },
-        { QStringLiteral("ÇòÌå"), 0 },
-        { QStringLiteral("Ô²Öù"), 0 },
-        { QStringLiteral("Ô²×¶"), 0 },
-        { QStringLiteral("»·Ãæ"), 0 },
-        { QStringLiteral("×ÔÓÉÔìÐÍÏß"), 0 },
-        { QStringLiteral("×ÔÓÉÔìÐÍ±íÃæ"), 0 },
+        // ä¸‹é¢è¿™æ®µè¦æ”¾æˆä¸¤è¡ŒÃ—å››åˆ—ï¼ˆå›¾æ ‡å·¦ã€æ–‡å­—å³ï¼‰
+        { QStringLiteral("ç‚¹"), 0 },
+        { QStringLiteral("çº¿"), 0 },
+        { QStringLiteral("åœ†"), 0 },
+        { QStringLiteral("è§’åœ†"), 0 },
+        { QStringLiteral("å¹³é¢"), 0 },
+        { QStringLiteral("çƒä½“"), 0 },
+        { QStringLiteral("åœ†æŸ±"), 0 },
+        { QStringLiteral("åœ†é”¥"), 0 },
+        { QStringLiteral("çŽ¯é¢"), 0 },
+        { QStringLiteral("è‡ªç”±é€ åž‹çº¿"), 0 },
+        { QStringLiteral("è‡ªç”±é€ åž‹è¡¨é¢"), 0 },
 
-        // ÆäÓà¼ÌÐøÒ»ÐÐºáÅÅ
-        { QStringLiteral("¶¨Òå¼¸ºÎÔªËØ"), 0 },
-        { QStringLiteral("ÏÔÊ¾ÄâºÏµã"), 0 },
-        { QStringLiteral("Òþ²ØÄâºÏµã"), 0 },
-        { QStringLiteral("ÇÐ»»ÄâºÏµã¿É¼ûÐÔ"), 0 },
-        { QStringLiteral("¸üÐÂCM¶ÔÏó"), 0 },
-        { QStringLiteral("É¾³ýÎ´Ê¹ÓÃµÄCM¶ÔÏó"), 0 },
-        { QStringLiteral("Ìæ»»¼¸ºÎÔªËØ"), 0 },
+        // å…¶ä½™ç»§ç»­ä¸€è¡Œæ¨ªæŽ’
+        { QStringLiteral("å®šä¹‰å‡ ä½•å…ƒç´ "), 0 },
+        { QStringLiteral("æ˜¾ç¤ºæ‹Ÿåˆç‚¹"), 0 },
+        { QStringLiteral("éšè—æ‹Ÿåˆç‚¹"), 0 },
+        { QStringLiteral("åˆ‡æ¢æ‹Ÿåˆç‚¹å¯è§æ€§"), 0 },
+        { QStringLiteral("æ›´æ–°CMå¯¹è±¡"), 0 },
+        { QStringLiteral("åˆ é™¤æœªä½¿ç”¨çš„CMå¯¹è±¡"), 0 },
+        { QStringLiteral("æ›¿æ¢å‡ ä½•å…ƒç´ "), 0 },
 
-        // ÏÂÃæÕâ¶ÎÒª·Å³ÉÁ½ÐÐ¡ÁËÄÁÐ£¨Í¼±ê×ó¡¢ÎÄ×ÖÓÒ£©
-        { QStringLiteral("Ïà½»"), 0 },
-        { QStringLiteral("¶Ô³ÆÔªËØ"), 0 },
-        { QStringLiteral("ÐÞ¸Ä³ß´ç"), 0 },
-        { QStringLiteral("×éºÏ"), 0 },
-        { QStringLiteral("×ª»»"), 0 },
-        { QStringLiteral("¹æÔòÔªËØ"), 0 },
-        { QStringLiteral("Í¶Ó°"), 0 },
-        { QStringLiteral("ÌáÈ¡×îÐ¡/×î´óµã"), 0 },
-        { QStringLiteral("ÌáÈ¡ÖÐÖáÏß"), 0 },
+        // ä¸‹é¢è¿™æ®µè¦æ”¾æˆä¸¤è¡ŒÃ—å››åˆ—ï¼ˆå›¾æ ‡å·¦ã€æ–‡å­—å³ï¼‰
+        { QStringLiteral("ç›¸äº¤"), 0 },
+        { QStringLiteral("å¯¹ç§°å…ƒç´ "), 0 },
+        { QStringLiteral("ä¿®æ”¹å°ºå¯¸"), 0 },
+        { QStringLiteral("ç»„åˆ"), 0 },
+        { QStringLiteral("è½¬æ¢"), 0 },
+        { QStringLiteral("è§„åˆ™å…ƒç´ "), 0 },
+        { QStringLiteral("æŠ•å½±"), 0 },
+        { QStringLiteral("æå–æœ€å°/æœ€å¤§ç‚¹"), 0 },
+        { QStringLiteral("æå–ä¸­è½´çº¿"), 0 },
 
-        // ÆäÓà¼ÌÐøÒ»ÐÐºáÅÅ
-        { QStringLiteral("×ª»¯²¢µ¼³ö"), 1 },
+        // å…¶ä½™ç»§ç»­ä¸€è¡Œæ¨ªæŽ’
+        { QStringLiteral("è½¬åŒ–å¹¶å¯¼å‡º"), 1 },
     };
 
-    // ÐèÒª×ö³ÉÁ½ÐÐËÄÁÐµÄÄÇ 8 ¸ö°´Å¥
+    // éœ€è¦åšæˆä¸¤è¡Œå››åˆ—çš„é‚£ 8 ä¸ªæŒ‰é’®
     const QStringList twoRowGroup = {
-         QStringLiteral("µã"),
-         QStringLiteral("Ïß"), 
-         QStringLiteral("Ô²"),
-         QStringLiteral("½ÇÔ²"),
-         QStringLiteral("Æ½Ãæ"), 
-         QStringLiteral("ÇòÌå"),
-         QStringLiteral("Ô²Öù"), 
-         QStringLiteral("Ô²×¶"), 
-         QStringLiteral("»·Ãæ"), 
-         QStringLiteral("×ÔÓÉÔìÐÍÏß"), 
-         QStringLiteral("×ÔÓÉÔìÐÍ±íÃæ"),
+         QStringLiteral("ç‚¹"),
+         QStringLiteral("çº¿"),
+         QStringLiteral("åœ†"),
+         QStringLiteral("è§’åœ†"),
+         QStringLiteral("å¹³é¢"),
+         QStringLiteral("çƒä½“"),
+         QStringLiteral("åœ†æŸ±"),
+         QStringLiteral("åœ†é”¥"),
+         QStringLiteral("çŽ¯é¢"),
+         QStringLiteral("è‡ªç”±é€ åž‹çº¿"),
+         QStringLiteral("è‡ªç”±é€ åž‹è¡¨é¢"),
     };
 
 
     const QStringList twoRowGroup02 = {
-        QStringLiteral("Ïà½»"),
-        QStringLiteral("¶Ô³ÆÔªËØ"),
-        QStringLiteral("ÐÞ¸Ä³ß´ç"),
-        QStringLiteral("×éºÏ"),
-        QStringLiteral("×ª»»"),
-        QStringLiteral("¹æÔòÔªËØ"),
-        QStringLiteral("Í¶Ó°"),
-        QStringLiteral("ÌáÈ¡×îÐ¡/×î´óµã"),
-        QStringLiteral("ÌáÈ¡ÖÐÖáÏß"),
+        QStringLiteral("ç›¸äº¤"),
+        QStringLiteral("å¯¹ç§°å…ƒç´ "),
+        QStringLiteral("ä¿®æ”¹å°ºå¯¸"),
+        QStringLiteral("ç»„åˆ"),
+        QStringLiteral("è½¬æ¢"),
+        QStringLiteral("è§„åˆ™å…ƒç´ "),
+        QStringLiteral("æŠ•å½±"),
+        QStringLiteral("æå–æœ€å°/æœ€å¤§ç‚¹"),
+        QStringLiteral("æå–ä¸­è½´çº¿"),
     };
 
 
-    QWidget* gridHolder_05 = nullptr;//Õâ¸öÖ¸ÕëµÄÒâË¼ÊÇ ÓÃÀ´³ÐÔØÄÇ¸ö 2¡Á4 µÄÐ¡·½Õó
-    QGridLayout* grid_05 = nullptr;//Õâ¸öÖ¸ÕëÊÇÓÃÀ´¹ÜÀíÄÇ¸öÐ¡·½ÕóµÄ²¼¾Ö
-    int groupedCount_05 = 0;//¼ÇÂ¼ÒÑ¾­·Å½øÐ¡·½ÕóµÄ°´Å¥ÊýÁ¿
+    QWidget* gridHolder_05 = nullptr;//è¿™ä¸ªæŒ‡é’ˆçš„æ„æ€æ˜¯ ç”¨æ¥æ‰¿è½½é‚£ä¸ª 2Ã—4 çš„å°æ–¹é˜µ
+    QGridLayout* grid_05 = nullptr;//è¿™ä¸ªæŒ‡é’ˆæ˜¯ç”¨æ¥ç®¡ç†é‚£ä¸ªå°æ–¹é˜µçš„å¸ƒå±€
+    int groupedCount_05 = 0;//è®°å½•å·²ç»æ”¾è¿›å°æ–¹é˜µçš„æŒ‰é’®æ•°é‡
 
     QWidget* gridHolder02_05 = nullptr;
     QGridLayout* grid02_05 = nullptr;
@@ -150,9 +150,9 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
 
     for (const auto& action : actions05)
     {
-        const bool inGroup_05 = twoRowGroup.contains(action.text);//containsº¯Êý¼ì²éÄ³¸öÔªËØÊÇ·ñÔÚÁÐ±íÖÐ ·µ»Øtrue»òfalse
+        const bool inGroup_05 = twoRowGroup.contains(action.text);//containså‡½æ•°æ£€æŸ¥æŸä¸ªå…ƒç´ æ˜¯å¦åœ¨åˆ—è¡¨ä¸­ è¿”å›žtrueæˆ–false
         const bool inGroup02_05 = twoRowGroup02.contains(action.text);
-     
+
 
         auto* button = new QToolButton(ribbon05);
         button->setIcon(loadIconFor(action.text));
@@ -164,23 +164,23 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
 
         if (inGroup_05)
         {
-            if (!gridHolder_05) {//µÈ¼ÛÓÚgridholder == nullptr
+            if (!gridHolder_05) {//ç­‰ä»·äºŽgridholder == nullptr
                 gridHolder_05 = new QWidget(ribbon05);
                 grid_05 = new QGridLayout(gridHolder_05);
                 grid_05->setContentsMargins(4, 2, 4, 2);
-                grid_05->setHorizontalSpacing(8);//Ë®Æ½¼ä¾à
-                grid_05->setVerticalSpacing(4);//´¹Ö±¼ä¾à
-                layout05->addWidget(gridHolder_05); // °ÑÐ¡·½Õó²åÈëµ½Ö÷ ribbon
+                grid_05->setHorizontalSpacing(8);//æ°´å¹³é—´è·
+                grid_05->setVerticalSpacing(4);//åž‚ç›´é—´è·
+                layout05->addWidget(gridHolder_05); // æŠŠå°æ–¹é˜µæ’å…¥åˆ°ä¸» ribbon
             }
             button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            button->setIconSize(QSize(20, 20));           // Ð¡ icon
-			button->setMinimumSize(QSize(90, 20));       
+            button->setIconSize(QSize(20, 20));           // å° icon
+			button->setMinimumSize(QSize(90, 20));
             button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);//
-            button->setText(action.text);                 // ÅÔÅÅÎÄ×Ö£¬²»ÔÙ»»ÐÐ
+            button->setText(action.text);                 // æ—æŽ’æ–‡å­—ï¼Œä¸å†æ¢è¡Œ
 
             int row = groupedCount_05 / 4;
             int col = groupedCount_05 % 4;
-            grid_05->addWidget(button, row, col);//Èý¸ö²ÎÊýµÄÒâË¼ÊÇ£ºÒªÌí¼ÓµÄ¿Ø¼þ¡¢ÐÐºÅ¡¢ÁÐºÅ
+            grid_05->addWidget(button, row, col);//ä¸‰ä¸ªå‚æ•°çš„æ„æ€æ˜¯ï¼šè¦æ·»åŠ çš„æŽ§ä»¶ã€è¡Œå·ã€åˆ—å·
             ++groupedCount_05;
             continue;
         }
@@ -188,28 +188,28 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
             if (!gridHolder02_05)
             {
                 gridHolder02_05 = new QWidget(ribbon05);
-                grid02_05 = new QGridLayout(gridHolder02_05);//QGridLayoutµÄ×÷ÓÃÊÇ°Ñ¿Ø¼þ·ÅÔÚÒ»¸öÍø¸ñÀï
+                grid02_05 = new QGridLayout(gridHolder02_05);//QGridLayoutçš„ä½œç”¨æ˜¯æŠŠæŽ§ä»¶æ”¾åœ¨ä¸€ä¸ªç½‘æ ¼é‡Œ
 				grid02_05->setContentsMargins(4, 2, 4, 2);
                 grid02_05->setHorizontalSpacing(8);
                 grid02_05->setVerticalSpacing(4);
                 layout05->addWidget(gridHolder02_05);
             }
             button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-            button->setIconSize(QSize(20, 20));           // Ð¡ icon
+            button->setIconSize(QSize(20, 20));           // å° icon
             button->setMinimumSize(QSize(90, 20));
             button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-            button->setText(action.text);                 // ÅÔÅÅÎÄ×Ö£¬²»ÔÙ»»ÐÐ
+            button->setText(action.text);                 // æ—æŽ’æ–‡å­—ï¼Œä¸å†æ¢è¡Œ
 
             int row = groupedCount02_05 / 4;
             int col = groupedCount02_05 % 4;
 
-            //²¼¾Ö¹ÜÀí  grid
+            //å¸ƒå±€ç®¡ç†  grid
             grid02_05->addWidget(button, row, col);
             ++groupedCount02_05;
             continue;
         }
         else {
-            // ·Ç¸Ã·Ö×é£ºÈÔ¾ÉÒ»ÐÐºáÅÅ
+            // éžè¯¥åˆ†ç»„ï¼šä»æ—§ä¸€è¡Œæ¨ªæŽ’
             layout05->addWidget(button);
         }
         if (action.hasMenu == 1) {
@@ -218,12 +218,12 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/ROI_from_geomety_element.png"), QStringLiteral("À´×Ô¼¸ºÎÔªËØµÄROI"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/surface_mash_from_geomety_element.PNG"), QStringLiteral("À´×Ô¼¸ºÎÔªËØµÄ±íÃæÍø¸ñ"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/CAD_from_geomety_element.PNG"), QStringLiteral("À´×Ô¼¸ºÎÔªËØµÄ CAD"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/geometry_element_export_to_surface_mash.PNG"), QStringLiteral("½«¼¸ºÎÔªËØµ¼³öÎª±íÃæÍø¸ñ"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/geometry_element_export_to_CAD.PNG"), QStringLiteral("½«¼¸ºÎÔªËØµ¼³öÎª CAD"));
-            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/untitle.PNG"), QStringLiteral("±£´æÄâºÏµãÐÅÏ¢"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/ROI_from_geomety_element.png"), QStringLiteral("æ¥è‡ªå‡ ä½•å…ƒç´ çš„ROI"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/surface_mash_from_geomety_element.PNG"), QStringLiteral("æ¥è‡ªå‡ ä½•å…ƒç´ çš„è¡¨é¢ç½‘æ ¼"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/CAD_from_geomety_element.PNG"), QStringLiteral("æ¥è‡ªå‡ ä½•å…ƒç´ çš„ CAD"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/geometry_element_export_to_surface_mash.PNG"), QStringLiteral("å°†å‡ ä½•å…ƒç´ å¯¼å‡ºä¸ºè¡¨é¢ç½‘æ ¼"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/geometry_element_export_to_CAD.PNG"), QStringLiteral("å°†å‡ ä½•å…ƒç´ å¯¼å‡ºä¸º CAD"));
+            menu->addAction(QIcon(":/geometry_icons02/icons_other/geometry_icons/transformation_and_export_pull_down_menu/untitle.PNG"), QStringLiteral("ä¿å­˜æ‹Ÿåˆç‚¹ä¿¡æ¯"));
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }

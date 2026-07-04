@@ -3,18 +3,18 @@
 
 namespace IconMaps11 {
     static const RibbonCommon::IconMapItem kReportIconMap[] = {
-        { QStringLiteral("´´½¨±¨¸æ"),  ":/report_icons/icons_other/report_icons/create_report.PNG" },
-        { QStringLiteral("´ò¿ª±¨¸æ"),  ":/report_icons/icons_other/report_icons/open_report.PNG" },
-        { QStringLiteral("¸üĞÂ±¨¸æ"), ":/report_icons/icons_other/report_icons/updata_report.PNG" },
-        { QStringLiteral("É¾³ı±¨¸æ"),  ":/report_icons/icons_other/report_icons/delelte_report.PNG" },
-        { QStringLiteral("µ¼³öPDF"),  ":/report_icons/icons_other/report_icons/output_PDF.PNG" },
-        { QStringLiteral("µ¼³öHTML"),  ":/report_icons/icons_other/report_icons/output_html.png" },
-        { QStringLiteral("µ¼³öÄ¬ÈÏ²¼¾Ö"),  ":/report_icons/icons_other/report_icons/output_default_layout.png" },
-        { QStringLiteral("µ¼³öÌØ¶¨²¼¾Ö"),  ":/report_icons/icons_other/report_icons/output_special_layout.png" },
-        { QStringLiteral("´´½¨ÊéÇ©"),  ":/report_icons/icons_other/report_icons/create_bookmark.PNG" },
-        { QStringLiteral("ÊéÇ©±à¼­Æ÷"),      ":/report_icons/icons_other/report_icons/bookmark_editor.PNG" },
-        { QStringLiteral("±£´æÍ¼Ïñ"),        ":/report_icons/icons_other/report_icons/save_image.png" },
-        { QStringLiteral("±£´æÓ°Æ¬/Í¼Ïñ¶ÑÕ»"),        ":/report_icons/icons_other/report_icons/save_movie_image_stack.png" },
-        { QStringLiteral("µ¼³öÎªQ-DASÎÄ¼ş"),        ":/report_icons/icons_other/report_icons/output_Q_DAS_document.png" },
+        { QStringLiteral("åˆ›å»ºæŠ¥å‘Š"),  ":/report_icons/icons_other/report_icons/create_report.PNG" },
+        { QStringLiteral("æ‰“å¼€æŠ¥å‘Š"),  ":/report_icons/icons_other/report_icons/open_report.PNG" },
+        { QStringLiteral("æ›´æ–°æŠ¥å‘Š"), ":/report_icons/icons_other/report_icons/updata_report.PNG" },
+        { QStringLiteral("åˆ é™¤æŠ¥å‘Š"),  ":/report_icons/icons_other/report_icons/delelte_report.PNG" },
+        { QStringLiteral("å¯¼å‡ºPDF"),  ":/report_icons/icons_other/report_icons/output_PDF.PNG" },
+        { QStringLiteral("å¯¼å‡ºHTML"),  ":/report_icons/icons_other/report_icons/output_html.png" },
+        { QStringLiteral("å¯¼å‡ºé»˜è®¤å¸ƒå±€"),  ":/report_icons/icons_other/report_icons/output_default_layout.png" },
+        { QStringLiteral("å¯¼å‡ºç‰¹å®šå¸ƒå±€"),  ":/report_icons/icons_other/report_icons/output_special_layout.png" },
+        { QStringLiteral("åˆ›å»ºä¹¦ç­¾"),  ":/report_icons/icons_other/report_icons/create_bookmark.PNG" },
+        { QStringLiteral("ä¹¦ç­¾ç¼–è¾‘å™¨"),      ":/report_icons/icons_other/report_icons/bookmark_editor.PNG" },
+        { QStringLiteral("ä¿å­˜å›¾åƒ"),        ":/report_icons/icons_other/report_icons/save_image.png" },
+        { QStringLiteral("ä¿å­˜å½±ç‰‡/å›¾åƒå †æ ˆ"),        ":/report_icons/icons_other/report_icons/save_movie_image_stack.png" },
+        { QStringLiteral("å¯¼å‡ºä¸ºQ-DASæ–‡ä»¶"),        ":/report_icons/icons_other/report_icons/output_Q_DAS_document.png" },
     };
 };

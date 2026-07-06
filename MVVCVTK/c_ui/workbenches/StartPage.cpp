@@ -1,21 +1,16 @@
-﻿#include "StartPage.h"
-#include "c_ui/workbenches/common/RibbonCommon.h"
+﻿#include "c_ui/nav/TabMap.h"
 #include "c_ui/workbenches/common/IconMaps/StartIconMap.h"
-#include "c_ui/nav/TabMap.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include "c_ui/workbenches/common/RibbonCommon.h"
+#include "StartPage.h"
 #include <QFrame>
-#include <QLabel>
-#include <QToolButton>
-#include <QMenu>
-#include <QPainter>
-#include <QPen>
-#include <QFont>
-#include <QPixmap>
+#include <QHBoxLayout>
 #include <QList>
+#include <QMenu>
 #include <QSize>
-#include <QDebug>
-#include <QFile>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QAction>
+#include <qdebug.h>
 
 static QIcon loadIconFor(const QString& text) {
     return RibbonCommon::loadIconByText(text, IconMaps::kStartIconMap);
@@ -63,148 +58,144 @@ QWidget* StartPagePage::buildRibbon01(QWidget* parent)
     layout01->setContentsMargins(4, 4, 4, 4);
     layout01->setSpacing(1);
 
-    struct RibbonAction01
+    struct PullMeauAction
     {
         QString text;
-        int hasMenu;
+		QString iconPath;
+		QString command;
     };
 
-    const QList<RibbonAction01> actions01 = {
-        { QStringLiteral("快速导入"), 0 },
-        { QStringLiteral("体积导入"), 1 },
-        { QStringLiteral("显示模式"), 2 },
-        { QStringLiteral("水平/窗口模式"), 0 },
-        { QStringLiteral("厚板"), 0 },
-        { QStringLiteral("裁剪当前切片图"), 0 },
-        { QStringLiteral("对齐"), 3 },
-        { QStringLiteral("指示器"), 0 },
-        { QStringLiteral("距离"), 0 },
-        { QStringLiteral("角度(4个点)"), 0 },
-        { QStringLiteral("角度(3个点)"), 0 },
-        { QStringLiteral("折线长度"), 0 },
-        { QStringLiteral("最小/最大距离"), 0 },
-        { QStringLiteral("卡尺"), 0 },
-        { QStringLiteral("捕捉模式"), 4 },
-        { QStringLiteral("重新捕捉量具控点"), 0 },
-        { QStringLiteral("创建报告"), 0 },
-        { QStringLiteral("创建书签"), 0 },
-        { QStringLiteral("书签编辑器"), 0 },
-        { QStringLiteral("保存图像/影片"), 5 },
+    struct RibbonButtonDef
+    {
+        QString text;
+        QString command;
+		QList<PullMeauAction> menuActions;
     };
 
-    for (const auto& action : actions01) {
-        // 每个功能都使用图标,文字的形式展示
-        auto* button = new QToolButton(ribbon01_);
-        // 换行规则统一到公共函数，后续调规则只改一处。
-        QString afterShiftText = RibbonCommon::shiftNewLine(action.text, button->font(), 51);
+    const QList<RibbonButtonDef> buttons = {
+    { QStringLiteral("快速导入"), QString(),  QList<PullMeauAction>{} },
+
+    {
+        QStringLiteral("体积导入"), QString(), 
+        QList<PullMeauAction>{
+            { QStringLiteral("原始体积"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/origin_volume.png"), QString() },
+            { QStringLiteral("图像堆栈"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/images_stack.png"), QString() },
+            { QStringLiteral("合并对象"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/merge_obj.png"), QString() },
+            { QStringLiteral("CT重建"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"), QStringLiteral("recon.open") }
+        }
+    },
+
+    {
+        QStringLiteral("显示模式"), QString(), 
+        QList<PullMeauAction>{
+            { QStringLiteral("原始"), QStringLiteral(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/display_pattern.png"), QString() },
+            { QStringLiteral("颜色"), QStringLiteral(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/color.png"), QString() },
+            { QStringLiteral("颜色和不透明度"), QStringLiteral(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/delete_volume_data.png"), QString() }
+        }
+    },
+
+    { QStringLiteral("水平/窗口模式"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("厚板"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("裁剪当前切片图"), QString(), QList<PullMeauAction>{} },
+
+    {
+        QStringLiteral("对齐"), QString(), 
+        QList<PullMeauAction>{
+            { QStringLiteral("最佳拟合对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/best_fit_align.png"), QString() },
+            { QStringLiteral("3-2-1对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/3-2-1_align.png"), QString() },
+            { QStringLiteral("基于特征的对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/based_on_feature_align.png"), QString() },
+            { QStringLiteral("按次序对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/in_order_align.png"), QString() },
+            { QStringLiteral("RPS对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/RPS_align.png"), QString() },
+            { QStringLiteral("基于几何元素的最佳拟合"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/based_on_geometry_element_best_fit.png"), QString() },
+            { QStringLiteral("简单3-2-1对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/simple_3-2-1_align.png"), QString() },
+            { QStringLiteral("简单对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/simple_align.png"), QString() }
+        }
+    },
+
+    { QStringLiteral("指示器"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("距离"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("角度(4个点)"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("角度(3个点)"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("折线长度"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("最小/最大距离"), QString(),  QList<PullMeauAction>{} },
+    { QStringLiteral("卡尺"), QString(),  QList<PullMeauAction>{} },
+
+    {
+        QStringLiteral("捕捉模式"), QString(), 
+        QList<PullMeauAction>{
+            { QStringLiteral("最小"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/min.PNG"), QString() },
+            { QStringLiteral("最大"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/max.PNG"), QString() },
+            { QStringLiteral("梯度"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/gradient.PNG"), QString() },
+            { QStringLiteral("表面"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/surface.PNG"), QString() },
+            { QStringLiteral("局部"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/local.PNG"), QString() },
+            { QStringLiteral("关"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/off.PNG"), QString() }
+        }
+    },
+
+    { QStringLiteral("重新捕捉量具控点"), QString(), QList<PullMeauAction>{} },
+    { QStringLiteral("创建报告"), QString(), QList<PullMeauAction>{} },
+    { QStringLiteral("创建书签"), QString(), QList<PullMeauAction>{} },
+    { QStringLiteral("书签编辑器"), QString(), QList<PullMeauAction>{} },
+
+    {
+        QStringLiteral("保存图像/影片"), QString(), 
+        QList<PullMeauAction>{
+            { QStringLiteral("保存图像"), QStringLiteral(":/start_icons01/icons_other/start_icons/save_image.png"), QStringLiteral("image.save") },
+            { QStringLiteral("保存影片/图像堆栈"), QStringLiteral(":/start_icons01/icons_other/start_icons/save_image.png"), QStringLiteral("slicestack.save") }
+        }
+    }
+    };
+
+    auto createMenu = [this](QWidget* parent, const QList<PullMeauAction>& menuActions) {
+        auto* menu = new QMenu(parent);
+        menu->setStyleSheet(QStringLiteral(
+            "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
+            "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
+            "QMenu::item:selected{background:#3a3a3a;}"));
+
+        for (const auto& menuAction : menuActions) {
+            auto* qAction = menu->addAction(
+                QIcon(menuAction.iconPath),
+                menuAction.text);
+
+            if (!menuAction.command.isEmpty()) {
+                connect(qAction, &QAction::triggered, this, [this, command = menuAction.command]() {
+                    emit commandRequested(command);
+                    });
+            }
+        }
+
+        return menu;
+        };
+
+    auto createButton = [this, &createMenu](QWidget* parent, const RibbonButtonDef& buttonDef) {
+        auto* button = new QToolButton(parent);
+        QString afterShiftText = RibbonCommon::shiftNewLine(buttonDef.text, button->font(), 51);
         button->setText(afterShiftText);
-        button->setIcon(loadIconFor(action.text));
+        button->setIcon(loadIconFor(buttonDef.text));
         button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         button->setIconSize(QSize(40, 40));
         button->setMinimumSize(QSize(70, 90));
 
-        if (action.text == QStringLiteral("距离")) {
-            connect(button, &QToolButton::clicked, this, [this]() {
-               /* emit distanceRequested();*/
-               });
+        if (!buttonDef.menuActions.isEmpty()) {
+            button->setMenu(createMenu(button, buttonDef.menuActions));
+            button->setPopupMode(QToolButton::InstantPopup);
         }
-
-        if (action.text == QStringLiteral("角度(3个点)")) {
-            connect(button, &QToolButton::clicked, this, [this]() {
-               /* emit angleRequested();*/
-               });
-        }
-
-        if (action.hasMenu == 1) {  
-            auto* menu = new QMenu(button);
-            menu->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/origin_volume.png"), QStringLiteral("原始体积"));
-            menu->addAction(QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/images_stack.png"), QStringLiteral("图像堆栈"));
-            menu->addAction(QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/merge_obj.png"), QStringLiteral("合并对象"));
-            auto* actCtRecon = menu->addAction(
-                QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"),
-                QStringLiteral("CT重建"));
-
-            connect(actCtRecon, &QAction::triggered, this, [this]() {
-                emit commandRequested(QStringLiteral("recon.open"));
+         /*   else if (!buttonDef.command.isEmpty()) {
+			qDebug() << "Connecting button '" << buttonDef.text << "' to command: " << buttonDef.command;
+            connect(button, &QToolButton::clicked, this, [this, command = buttonDef.command]() {
+                emit commandRequested(command);
                 });
-            button->setMenu(menu);
-            button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        if (action.hasMenu == 2) {
-            auto* menu02 = new QMenu(button);
-            menu02->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/display_pattern.png"), QStringLiteral("原始"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/color.png"), QStringLiteral("颜色"));
-            menu02->addAction(QIcon(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/delete_volume_data.png"), QStringLiteral("颜色和不透明度"));
-            button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        if (action.hasMenu == 3) {
-            auto* menu02 = new QMenu(button);
-            menu02->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/best_fit_align.png"), QStringLiteral("最佳拟合对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/3-2-1_align.png"), QStringLiteral("3-2-1对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/based_on_feature_align.png"), QStringLiteral("基于特征的对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/in_order_align.png"), QStringLiteral("按次序对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/RPS_align.png"), QStringLiteral("RPS对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/based_on_geometry_element_best_fit.png"), QStringLiteral("基于几何元素的最佳拟合"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/simple_3-2-1_align.png"), QStringLiteral("简单3-2-1对齐"));
-            menu02->addAction(QIcon(":/start_icons02/icons_other/start_icons/align_pull_down_menu/simple_align.png"), QStringLiteral("简单对齐"));
-            button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        if (action.hasMenu == 4) {
-            auto* menu02 = new QMenu(button);
-            menu02->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/min.PNG"), QStringLiteral("最小"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/max.PNG"), QStringLiteral("最大"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/gradient.PNG"), QStringLiteral("梯度"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/surface.PNG"), QStringLiteral("表面"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/local.PNG"), QStringLiteral("局部"));
-            menu02->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/off.PNG"), QStringLiteral("关"));
-            button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        if (action.hasMenu == 5) {
-            auto* menu02 = new QMenu(button);
-            menu02->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
+        }*/
 
-            auto* actSaveTransformedData = menu02->addAction(
-                QIcon(":/start_icons01/icons_other/start_icons/save_image.png"),
-                QStringLiteral("保存图像"));
+        return button;
+        };
 
-            connect(actSaveTransformedData, &QAction::triggered, this, [this]() {
-                emit commandRequested(QStringLiteral("image.save"));
-                });
 
-            auto* actSaveSliceStack = menu02->addAction(
-                QIcon(":/start_icons01/icons_other/start_icons/save_image.png"),
-                QStringLiteral("保存影片/图像堆栈"));
-
-            connect(actSaveSliceStack, &QAction::triggered, this, [this]() {
-                emit commandRequested(QStringLiteral("slicestack.save"));
-                });
-            button->setMenu(menu02);
-            button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        layout01->addWidget(button);
+    for (const auto& buttonDef : buttons) {
+        layout01->addWidget(createButton(ribbon01_, buttonDef));
     }
+
     layout01->addStretch();
     return ribbon01_;
 }

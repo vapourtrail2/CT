@@ -28,18 +28,17 @@ class AnalysisPage;
 class WindowPage;
 class ReportPage;
 class AnimationPage;
-class UIReconstruct3D;
+
 struct AppSession;
 class RenderPanel;
 class SceneTreePanel;
-
-class QProgressDialog;//进度条
-
 class TabMap;
 class WorkspaceFlow;
 class WorkspacePage;
 class RibbonPageRegister;
 class RibbonPage;
+class UIReconstruct3D;
+class QProgressDialog;//进度条
 
 class CTViewer : public QMainWindow
 {
@@ -52,8 +51,6 @@ private:
     void buildTheTop();
     void buildTheMiddle();
     void wireConnect();
-    void openCtReconUi();
-
     void buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTabs();
@@ -84,13 +81,12 @@ private:
     void setCloseProgressDialog();
     void setRibbonPage(RibbonPage* page);
 
+    void openCtReconUi();
+
 private:
     QPointer<QWidget> whatEmpty_;
-   
     QPointer<QWidget> emptyPage_;
-
     QPointer<QTabBar> tabBar_;
-
     QPointer<DocumentPage> pageDocument_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;

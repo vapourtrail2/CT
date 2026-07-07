@@ -1,6 +1,6 @@
 #include "WindowPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
-#include "c_ui/workbenches/common/IconMaps/WindowIconMap.h"
+#include "c_ui/workbenches/common/IconMaps/RibbonIconMaps.h"
 #include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -20,7 +20,7 @@
 #include <QWidgetAction>
 
 static QIcon loadIconFor(const QString& text) {
-    return RibbonCommon::loadIconByText(text, IconMaps13::kWindowIconMap);
+    return RibbonCommon::loadIconByText(text, RibbonIconMaps::kWindowIconMap);
 }
 
 WindowPage::WindowPage(QWidget* parent)

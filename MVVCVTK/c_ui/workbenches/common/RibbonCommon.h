@@ -69,4 +69,19 @@ namespace RibbonCommon {
         return QIcon(QString::fromUtf8(fallbackPath));
     }
 
-} // namespace RibbonCommon
+}
+
+namespace RibbonDef {
+    struct RibbonMenuAction
+    {
+        QString text;
+        QString iconPath;
+        QString command;
+    };
+
+    struct RibbonButtonDef
+    {
+        QString text;
+        QList<RibbonMenuAction> menuActions;
+    };
+}

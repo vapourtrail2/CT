@@ -1,6 +1,6 @@
 #include "AlignmentPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
-#include "c_ui/workbenches/common/IconMaps/AlignIconMap.h"
+#include "c_ui/workbenches/common/IconMaps/RibbonIconMaps.h"
 #include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -19,7 +19,7 @@
 
 
 static QIcon loadIconFor(const QString& text) {
-    return RibbonCommon::loadIconByText(text, IconMaps06::kAlignIconMap);
+    return RibbonCommon::loadIconByText(text, RibbonIconMaps::kAlignIconMap);
 }
 
 AlignmentPage::AlignmentPage(QWidget* parent)

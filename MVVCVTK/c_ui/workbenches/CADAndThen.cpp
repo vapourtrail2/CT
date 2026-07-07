@@ -1,6 +1,6 @@
 #include "CADAndThen.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
-#include "c_ui/workbenches/common/IconMaps/CadIconMap.h"
+#include "c_ui/workbenches/common/IconMaps/RibbonIconMaps.h"
 #include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -18,7 +18,7 @@
 #include <QFile>
 
 static QIcon loadIconFor(const QString& text) {
-    return RibbonCommon::loadIconByText(text, IconMaps09::kCadIconMap);
+    return RibbonCommon::loadIconByText(text, RibbonIconMaps::kCadIconMap);
 }
 
 CADAndThen::CADAndThen(QWidget* parent)

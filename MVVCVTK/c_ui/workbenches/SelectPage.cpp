@@ -1,6 +1,6 @@
 #include "SelectPage.h"
 #include "c_ui/workbenches/common/RibbonCommon.h"
-#include "c_ui/workbenches/common/IconMaps/SelectIconMap.h"
+#include "c_ui/workbenches/common/IconMaps/RibbonIconMaps.h"
 #include "c_ui/nav/TabMap.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -18,7 +18,7 @@
 #include <QFile>
 
 static QIcon loadIconFor(const QString& text) {
-    return RibbonCommon::loadIconByText(text, IconMaps05::kSelectIconMap);
+    return RibbonCommon::loadIconByText(text, RibbonIconMaps::kSelectIconMap);
 }
 
 SelectPage::SelectPage(QWidget* parent)

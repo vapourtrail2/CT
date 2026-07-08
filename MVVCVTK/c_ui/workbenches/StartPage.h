@@ -17,21 +17,8 @@ public:
 	QString tabName() const override;
 
 private:
-	struct PullMeauAction
-	{
-		QString text;
-		QString iconPath;
-		QString command;
-	};
-		
-	struct RibbonButtonDef
-	{
-		QString text;
-		QList<PullMeauAction> menuActions;
-	};
-	
-	QWidget* setRibbon01(QWidget* parent);
-	QMenu* createMenu(QWidget* parent, const QList<PullMeauAction>& menuActions);
-	QToolButton* createButton(QWidget* parent, const RibbonButtonDef& buttonDef);
-	static QList<RibbonButtonDef> createStartButtons();
+	QWidget* buildRibbon(QWidget* parent);
+	QMenu* createMenu(QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions);
+	QToolButton* createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef);
+	static QList<RibbonDef::RibbonButtonDef> createStartButtons();
 };

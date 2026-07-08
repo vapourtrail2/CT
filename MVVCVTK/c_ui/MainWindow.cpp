@@ -8,11 +8,8 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/ribbon/RibbonPageRegister.h"
 #include "c_ui/windows/Titlebar.h"
-
 #include "c_ui/workbenches/DocumentPage.h"
-
 #include "c_ui/toolbox/Toolboxes.h"
-
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -71,7 +68,6 @@ CTViewer::CTViewer(QWidget* parent)
 
     tabMap_ = std::make_unique<TabMap>();
 
-    //结构 
     buildTheTop();
     buildTheMiddle(); 
     setCommands();

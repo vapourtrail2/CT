@@ -22,6 +22,48 @@ static QIcon loadIconFor(const QString& text) {
     return RibbonCommon::loadIconByText(text, RibbonIconMaps::kAlignIconMap);
 }
 
+namespace
+{
+constexpr int kButtonTextMaxWidth = 60;
+constexpr int kButtonIconSize = 40;
+constexpr int kButtonMinWidth = 70;
+constexpr int kButtonMinHeight = 90;
+
+const char* kMenuStyle =
+"QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
+"QMenu::item{color:#e0e0e0; padding:6px 24px;}"
+"QMenu::item:selected{background:#3a3a3a;}";
+
+const char* kRibbonStyle =
+"QFrame#alignmentRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
+"QToolButton{color:#e0e0e0; font-weight:600;}";
+}
+
+QList<RibbonDef::RibbonButtonDef> AlignmentPage::createAlignButtons()
+{
+    return {
+        { QStringLiteral("最佳拟合对齐"), {} },
+        { QStringLiteral("3-2-1对齐"), {} },
+        { QStringLiteral("基于特征的对齐"), {} },
+        { QStringLiteral("按次序对齐"), {} },
+        { QStringLiteral("RPS对齐"), {} },
+        { QStringLiteral("基于几何元素的拟合"), {} },
+        { QStringLiteral("编辑当前对齐"), {} },
+        { QStringLiteral("简单3-2-1对齐"), {} },
+        { QStringLiteral("简单对齐"), {} },
+        { QStringLiteral("将切片图对齐到对象"), {} },
+        { QStringLiteral("坐标系原点"), {} },
+        { QStringLiteral("坐标系编辑器"), {} },
+        { QStringLiteral("存储对齐"), {} },
+        { QStringLiteral("应用对齐"), {} },
+        { QStringLiteral("复制转换"), {} },
+        { QStringLiteral("粘贴转换"), {} },
+        { QStringLiteral("重置转换"), {} },
+        { QStringLiteral("锁定"), {} },
+        { QStringLiteral("解锁"), {} },
+    };
+}
+
 AlignmentPage::AlignmentPage(QWidget* parent)
     : RibbonPage(parent)
 {
@@ -53,53 +95,37 @@ QString AlignmentPage::tabName() const
 
 QWidget* AlignmentPage::buildRibbon04(QWidget* parent)
 {
-    auto* ribbon04 = new QFrame(parent);
-    ribbon04->setObjectName(QStringLiteral("alignmentRibbon"));
-    ribbon04->setStyleSheet(QStringLiteral(
-        "QFrame#alignmentRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-        "QToolButton{color:#e0e0e0; font-weight:600;}"));
+    return RibbonCommon::createRibbonBar(
+        parent,
+        QStringLiteral("alignmentRibbon"),
+        kRibbonStyle,
+        createAlignButtons(),
+        [this](QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef) {
+            return createButton(parent, buttonDef);
+        });
+}
 
-    auto* layout04 = new QHBoxLayout(ribbon04);
-    layout04->setContentsMargins(4, 4, 4, 4);
-    layout04->setSpacing(1);
+QMenu* AlignmentPage::createMenu(QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions)
+{
+    return RibbonCommon::createRibbonMenu(
+        parent,
+        menuActions,
+        kMenuStyle,
+        this,
+        [](const QString&) {});
+}
 
-    struct RibbonAction04 {
-        QString text;
-        int hasMenu;
-    };
-
-    const QList<RibbonAction04> actions04 = {
-        { QStringLiteral("最佳拟合对齐"), 0 },
-        { QStringLiteral("3-2-1对齐"), 0 },
-        { QStringLiteral("基于特征的对齐"),0 },
-        { QStringLiteral("按次序对齐"), 0 },
-        { QStringLiteral("RPS对齐"), 0 },
-        { QStringLiteral("基于几何元素的拟合"), 0 },
-        { QStringLiteral("编辑当前对齐"), 0 },
-        { QStringLiteral("简单3-2-1对齐"), 0 },
-        { QStringLiteral("简单对齐"), 0 },
-        { QStringLiteral("将切片图对齐到对象"), 0 },
-        { QStringLiteral("坐标系原点"), 0 },
-        { QStringLiteral("坐标系编辑器"), 0 },
-        { QStringLiteral("存储对齐"), 0 },
-        { QStringLiteral("应用对齐"), 0 },
-        { QStringLiteral("复制转换"), 0 },
-        { QStringLiteral("粘贴转换"), 0 },
-        { QStringLiteral("重置转换"), 0 },
-        { QStringLiteral("锁定"), 0 },
-        { QStringLiteral("解锁"), 0 },
-    };
-    for (const auto& action : actions04)
-    {
-        auto* button = new QToolButton(ribbon04);
-        button->setIcon(loadIconFor(action.text));
-     /*   button->setIconSize(QSize(40, 40));*/
-        button->setMinimumSize(QSize(70, 90));
-        button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-        // Shared wrap rule avoids duplicate text-layout code in each page.
-        button->setText(RibbonCommon::shiftNewLine(action.text, button->font(), 60));
-        layout04->addWidget(button);
-    }
-    layout04->addStretch();
-    return ribbon04;
+QToolButton* AlignmentPage::createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef)
+{
+    return RibbonCommon::createRibbonButton(
+        parent,
+        buttonDef,
+        loadIconFor,
+        [this](QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions) {
+            return createMenu(parent, menuActions);
+        },
+        kButtonTextMaxWidth,
+        kButtonIconSize,
+        kButtonMinWidth,
+        kButtonMinHeight);
 }

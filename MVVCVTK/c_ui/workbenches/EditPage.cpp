@@ -21,6 +21,58 @@ static QIcon loadIconFor(const QString& text) {
     return RibbonCommon::loadIconByText(text, RibbonIconMaps::kEditIconMap);
 }
 
+namespace
+{
+constexpr int kButtonTextMaxWidth = 70;
+constexpr int kButtonIconSize = 40;
+constexpr int kButtonMinWidth = 70;
+constexpr int kButtonMinHeight = 90;
+
+const char* kMenuStyle =
+"QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
+"QMenu::item{color:#e0e0e0; padding:6px 24px;}"
+"QMenu::item:selected{background:#3a3a3a;}";
+
+const char* kRibbonStyle =
+"QFrame#editRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
+"QToolButton{color:#e0e0e0; font-weight:600;}";
+}
+
+QList<RibbonDef::RibbonButtonDef> EditPage::createEditButtons()
+{
+    return {
+        { QStringLiteral("撤销"), {} },
+        { QStringLiteral("重做"), {} },
+        { QStringLiteral("释放内存/清除撤销队列"), {} },
+        { QStringLiteral("剪切"), {} },
+        { QStringLiteral("复制"), {} },
+        { QStringLiteral("粘贴"), {} },
+        { QStringLiteral("删除"), {} },
+        { QStringLiteral("创建对象组"), {} },
+        { QStringLiteral("取消对象组"), {} },
+        {
+            QStringLiteral("转换为"),
+            {
+                { QStringLiteral("体积"), QStringLiteral(":/icons/icons/trans_pull_down_menu/volume.png"), QString() },
+                { QStringLiteral("四面体体积网格"), QStringLiteral(":/icons/icons/trans_pull_down_menu/volume_grid.png"), QString() },
+                { QStringLiteral("表面网格"), QStringLiteral(":/icons/icons/trans_pull_down_menu/surface_grid.png"), QString() },
+                { QStringLiteral("CAD"), QStringLiteral(":/icons/icons/trans_pull_down_menu/CAD.png"), QString() },
+                { QStringLiteral("黄金表面"), QStringLiteral(":/icons/icons/trans_pull_down_menu/golden_surface.png"), QString() },
+                { QStringLiteral("分析结果中的有色表面网格"), QStringLiteral(":/icons/icons/trans_pull_down_menu/analysis_surface.png"), QString() },
+                { QStringLiteral("来自四面体体积网格的集成网格"), QStringLiteral(":/icons/icons/trans_pull_down_menu/integration_grid.png"), QString() }
+            }
+        },
+        { QStringLiteral("属性"), {} },
+        { QStringLiteral("旋转"), {} },
+        { QStringLiteral("移动"), {} },
+        { QStringLiteral("复制可视状态"), {} },
+        { QStringLiteral("粘贴可视状态"), {} },
+        { QStringLiteral("复制元信息"), {} },
+        { QStringLiteral("粘贴元信息"), {} },
+        { QStringLiteral("动态重命名"), {} }
+    };
+}
+
 EditPage::EditPage(QWidget* parent)
     : RibbonPage(parent)
 {
@@ -52,73 +104,37 @@ QString EditPage::tabName() const
 
 QWidget* EditPage::buildRibbon(QWidget* parent)
 {
-    // 创建功能区容器
-    auto* ribbon = new QFrame(parent);
-    ribbon->setObjectName(QStringLiteral("editRibbon"));
-    ribbon->setStyleSheet(QStringLiteral(
-        "QFrame#editRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-        "QToolButton{color:#e0e0e0; font-weight:600;}"));
+    return RibbonCommon::createRibbonBar(
+        parent,
+        QStringLiteral("editRibbon"),
+        kRibbonStyle,
+        createEditButtons(),
+        [this](QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef) {
+            return createButton(parent, buttonDef);
+        });
+}
 
-    auto* layout = new QHBoxLayout(ribbon);
-    layout->setContentsMargins(4, 4, 4, 4);
-    layout->setSpacing(1);
+QMenu* EditPage::createMenu(QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions)
+{
+    return RibbonCommon::createRibbonMenu(
+        parent,
+        menuActions,
+        kMenuStyle,
+        this,
+        [](const QString&) {});
+}
 
-    struct RibbonAction
-    {
-        QString text;
-        bool hasMenu;
-    };
-
-    const QList<RibbonAction> actions = {
-        { QStringLiteral("撤销"), false },
-        { QStringLiteral("重做"), false },
-        { QStringLiteral("释放内存/清除撤销队列"), false },
-        { QStringLiteral("剪切"), false },
-        { QStringLiteral("复制"), false },
-        { QStringLiteral("粘贴"), false },
-        { QStringLiteral("删除"), false },
-        { QStringLiteral("创建对象组"), false },
-        { QStringLiteral("取消对象组"), false },
-        { QStringLiteral("转换为"), true },
-        { QStringLiteral("属性"), false },
-        { QStringLiteral("旋转"), false },
-        { QStringLiteral("移动"), false },
-        { QStringLiteral("复制可视状态"), false },
-        { QStringLiteral("粘贴可视状态"), false },
-        { QStringLiteral("复制元信息"), false },
-        { QStringLiteral("粘贴元信息"), false },
-        { QStringLiteral("动态重命名"), false }
-    };
-
-	for (const auto& action : actions) {
-        // 每个功能都使用图标,文字的形式展示
-        auto* button = new QToolButton(ribbon); 
-        QString afterShiftText = RibbonCommon::shiftNewLine(action.text, button->font(), 70,1.2);
-        button->setText(afterShiftText);
-        button->setIcon(loadIconFor(action.text));
-        button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-        button->setIconSize(QSize(40, 40));
-        button->setMinimumSize(QSize(70, 90));
-
-        if (action.hasMenu) {
-            // 转换为功能 需要后期拓展
-            auto* menu = new QMenu(button);
-            menu->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-				"QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/volume.png"), QStringLiteral("体积"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/volume_grid.png"), QStringLiteral("四面体体积网格"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/surface_grid.png"), QStringLiteral("表面网格"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/CAD.png"), QStringLiteral("CAD"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/golden_surface.png"), QStringLiteral("黄金表面"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/analysis_surface.png"), QStringLiteral("分析结果中的有色表面网格"));
-            menu->addAction(QIcon(":/icons/icons/trans_pull_down_menu/integration_grid.png"), QStringLiteral("来自四面体体积网格的集成网格"));
-            button->setMenu(menu);
-			button->setPopupMode(QToolButton::InstantPopup);//点击按钮时直接弹出菜单
-        }
-        layout->addWidget(button);
-    }
-    layout->addStretch();
-    return ribbon;
+QToolButton* EditPage::createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef)
+{
+    return RibbonCommon::createRibbonButton(
+        parent,
+        buttonDef,
+        loadIconFor,
+        [this](QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions) {
+            return createMenu(parent, menuActions);
+        },
+        kButtonTextMaxWidth,
+        kButtonIconSize,
+        kButtonMinWidth,
+        kButtonMinHeight);
 }

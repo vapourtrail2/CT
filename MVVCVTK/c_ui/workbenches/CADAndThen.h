@@ -8,7 +8,9 @@
 #include <QDebug>
 #include <QFile>
 #include "c_ui/ribbon/RibbonPage.h"
+#include "c_ui/workbenches/common/RibbonCommon.h"
 
+class QMenu;
 class QToolButton;
 
 class CADAndThen : public RibbonPage
@@ -21,5 +23,8 @@ public:
 
 private:
 	QWidget* buildRibbon07(QWidget* parent);
+	QMenu* createMenu(QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions);
+	QToolButton* createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef);
+	static QList<RibbonDef::RibbonButtonDef> createCadButtons();
 
 };

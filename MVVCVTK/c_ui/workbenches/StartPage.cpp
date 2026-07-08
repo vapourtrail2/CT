@@ -48,13 +48,13 @@ const char* kPageStyle =
 "QToolButton:hover{background-color:#3a3a3a;}";
 }
 
-QList<StartPagePage::RibbonButtonDef> StartPagePage::createStartButtons()
+QList<RibbonDef::RibbonButtonDef> StartPagePage::createStartButtons()
 {
     return {
-    { QStringLiteral("快速导入"),   QList<PullMeauAction>{} },
+    { QStringLiteral("快速导入"),   QList<RibbonDef::RibbonMenuAction>{} },
     {
         QStringLiteral("体积导入"), 
-        QList<PullMeauAction>{
+        QList<RibbonDef::RibbonMenuAction>{
             { QStringLiteral("原始体积"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/origin_volume.png"), QString() },
             { QStringLiteral("图像堆栈"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/images_stack.png"), QString() },
             { QStringLiteral("合并对象"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/merge_obj.png"), QString() },
@@ -63,20 +63,20 @@ QList<StartPagePage::RibbonButtonDef> StartPagePage::createStartButtons()
     },
     {
         QStringLiteral("显示模式"),
-        QList<PullMeauAction>{
+        QList<RibbonDef::RibbonMenuAction>{
             { QStringLiteral("原始"), QStringLiteral(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/display_pattern.png"), QString() },
             { QStringLiteral("颜色"), QStringLiteral(":/start_icons02/icons_other/start_icons/display_pattern_pull_down_menu/color.png"), QString() },
             { QStringLiteral("颜色和不透明度"), QStringLiteral(":/volume_icons/icons_other/volume_icons/volume_data_pull_down_menu/delete_volume_data.png"), QString() }
         }
     },
 
-    { QStringLiteral("水平/窗口模式"), QList<PullMeauAction>{} },
-    { QStringLiteral("厚板"),   QList<PullMeauAction>{} },
-    { QStringLiteral("裁剪当前切片图"), QList<PullMeauAction>{} },
+    { QStringLiteral("水平/窗口模式"), QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("厚板"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("裁剪当前切片图"), QList<RibbonDef::RibbonMenuAction>{} },
 
     {
         QStringLiteral("对齐"),
-        QList<PullMeauAction>{
+        QList<RibbonDef::RibbonMenuAction>{
             { QStringLiteral("最佳拟合对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/best_fit_align.png"), QString() },
             { QStringLiteral("3-2-1对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/3-2-1_align.png"), QString() },
             { QStringLiteral("基于特征的对齐"), QStringLiteral(":/start_icons02/icons_other/start_icons/align_pull_down_menu/based_on_feature_align.png"), QString() },
@@ -88,17 +88,17 @@ QList<StartPagePage::RibbonButtonDef> StartPagePage::createStartButtons()
         }
     },
 
-    { QStringLiteral("指示器"),  QList<PullMeauAction>{} },
-    { QStringLiteral("距离"),   QList<PullMeauAction>{} },
-    { QStringLiteral("角度(4个点)"),   QList<PullMeauAction>{} },
-    { QStringLiteral("角度(3个点)"),   QList<PullMeauAction>{} },
-    { QStringLiteral("折线长度"),   QList<PullMeauAction>{} },
-    { QStringLiteral("最小/最大距离"),   QList<PullMeauAction>{} },
-    { QStringLiteral("卡尺"),  QList<PullMeauAction>{} },
+    { QStringLiteral("指示器"),  QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("距离"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("角度(4个点)"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("角度(3个点)"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("折线长度"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("最小/最大距离"),   QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("卡尺"),  QList<RibbonDef::RibbonMenuAction>{} },
 
     {
         QStringLiteral("捕捉模式"), 
-        QList<PullMeauAction>{
+        QList<RibbonDef::RibbonMenuAction>{
             { QStringLiteral("最小"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/min.PNG"), QString() },
             { QStringLiteral("最大"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/max.PNG"), QString() },
             { QStringLiteral("梯度"), QStringLiteral(":/new/prefix1/icons_other/measure_icons/capture_pattern_pull_down_menu/gradient.PNG"), QString() },
@@ -108,14 +108,14 @@ QList<StartPagePage::RibbonButtonDef> StartPagePage::createStartButtons()
         }
     },
 
-    { QStringLiteral("重新捕捉量具控点"),  QList<PullMeauAction>{} },
-    { QStringLiteral("创建报告"),  QList<PullMeauAction>{} },
-    { QStringLiteral("创建书签"),  QList<PullMeauAction>{} },
-    { QStringLiteral("书签编辑器"),  QList<PullMeauAction>{} },
+    { QStringLiteral("重新捕捉量具控点"),  QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("创建报告"),  QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("创建书签"),  QList<RibbonDef::RibbonMenuAction>{} },
+    { QStringLiteral("书签编辑器"),  QList<RibbonDef::RibbonMenuAction>{} },
 
     {
         QStringLiteral("保存图像/影片"), 
-        QList<PullMeauAction>{
+        QList<RibbonDef::RibbonMenuAction>{
             { QStringLiteral("保存图像"), QStringLiteral(":/start_icons01/icons_other/start_icons/save_image.png"), QStringLiteral("image.save") },
             { QStringLiteral("保存影片/图像堆栈"), QStringLiteral(":/start_icons01/icons_other/start_icons/save_image.png"), QStringLiteral("slicestack.save") }
         }
@@ -134,65 +134,46 @@ StartPagePage::StartPagePage(QWidget* parent)
     layout01->setContentsMargins(0, 0, 0, 0);
     layout01->setSpacing(3);
 
-    layout01->addWidget(setRibbon01(this));
+    layout01->addWidget(buildRibbon(this));
 }
 
-QWidget* StartPagePage::setRibbon01(QWidget* parent)
+QWidget* StartPagePage::buildRibbon(QWidget* parent)
 {
-    // 创建功能区容器
-    auto* ribbon01_ = new QFrame(parent);
-    ribbon01_->setObjectName(QStringLiteral("startRibbon"));
-    ribbon01_->setStyleSheet(QString::fromLatin1(kRibbonStyle));
-
-    auto* layout01 = new QHBoxLayout(ribbon01_);
-    layout01->setContentsMargins(4, 4, 4, 4);
-    layout01->setSpacing(1);
-
-    const QList<RibbonButtonDef> buttons = createStartButtons();
-   
-    for (const auto& buttonDef : buttons) {
-        layout01->addWidget(createButton(ribbon01_, buttonDef));
-    }
-
-    layout01->addStretch();
-    return ribbon01_;
+    return RibbonCommon::createRibbonBar(
+        parent,
+        QStringLiteral("startRibbon"),
+        kRibbonStyle,
+        createStartButtons(),
+        [this](QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef) {
+            return createButton(parent, buttonDef);
+		});
 }
 
-QMenu* StartPagePage::createMenu(QWidget* parent, const QList<PullMeauAction>& menuActions)
+QMenu* StartPagePage::createMenu(QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions)
 {
-    auto* menu = new QMenu(parent);
-    menu->setStyleSheet(QString::fromLatin1(kMenuStyle));
-
-    for (const auto& menuAction : menuActions) {
-        auto* qAction = menu->addAction(
-            QIcon(menuAction.iconPath),
-            menuAction.text);
-
-        if (!menuAction.command.isEmpty()) {
-            connect(qAction, &QAction::triggered, this, [this, command = menuAction.command]() {
-                emit commandRequested(command);
-                });
-        }
-    }
-    return menu;
+    return RibbonCommon::createRibbonMenu(
+        parent,
+        menuActions,
+        kMenuStyle,
+        this,
+        [this](const QString& command) {
+            emit commandRequested(command);
+        });
 }
 
-QToolButton* StartPagePage::createButton(QWidget* parent, const RibbonButtonDef& buttonDef)
+QToolButton* StartPagePage::createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef)
 {
-    auto* button = new QToolButton(parent);
-    QString afterShiftText = RibbonCommon::shiftNewLine(buttonDef.text, button->font(), kButtonTextMaxWidth);
-    button->setText(afterShiftText);
-    button->setIcon(loadIconFor(buttonDef.text));
-    button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    button->setIconSize(QSize(kButtonIconSize, kButtonIconSize));
-    button->setMinimumSize(QSize(kButtonMinWidth, kButtonMinHeight));
-
-    if (!buttonDef.menuActions.isEmpty()) {
-        button->setMenu(createMenu(button, buttonDef.menuActions));
-        button->setPopupMode(QToolButton::InstantPopup);
-    }
-    
-    return button;
+    return RibbonCommon::createRibbonButton(
+        parent,
+        buttonDef,
+        loadIconFor,
+        [this](QWidget* parent, const QList<RibbonDef::RibbonMenuAction>& menuActions) {
+            return createMenu(parent, menuActions);
+        },
+        kButtonTextMaxWidth,
+        kButtonIconSize,
+        kButtonMinWidth,
+        kButtonMinHeight);
 }
 
 

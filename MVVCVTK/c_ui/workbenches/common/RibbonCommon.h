@@ -1,12 +1,34 @@
 #pragma once
 
+#include <cstddef>
+#include <QAction>
 #include <QFont>
 #include <QFontMetrics>
 #include <QIcon>
+#include <QList>
+#include <QMenu>
 #include <QString>
-#include <cstddef>
+#include <QWidget>
+#include <QSize>
+#include <QToolButton>
+#include <QFrame>
+#include <QHBoxLayout>
 
-//迁移一些通用的功能函数和结构体，避免重复代码，方便维护
+namespace RibbonDef {
+    struct RibbonMenuAction
+    {
+        QString text;
+        QString iconPath;
+        QString command;
+    };
+
+    struct RibbonButtonDef
+    {
+        QString text;
+        QList<RibbonMenuAction> menuActions;
+    };
+}
+
 namespace RibbonCommon {
 
     // 文本和图标路径映射项
@@ -69,19 +91,88 @@ namespace RibbonCommon {
         return QIcon(QString::fromUtf8(fallbackPath));
     }
 
+	//Menu创建函数，使用模板参数CommandHandler来处理命令
+    template <typename CommandHandler>
+    inline QMenu* createRibbonMenu(
+        QWidget* parent,
+        const QList<RibbonDef::RibbonMenuAction>& menuActions,
+        const char* menuStyle,
+        QObject* context,
+        CommandHandler onCommand)
+    {
+        auto* menu = new QMenu(parent);
+        menu->setStyleSheet(QString::fromLatin1(menuStyle));
+
+        for (const auto& menuAction : menuActions) {
+            auto* qAction = menu->addAction(
+                QIcon(menuAction.iconPath),
+                menuAction.text);
+
+            if (!menuAction.command.isEmpty()) {
+                QObject::connect(qAction, &QAction::triggered, context, [command = menuAction.command, onCommand]() {
+                    onCommand(command);
+                    });
+            }
+        }
+
+        return menu;
+    }
+
+	// 创建功能区按钮，使用模板参数IconLoader和MenuBuilder来加载图标和创建菜单
+    template <typename IconLoader, typename MenuBuilder>
+    inline QToolButton* createRibbonButton(
+        QWidget* parent,
+        const RibbonDef::RibbonButtonDef& buttonDef,
+        IconLoader loadIcon,
+        MenuBuilder createMenu,
+        int textMaxWidth,
+        int iconSize,
+        int minWidth,
+        int minHeight)
+    {
+        auto* button = new QToolButton(parent);
+
+        const QString afterShiftText =
+            shiftNewLine(buttonDef.text, button->font(), textMaxWidth);
+
+        button->setText(afterShiftText);
+        button->setIcon(loadIcon(buttonDef.text));
+        button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+        button->setIconSize(QSize(iconSize, iconSize));
+        button->setMinimumSize(QSize(minWidth, minHeight));
+
+        if (!buttonDef.menuActions.isEmpty()) {
+            button->setMenu(createMenu(button, buttonDef.menuActions));
+            button->setPopupMode(QToolButton::InstantPopup);
+        }
+
+        return button;
+    }
+
+    template <typename ButtonBuilder>
+    inline QWidget* createRibbonBar(
+        QWidget* parent,
+        const QString& objectName,
+        const char* ribbonStyle,
+        const QList<RibbonDef::RibbonButtonDef>& buttons,
+        ButtonBuilder createButton)
+    {
+        auto* ribbon = new QFrame(parent);
+        ribbon->setObjectName(objectName);
+        ribbon->setStyleSheet(QString::fromLatin1(ribbonStyle));
+
+        auto* layout = new QHBoxLayout(ribbon);
+        layout->setContentsMargins(4, 4, 4, 4);
+        layout->setSpacing(1);
+
+        for (const auto& buttonDef : buttons) {
+            layout->addWidget(createButton(ribbon, buttonDef));
+        }
+
+        layout->addStretch();
+        return ribbon;
+    }
 }
 
-namespace RibbonDef {
-    struct RibbonMenuAction
-    {
-        QString text;
-        QString iconPath;
-        QString command;
-    };
 
-    struct RibbonButtonDef
-    {
-        QString text;
-        QList<RibbonMenuAction> menuActions;
-    };
-}
+

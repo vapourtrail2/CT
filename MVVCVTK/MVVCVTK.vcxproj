@@ -230,8 +230,6 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\MainWindow.h" />
     <QtMoc Include="c_ui\panels\SceneTreePanel.h" />
     <QtMoc Include="c_ui\panels\RenderPanel.h" />
-    <ClInclude Include="c_ui\nav\TabMap.h" />
-    <ClInclude Include="c_ui\nav\UIState.h" />
     <ClInclude Include="c_ui\qt\QtRenderContext.h" />
     <QtMoc Include="c_ui\workbenches\AlignmentPage.h" />
     <QtMoc Include="c_ui\workbenches\AnalysisPage.h" />
@@ -272,7 +270,6 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp" />
     <ClCompile Include="c_ui\main.cpp" />
     <ClCompile Include="c_ui\MainWindow.cpp" />
-    <ClCompile Include="c_ui\nav\TabMap.cpp" />
     <ClCompile Include="c_ui\panels\RenderPanel.cpp" />
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
     <ClCompile Include="c_ui\qt\QtRenderContext.cpp" />

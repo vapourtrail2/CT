@@ -2,7 +2,6 @@
 #include "c_ui/contextarea/WorkspacePage.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
-#include "c_ui/nav/TabMap.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/ribbon/RibbonPage.h"
@@ -65,8 +64,6 @@ CTViewer::CTViewer(QWidget* parent)
     setStyleSheet(QStringLiteral(
         "QMainWindow{background-color:#121212;}"
         "QMenuBar, QStatusBar{background-color:#1a1a1a; color:#e0e0e0;}"));
-
-    tabMap_ = std::make_unique<TabMap>();
 
     buildTheTop();
     buildTheMiddle(); 
@@ -160,7 +157,7 @@ void CTViewer::buildRibbonTabs()
 
 void CTViewer::setRibbonPage(RibbonPage* page)
 {
-    if (!page || !stack_ || !ribbonPageRegister_ || !tabMap_) {
+    if (!page || !stack_ || !ribbonPageRegister_) {
         return;
     }
 
@@ -170,7 +167,7 @@ void CTViewer::setRibbonPage(RibbonPage* page)
 
     stack_->addWidget(page);
     ribbonPageRegister_->add(page);
-    tabMap_->bindTabPage(page->tabIndex(), page);
+    
 }
 
 void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout) {
@@ -271,8 +268,6 @@ void CTViewer::connectAppSignals() {
         });
 }
 
-
-
 //架构优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
 UiState CTViewer::buildUiState(int index) const{
     UiState state;
@@ -281,7 +276,7 @@ UiState CTViewer::buildUiState(int index) const{
     //业务集中在一个地方
     const bool hasData = context_.hasData();
     //文件页
-    if (tabMap_ && tabMap_->isFileTab(index)) {
+    if (index == TabIndex::File) {
 		state.showRibbon = false;
         state.ribbonHeight = 0;
 		state.contentTarget = ContentTarget::Document;
@@ -289,12 +284,11 @@ UiState CTViewer::buildUiState(int index) const{
         return state;
     }
 
-	//其他页
+	//其他页   
     state.showRibbon = true;
 	state.ribbonHeight = iconHeight_;
     state.contentTarget = hasData ? ContentTarget::Workspace : ContentTarget::Empty;
-    //tab对应哪个ribbon，统一从Tabmap取
-    state.ribbonPage = tabMap_ ? tabMap_->tabPage(index) : nullptr;
+    state.ribbonPage = ribbonPageRegister_ ? ribbonPageRegister_->pageByTab(index) : nullptr;
 	return state;
 }
 

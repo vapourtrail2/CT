@@ -11,7 +11,7 @@
 #include <memory>
 #include <QDoubleSpinBox>
 #include "c_ui/qt/QtRenderContext.h"
-#include "c_ui/nav/UIState.h"
+#include "c_ui/command/commands.h"
 #include "c_ui/context/AppContext.h"
 
 class QVBoxLayout;
@@ -92,8 +92,6 @@ private:
     QPointer<QStackedWidget> secondstack_;
 	QPointer<QtRenderContext> renderContext_;
 
-    std::unique_ptr<TabMap> tabMap_;
-
     UiState buildUiState(int index) const;
     void applyUiState(const UiState& state);
 
@@ -106,6 +104,5 @@ private:
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
 
     int iconHeight_ = 100;
-
     AppContext context_;
 };

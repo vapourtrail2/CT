@@ -1,4 +1,4 @@
-#include "c_ui/toolbox/Toolboxes.h"
+#include "c_ui/ribbon/RibbonPageFactory.h"
 
 #include "c_ui/workbenches/StartPage.h"
 #include "c_ui/workbenches/EditPage.h"
@@ -13,7 +13,7 @@
 #include "c_ui/workbenches/AnimationPage.h"
 #include "c_ui/workbenches/WindowPage.h"
 
-QList<RibbonPage*> createAll(QWidget* parent)
+QList<RibbonPage*> createAllRibbonPages(QWidget* parent)
 {
     return {
         new StartPagePage(parent),
@@ -27,6 +27,6 @@ QList<RibbonPage*> createAll(QWidget* parent)
         new AnalysisPage(parent),
         new ReportPage(parent),
         new AnimationPage(parent),
-        new WindowPage(parent), 
+        new WindowPage(parent),
     };
 }

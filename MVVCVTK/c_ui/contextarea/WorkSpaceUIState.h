@@ -12,7 +12,6 @@ public:
 	VizMode getPrimary3DMode() const;
 	void setPrimary3DMode(VizMode mode);
 
-
 signals:
 	void primary3DModeChanged(VizMode mode);
 

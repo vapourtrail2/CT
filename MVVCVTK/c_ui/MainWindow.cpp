@@ -8,7 +8,7 @@
 #include "c_ui/ribbon/RibbonPageRegister.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
-#include "c_ui/toolbox/Toolboxes.h"
+#include "c_ui/ribbon/RibbonPageFactory.h"
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -181,7 +181,7 @@ void CTViewer::buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout
     whatEmpty_ = new QWidget(stack_);
     stack_->addWidget(whatEmpty_);
 
-    for (RibbonPage* page : createAll(stack_)) {
+    for (RibbonPage* page : createAllRibbonPages(stack_)) {
         setRibbonPage(page);
     }
 }

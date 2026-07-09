@@ -224,9 +224,6 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h">
       <Filter>include\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\ribbon\RibbonPageRegister.h">
-      <Filter>c_ui\ribbon</Filter>
-    </ClInclude>
     <ClInclude Include="c_ui\command\commands.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
@@ -235,9 +232,6 @@
     </ClInclude>
     <ClInclude Include="c_ui\context\AppContext.h">
       <Filter>c_ui\context</Filter>
-    </ClInclude>
-    <ClInclude Include="c_ui\ribbon\RibbonPageFactory.h">
-      <Filter>c_ui\ribbon</Filter>
     </ClInclude>
     <ClInclude Include="c_ui\viewport\Viewport.h">
       <Filter>c_ui\viewport</Filter>
@@ -361,16 +355,13 @@
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
       <Filter>c_ui\workspace</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\ribbon\RibbonPageRegister.cpp">
-      <Filter>c_ui\ribbon</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp">
       <Filter>c_ui\workspace</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\windows\TitleBar.cpp">
       <Filter>c_ui\window</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\ribbon\RibbonPageFactory.cpp">
+    <ClCompile Include="c_ui\ribbon\RibbonPage.cpp">
       <Filter>c_ui\ribbon</Filter>
     </ClCompile>
   </ItemGroup>

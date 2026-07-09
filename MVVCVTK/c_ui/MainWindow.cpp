@@ -5,10 +5,8 @@
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/ribbon/RibbonPage.h"
-#include "c_ui/ribbon/RibbonPageRegister.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
-#include "c_ui/ribbon/RibbonPageFactory.h"
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -148,7 +146,7 @@ void CTViewer::buildRibbonTabs()
 
     tabBar_->addTab(QStringLiteral("文件"));
     
-    for (auto page : ribbonPageRegister_->pageslist() ) {
+    for (auto page : ribbonPageRegister_->pages()) {
         tabBar_->addTab(page->tabName());
     }
 

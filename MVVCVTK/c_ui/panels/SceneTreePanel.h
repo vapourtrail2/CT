@@ -17,8 +17,9 @@ private:
     void rebuildTree(const Dataset& dataset);
     void syncVisibility();
     void clearTree();
-    void onItemChanged(QTreeWidgetItem* item, int column);
+    void onItemChanged(QTreeWidgetItem* item, int column);  
 
+    //需要修改这些对象
     QTreeWidget* tree_ = nullptr;
     QTreeWidgetItem* root_ = nullptr;
     QTreeWidgetItem* volumeItem_ = nullptr;

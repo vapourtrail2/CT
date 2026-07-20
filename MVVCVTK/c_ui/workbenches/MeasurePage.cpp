@@ -52,7 +52,7 @@ QString MeasurePage::tabName() const
 
 QWidget* MeasurePage::buildRibbon06(QWidget* parent)
 {
-    auto* ribbon06 = new QFrame(parent);//ribbon03是--功能区的容器
+    auto* ribbon06 = new QFrame(parent);
     ribbon06->setObjectName(QStringLiteral("measureRibbon"));
     ribbon06->setStyleSheet(QStringLiteral(
         "QFrame#measureRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
@@ -134,7 +134,7 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
         button->setText(RibbonCommon::shiftNewLine(action.text, button->font(), 43));
         if (inGroup_06)
         {
-            if (!gridHolder_06) {//等价于gridholder == nullptr
+            if (!gridHolder_06) {
                 gridHolder_06 = new QWidget(ribbon06);
                 grid_06 = new QGridLayout(gridHolder_06);
                 grid_06->setContentsMargins(4, 2, 4, 2);
@@ -172,27 +172,9 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
             button->setPopupMode(QToolButton::InstantPopup);
         }
         if (action.hasMenu == 2) {
-            auto* menu = new QMenu(button);
-            menu->setStyleSheet(QStringLiteral(
-                "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
-                "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
-                "QMenu::item:selected{background:#3a3a3a;}"));
-
-            auto* actDistance = menu->addAction(
-                QIcon(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"),
-                QStringLiteral("测距"));
-
-          /*  connect(actDistance, &QAction::triggered, this, [this]() {
-                emit laodengshigou();
-                });*/
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_4points.PNG"), QStringLiteral("角度(4个点)"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/angle_3points.PNG"), QStringLiteral("角度(3个点)"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/fold_line_length.PNG"), QStringLiteral("折线长度"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/max_min_distance.PNG"), QStringLiteral("最大/最小距离"));
-            menu->addAction(QIcon(":/new/prefix1/icons_other/measure_icons/measure_tool_pull_down_menu/caliper.PNG"), QStringLiteral("卡尺"));
-
-            button->setMenu(menu);
-            button->setPopupMode(QToolButton::InstantPopup);
+            connect(button, &QPushButton::clicked, this, [this]() {
+                qDebug() << "called";
+                });
         }
         if (action.hasMenu == 3) {
             auto* menu = new QMenu(button);

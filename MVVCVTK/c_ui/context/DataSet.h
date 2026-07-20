@@ -1,12 +1,11 @@
 #pragma once
-#include "c_ui/context/SessionManager.h"      // AppSession 定义在这
+#include "c_ui/context/SessionManager.h"      
 #include <vtkImageData.h>
 #include <QString>
 #include <array>
 #include <memory>
 
-// 打开的数据（Model 的外观）：包住 core 的 AppSession，
-// 对 UI 只暴露“只读视图” + 状态/广播句柄，避免 UI 直接摸 DataManager。
+// 打开的数据  包住 core 的 AppSession，
 class Dataset
 {
 public:
@@ -27,7 +26,7 @@ public:
         return session_ ? session_->sharedStateBroadcaster : nullptr;
     }
 
-    // 只读视图：UI 想知道的“静态信息”，从这里问，不要自己去翻 DataManager
+    // 只读视图
     QString getSourcePath() const {
         return session_ ? session_->sourcePath : QString();
     }
@@ -44,7 +43,7 @@ public:
         return d;
     }
 
-    // 还没迁的地方（viewport / renderPanel）先用原始 session
+    // 用原始 session
     std::shared_ptr<AppSession> getSession() const { 
         return session_; 
     }
@@ -53,8 +52,6 @@ public:
     std::shared_ptr<VolumeAnalysisService> getAnalysisService() const {
         return session_ ? session_->analysisService : nullptr;
     }
-
-
 
 private:
     std::shared_ptr<AppSession> session_;

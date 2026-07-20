@@ -29,7 +29,7 @@ RenderPanel::RenderPanel(QWidget* parent)
 {
     auto* v = new QVBoxLayout(this);
     v->setContentsMargins(6, 6, 6, 6);
-    v->setSpacing(8);
+    v->setSpacing(8);   
 
     // 直方图屏蔽，不能用死数据
     // 直方图区域
@@ -40,7 +40,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     );
     auto* hv = new QVBoxLayout(histGroup);
 
-    histLabel_ = new QLabel(QStringLiteral("(未加载)"), histGroup);
+    histLabel_ = new QLabel(QStringLiteral("(未加载)"), histGroup);        
     histLabel_->setFixedHeight(160);
     histLabel_->setMinimumWidth(0);
     histLabel_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
@@ -49,7 +49,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     hv->addWidget(histLabel_);
 
     v->addWidget(histGroup);
-
+        
     //调节区域
     auto* isoGroup = new QGroupBox(QStringLiteral("调节"), this);
     isoGroup->setStyleSheet(

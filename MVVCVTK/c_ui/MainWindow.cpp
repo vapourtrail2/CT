@@ -266,7 +266,7 @@ void CTViewer::connectAppSignals() {
         });
 }
 
-//架构优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
+//优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
 UiState CTViewer::buildUiState(int index) const{
     UiState state;
     state.tabIndex = index;
@@ -567,7 +567,7 @@ void CTViewer::openCtReconUi()
 }
 
 void CTViewer::setOpenProgressDialog(const QString& text, const QString& title)
-{
+{   
     setCloseProgressDialog();
 
     ProgressDialog_ = new QProgressDialog(

@@ -25,7 +25,7 @@ private:
     QTreeWidgetItem* volumeItem_ = nullptr;
     QTreeWidgetItem* helpersItem_ = nullptr;
     QTreeWidgetItem* clipPlanesItem_ = nullptr;
-    QTreeWidgetItem* crosshairItem_ = nullptr;
+    QTreeWidgetItem* crosshairItem_ = nullptr;  
     QTreeWidgetItem* axesItem_ = nullptr;
     std::shared_ptr<SharedInteractionState> state_;
 	std::shared_ptr<SharedStateBroadcaster> broadcaster_;

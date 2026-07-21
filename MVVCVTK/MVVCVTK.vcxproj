@@ -245,6 +245,13 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\workbenches\StartPage.h" />
     <QtMoc Include="c_ui\workbenches\VolumePage.h" />
     <QtMoc Include="c_ui\workbenches\WindowPage.h" />
+    <ClInclude Include="measure\MeasureToolDialog.h" />
+    <ClInclude Include="measure\MeasurementGeometry.h" />
+    <ClInclude Include="measure\MeasurementInteractionHandler.h" />
+    <ClInclude Include="measure\MeasurementOverlayStrategy.h" />
+    <ClInclude Include="measure\MeasurementSession.h" />
+    <ClInclude Include="measure\MeasurementTypes.h" />
+    <ClInclude Include="measure\MeasurementZoomHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\context\SessionManager.cpp" />
@@ -290,6 +297,12 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\workbenches\StartPage.cpp" />
     <ClCompile Include="c_ui\workbenches\VolumePage.cpp" />
     <ClCompile Include="c_ui\workbenches\WindowPage.cpp" />
+    <ClCompile Include="measure\MeasureToolDialog.cpp" />
+    <ClCompile Include="measure\MeasurementGeometry.cpp" />
+    <ClCompile Include="measure\MeasurementInteractionHandler.cpp" />
+    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp" />
+    <ClCompile Include="measure\MeasurementSession.cpp" />
+    <ClCompile Include="measure\MeasurementZoomHandler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

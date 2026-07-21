@@ -2,6 +2,8 @@
 #include "Interaction/Viewer2DHandler.h"
 #include "Interaction/Viewer3DHandler.h"
 #include "Interaction/TimeUpdateHandler.h"
+#include "measure/MeasurementInteractionHandler.h"
+#include "measure/MeasurementZoomHandler.h"
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <memory>
@@ -221,6 +223,17 @@ void QtRenderContext::SetServiceBound(std::shared_ptr<AbstractAppService> servic
     /*SetToolMode(m_toolMode);*/
 }
 
+void QtRenderContext::SetMeasurementRuntime(
+    const std::shared_ptr<measure::MeasurementSession>& session,
+    const std::shared_ptr<AbstractDataManager>& dataManager,
+    measure::MeasureView view)
+{
+    m_measurementSession = session;
+    m_measurementDataManager = dataManager;
+    m_measurementView = view;
+    BuildInteractionRouter();
+}
+
 void QtRenderContext::SetupObservers()
 {
     if (!m_interactor || m_observerInstalled) {
@@ -279,17 +292,32 @@ void QtRenderContext::BuildInteractionRouter()
             m_interactiveService.get(),
             m_renderWindow.GetPointer()));
 
-    m_interactionRouter.SetHandlerAdded(
-        std::make_unique<Viewer2DHandler>(
-            m_interactiveService.get(),
-            m_picker.GetPointer(),
-            m_renderer.GetPointer()));
+    if (m_measurementSession && m_measurementDataManager && m_interactiveService) {
+        m_interactionRouter.SetHandlerAdded(
+            std::make_unique<measure::MeasurementInteractionHandler>(
+                m_measurementSession,
+                m_measurementDataManager,
+                m_interactiveService.get(),
+                m_renderer.GetPointer(),
+                m_measurementView));
+        m_interactionRouter.SetHandlerAdded(
+            std::make_unique<measure::MeasurementZoomHandler>(
+                m_interactiveService.get(),
+                m_renderer.GetPointer()));
+    }
+    else {
+        m_interactionRouter.SetHandlerAdded(
+            std::make_unique<Viewer2DHandler>(
+                m_interactiveService.get(),
+                m_picker.GetPointer(),
+                m_renderer.GetPointer()));
 
-    m_interactionRouter.SetHandlerAdded(
-        std::make_unique<Viewer3DHandler>(
-            m_interactiveService.get(),
-            m_picker.GetPointer(),
-            m_renderer.GetPointer()));
+        m_interactionRouter.SetHandlerAdded(
+            std::make_unique<Viewer3DHandler>(
+                m_interactiveService.get(),
+                m_picker.GetPointer(),
+                m_renderer.GetPointer()));
+    }
 }
 
 void QtRenderContext::SetInteractorInitialized()//基类纯虚 在这里实现

@@ -7,6 +7,7 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
+#include "measure/MeasureToolDialog.h"
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -257,6 +258,27 @@ void CTViewer::setCommands()
     context_.getCommands().add(QStringLiteral("slicestack.save"), [this]() {
         showSaveSliceStackDialog();
         });
+    context_.getCommands().add(QStringLiteral("measure.tools.open"), [this]() {
+        showMeasureToolsDialog();
+        });
+}
+
+void CTViewer::showMeasureToolsDialog()
+{
+    const auto session = context_.getSession();
+    if (!session || !session->dataMgr || !session->sharedState || !context_.hasData()) {
+        QMessageBox::warning(
+            this,
+            QStringLiteral("二维测量"),
+            QStringLiteral("请先加载 RAW 数据或重建结果。"));
+        return;
+    }
+
+    measure::MeasureToolDialog dialog(
+        session->dataMgr,
+        session->sharedState,
+        this);
+    dialog.exec();
 }
 
 void CTViewer::connectAppSignals() {

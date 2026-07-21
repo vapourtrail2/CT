@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="measure">
+      <UniqueIdentifier>{88A68D05-53A5-4C91-95C6-6471DAB8722F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="源文件">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
@@ -102,6 +105,23 @@
     <Filter Include="c_ui\viewport">
       <UniqueIdentifier>{c6e1bb34-654b-4dca-90f7-373ff422f771}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="measure\MeasureToolDialog.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementGeometry.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementInteractionHandler.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementOverlayStrategy.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementSession.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementTypes.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementZoomHandler.h"><Filter>measure</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="measure\MeasureToolDialog.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementGeometry.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementInteractionHandler.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementSession.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementZoomHandler.cpp"><Filter>measure</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">

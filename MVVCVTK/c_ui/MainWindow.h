@@ -76,6 +76,7 @@ private:
         const std::array<float,3>& origin);
     void showSaveSliceStackDialog();
     void showSaveTransformedDataDialog();
+    void showMeasureToolsDialog();
 
     void setOpenProgressDialog(const QString& text, const QString& title);
     void setCloseProgressDialog();

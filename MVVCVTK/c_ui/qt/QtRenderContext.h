@@ -19,6 +19,12 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
+#include "measure/MeasurementTypes.h"
+
+namespace measure {
+    class MeasurementSession;
+}
+class AbstractDataManager;
 
 class QtRenderContext : public AbstractRenderContext
 {
@@ -29,10 +35,13 @@ public:
     void SetQtWidget(QVTKOpenGLNativeWidget* widget);
     void SetStarted() override;
     void SetCameraStyleByVizMode(VizMode mode) override;
-	/*   void SetToolMode(ToolMode mode);*/ //测量工具需要重写
     void SetServiceBound(std::shared_ptr<AbstractAppService> service) override;
     void ToggleOrientationAxes(bool show);
     void SetInteractorInitialized() override;//补上
+    void SetMeasurementRuntime(//modify
+        const std::shared_ptr<measure::MeasurementSession>& session,
+        const std::shared_ptr<AbstractDataManager>& dataManager,
+        measure::MeasureView view);
 
 protected:
     void SetVTKEventHandled(vtkObject* caller, long unsigned int eventId, void* callData) override;
@@ -47,6 +56,9 @@ private:
     void RemoveQtEventFilter();
 
     std::shared_ptr<AbstractInteractiveService> m_interactiveService;
+    std::shared_ptr<measure::MeasurementSession> m_measurementSession;
+    std::shared_ptr<AbstractDataManager> m_measurementDataManager;
+    measure::MeasureView m_measurementView = measure::MeasureView::Axial;
     InteractionRouter m_interactionRouter;
 
     QPointer<QVTKOpenGLNativeWidget> m_widget;

@@ -172,8 +172,8 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
             button->setPopupMode(QToolButton::InstantPopup);
         }
         if (action.hasMenu == 2) {
-            connect(button, &QPushButton::clicked, this, [this]() {
-                qDebug() << "called";
+            connect(button, &QToolButton::clicked, this, [this]() {
+                emit commandRequested(QStringLiteral("measure.tools.open"));
                 });
         }
         if (action.hasMenu == 3) {

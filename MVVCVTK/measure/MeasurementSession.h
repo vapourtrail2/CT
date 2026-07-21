@@ -24,6 +24,10 @@ public:
     void UndoDraftPoint();
     void CancelDraft();
     void SetStatusMessage(std::string message);
+    bool Undo();
+    bool Redo();
+    bool CanUndo() const;
+    bool CanRedo() const;
 
     bool Remove(std::uint64_t id);
     void ClearView(MeasureView view);
@@ -35,12 +39,17 @@ public:
     const std::string& StatusMessage() const;
 
 private:
+    using EntitySnapshot = std::vector<MeasurementEntity>;
+
+    void RecordHistory();
     void NotifyChanged();
 
     ChangedCallback m_changed;
     MeasureRequest m_lastRequest;
     std::optional<MeasurementDraft> m_draft;
     std::vector<MeasurementEntity> m_entities;
+    std::vector<EntitySnapshot> m_undoHistory;
+    std::vector<EntitySnapshot> m_redoHistory;
     std::string m_statusMessage;
     std::uint64_t m_nextId = 1;
 };

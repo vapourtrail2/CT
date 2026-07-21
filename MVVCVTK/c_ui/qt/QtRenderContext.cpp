@@ -343,46 +343,6 @@ void QtRenderContext::SetCameraStyleByVizMode(VizMode mode)
     }
 }
 
- /*测量需要重写 5/13*/
-//void QtRenderContext::SetToolMode(ToolMode mode)
-//{
-//    if (m_toolMode == ToolMode::ModelTransform && m_interactiveService) {
-//        if (vtkProp3D* mainProp = m_interactiveService->GetMainProp()) {
-//            mainProp->SetPickable(false);
-//        }
-//    }
-//
-//    m_toolMode = mode;
-//
-//    if (m_distanceWidget) {
-//        (mode == ToolMode::DistanceMeasure) ? m_distanceWidget->On() : m_distanceWidget->Off();
-//    }
-//    if (m_angleWidget) {
-//        (mode == ToolMode::AngleMeasure) ? m_angleWidget->On() : m_angleWidget->Off();
-//    }
-//
-//    if (!m_interactor) {
-//        return;
-//    }
-//
-//    if (mode == ToolMode::ModelTransform) {
-//        if (m_interactiveService) {
-//            if (vtkProp3D* mainProp = m_interactiveService->GetMainProp()) {
-//                mainProp->SetPickable(true);
-//            }
-//        }
-//        auto style = vtkSmartPointer<vtkInteractorStyleTrackballActor>::New();
-//        m_interactor->SetInteractorStyle(style);
-//    }
-//    else {
-//        SetCameraStyleByVizMode(m_currentMode);
-//    }
-//
-//    /*if (m_interactiveService) {
-//        m_interactiveService->SetDirty(true);
-//    }*/
-//}
-
 void QtRenderContext::SetVTKEventHandled(vtkObject* caller, long unsigned int eventId, void* callData)
 {
     (void)callData;
@@ -404,22 +364,22 @@ void QtRenderContext::SetVTKEventHandled(vtkObject* caller, long unsigned int ev
         const char key = iren->GetKeyCode();
         const std::string keySym = iren->GetKeySym() ? iren->GetKeySym() : "";
 
-       /* if (key == 'm' || key == 'M') {
-            SetToolMode(m_toolMode == ToolMode::ModelTransform ? ToolMode::Navigation : ToolMode::ModelTransform);
-            return;
-        }
-        if (key == 'd' || key == 'D') {
-            SetToolMode(ToolMode::DistanceMeasure);
-            return;
-        }
-        if (key == 'a' || key == 'A') {
-            SetToolMode(ToolMode::AngleMeasure);
-            return;
-        }*/
-      /*  if (keySym == "Escape") {
-            SetToolMode(ToolMode::Navigation);
-            return;
-        }*/
+        /* if (key == 'm' || key == 'M') {
+             SetToolMode(m_toolMode == ToolMode::ModelTransform ? ToolMode::Navigation : ToolMode::ModelTransform);
+             return;
+         }
+         if (key == 'd' || key == 'D') {
+             SetToolMode(ToolMode::DistanceMeasure);
+             return;
+         }
+         if (key == 'a' || key == 'A') {
+             SetToolMode(ToolMode::AngleMeasure);
+             return;
+         }*/
+         /*  if (keySym == "Escape") {
+               SetToolMode(ToolMode::Navigation);
+               return;
+           }*/
     }
 
     if (m_toolMode == ToolMode::ModelTransform && eventId == vtkCommand::InteractionEvent) {
@@ -431,7 +391,7 @@ void QtRenderContext::SetVTKEventHandled(vtkObject* caller, long unsigned int ev
         }
         return;
     }
-        
+
     /*if (m_toolMode == ToolMode::DistanceMeasure || m_toolMode == ToolMode::AngleMeasure) {
         if (eventId == vtkCommand::LeftButtonPressEvent
             || eventId == vtkCommand::LeftButtonReleaseEvent
@@ -492,7 +452,6 @@ void QtRenderContext::SetVTKEventHandled(vtkObject* caller, long unsigned int ev
         m_eventCallback->SetAbortFlag(1);
     }
 }
-
 
 void QtRenderContext::ToggleOrientationAxes(bool show)
 {

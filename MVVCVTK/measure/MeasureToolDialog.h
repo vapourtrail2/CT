@@ -37,6 +37,9 @@ private:
     void ConfigureMeasurementInteraction(MeasureView view);
     void SetView(MeasureView view);
     void BeginTool(MeasureTool tool);
+    void UndoMeasurement();
+    void RedoMeasurement();
+    void UpdateHistoryButtons();
     void ClearCheckedTool();
 
     std::shared_ptr<AbstractDataManager> m_dataManager;
@@ -53,6 +56,8 @@ private:
     QPushButton* m_lineButton = nullptr;
     QPushButton* m_circleButton = nullptr;
     QPushButton* m_arcButton = nullptr;
+    QPushButton* m_undoButton = nullptr;
+    QPushButton* m_redoButton = nullptr;
     MeasureView m_currentView = MeasureView::Axial;
 };
 

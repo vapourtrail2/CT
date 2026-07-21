@@ -11,7 +11,9 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QKeySequence>
 #include <QPushButton>
+#include <QShortcut>
 #include <QSizePolicy>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -80,10 +82,18 @@ void MeasureToolDialog::BuildUi()
     m_lineButton = new QPushButton(QStringLiteral("线"), this);
     m_circleButton = new QPushButton(QStringLiteral("圆"), this);
     m_arcButton = new QPushButton(QStringLiteral("圆弧"), this);
+    m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
+    m_redoButton = new QPushButton(QStringLiteral("重做"), this);
     for (auto* button : { m_lineButton, m_circleButton, m_arcButton }) {
         button->setCheckable(true);
         button->setMinimumSize(72, 32);
     }
+    for (auto* button : { m_undoButton, m_redoButton }) {
+        button->setMinimumSize(72, 32);
+        button->setEnabled(false);
+    }
+    m_undoButton->setToolTip(QStringLiteral("撤销最后一次测量或最后一个取点（Ctrl+Z）"));
+    m_redoButton->setToolTip(QStringLiteral("重做最后一次撤销的测量（Ctrl+Y）"));
 
     m_toolGroup = new QButtonGroup(this);
     m_toolGroup->setExclusive(true);
@@ -93,6 +103,9 @@ void MeasureToolDialog::BuildUi()
 
     controls->addWidget(viewLabel);
     controls->addWidget(m_viewCombo);
+    controls->addSpacing(10);
+    controls->addWidget(m_undoButton);
+    controls->addWidget(m_redoButton);
     controls->addSpacing(10);
     controls->addWidget(m_lineButton);
     controls->addWidget(m_circleButton);
@@ -110,6 +123,17 @@ void MeasureToolDialog::BuildUi()
         [this]() { BeginTool(MeasureTool::Circle3Point); });
     connect(m_arcButton, &QPushButton::clicked, this,
         [this]() { BeginTool(MeasureTool::Arc3Point); });
+    connect(m_undoButton, &QPushButton::clicked, this,
+        [this]() { UndoMeasurement(); });
+    connect(m_redoButton, &QPushButton::clicked, this,
+        [this]() { RedoMeasurement(); });
+
+    auto* undoShortcut = new QShortcut(QKeySequence::Undo, this);
+    connect(undoShortcut, &QShortcut::activated, this,
+        [this]() { UndoMeasurement(); });
+    auto* redoShortcut = new QShortcut(QKeySequence::Redo, this);
+    connect(redoShortcut, &QShortcut::activated, this,
+        [this]() { RedoMeasurement(); });
 }
 
 void MeasureToolDialog::BuildMeasurementViewport(
@@ -166,6 +190,7 @@ void MeasureToolDialog::BuildMeasurementViewport(
         if (m_session && !m_session->IsActive()) {
             ClearCheckedTool();
         }
+        UpdateHistoryButtons();
         QTimer::singleShot(0, this, [this]() {
             m_viewport.render();
         });
@@ -265,6 +290,30 @@ void MeasureToolDialog::BeginTool(MeasureTool tool)
     service->SetDirtyMarked();
     if (m_vtkWidget) {
         m_vtkWidget->setFocus(Qt::MouseFocusReason);
+    }
+}
+
+void MeasureToolDialog::UndoMeasurement()
+{
+    if (m_session) {
+        m_session->Undo();
+    }
+}
+
+void MeasureToolDialog::RedoMeasurement()
+{
+    if (m_session) {
+        m_session->Redo();
+    }
+}
+
+void MeasureToolDialog::UpdateHistoryButtons()
+{
+    if (m_undoButton) {
+        m_undoButton->setEnabled(m_session && m_session->CanUndo());
+    }
+    if (m_redoButton) {
+        m_redoButton->setEnabled(m_session && m_session->CanRedo());
     }
 }
 

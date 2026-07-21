@@ -5,6 +5,9 @@
 #include <QEvent>
 #include <QObject>
 #include <QPointer>
+#include <functional>
+#include <memory>
+#include <vector>
 #include <QVTKOpenGLNativeWidget.h>
 #include <vtkAngleWidget.h>
 #include <vtkCallbackCommand.h>
@@ -19,16 +22,14 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
-#include "measure/MeasurementTypes.h"
-
-namespace measure {
-    class MeasurementSession;
-}
-class AbstractDataManager;
 
 class QtRenderContext : public AbstractRenderContext
 {
 public:
+    using InteractionHandlerFactory = std::function<
+        std::vector<std::unique_ptr<IInteractionHandler>>(
+            AbstractInteractiveService*, vtkRenderer*)>;
+
     QtRenderContext();
     ~QtRenderContext() override;
 
@@ -38,10 +39,7 @@ public:
     void SetServiceBound(std::shared_ptr<AbstractAppService> service) override;
     void ToggleOrientationAxes(bool show);
     void SetInteractorInitialized() override;//补上
-    void SetMeasurementRuntime(//modify
-        const std::shared_ptr<measure::MeasurementSession>& session,
-        const std::shared_ptr<AbstractDataManager>& dataManager,
-        measure::MeasureView view);
+    void SetInteractionHandlerFactory(InteractionHandlerFactory factory);
 
 protected:
     void SetVTKEventHandled(vtkObject* caller, long unsigned int eventId, void* callData) override;
@@ -56,9 +54,7 @@ private:
     void RemoveQtEventFilter();
 
     std::shared_ptr<AbstractInteractiveService> m_interactiveService;
-    std::shared_ptr<measure::MeasurementSession> m_measurementSession;
-    std::shared_ptr<AbstractDataManager> m_measurementDataManager;
-    measure::MeasureView m_measurementView = measure::MeasureView::Axial;
+    InteractionHandlerFactory m_interactionHandlerFactory;
     InteractionRouter m_interactionRouter;
 
     QPointer<QVTKOpenGLNativeWidget> m_widget;

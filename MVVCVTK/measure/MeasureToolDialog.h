@@ -1,18 +1,17 @@
 #pragma once
 
 #include "measure/MeasurementTypes.h"
+#include "c_ui/viewport/Viewport.h"
 
 #include <QDialog>
 #include <memory>
 
 class AbstractDataManager;
-class MedicalVizService;
 class QButtonGroup;
 class QComboBox;
 class QLabel;
 class QPushButton;
 class QVTKOpenGLNativeWidget;
-class QtRenderContext;
 class SharedInteractionState;
 class SharedStateBroadcaster;
 
@@ -35,6 +34,7 @@ private:
         const std::shared_ptr<SharedInteractionState>& sourceState);
     void PublishCurrentImage();
     void AttachOverlayAfterPipelineReady();
+    void ConfigureMeasurementInteraction(MeasureView view);
     void SetView(MeasureView view);
     void BeginTool(MeasureTool tool);
     void ClearCheckedTool();
@@ -43,9 +43,8 @@ private:
     std::shared_ptr<SharedStateBroadcaster> m_localBroadcaster;
     std::shared_ptr<SharedInteractionState> m_localState;
     std::shared_ptr<MeasurementSession> m_session;
-    std::shared_ptr<MedicalVizService> m_service;
     std::shared_ptr<MeasurementOverlayStrategy> m_overlay;
-    std::shared_ptr<QtRenderContext> m_context;
+    Viewport m_viewport;
 
     QVTKOpenGLNativeWidget* m_vtkWidget = nullptr;
     QComboBox* m_viewCombo = nullptr;

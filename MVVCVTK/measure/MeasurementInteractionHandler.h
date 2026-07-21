@@ -29,7 +29,6 @@ private:
     std::optional<Point3> DisplayToPhysical(int x, int y) const;
     MeasurementPlane SnapshotPhysicalPlane() const;
     bool IsInsideImage(const Point3& physicalPoint) const;
-    Point3 CurrentWorldNormal() const;
 
     std::shared_ptr<MeasurementSession> m_session;
     std::shared_ptr<AbstractDataManager> m_dataManager;

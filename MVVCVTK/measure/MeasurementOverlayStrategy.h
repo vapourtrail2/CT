@@ -31,12 +31,9 @@ public:
     void Refresh();
 
 private:
-    std::vector<Point3> EntityPath(const MeasurementEntity& entity) const;
-    std::vector<Point3> DraftPath(const MeasurementDraft& draft) const;
     std::vector<Point3> ProjectToCurrentView(const std::vector<Point3>& physicalPath) const;
     Point3 PhysicalToWorld(const Point3& physical) const;
     bool SourcePlaneMatches(const MeasurementEntity& entity) const;
-    Point3 CurrentWorldNormal() const;
     void AddPath(const std::vector<Point3>& worldPath, bool dashed, bool draft);
     void AddControlPoints(const std::vector<Point3>& worldPoints, bool draft);
     void AddLabel(const MeasurementEntity& entity, const std::vector<Point3>& worldPath);

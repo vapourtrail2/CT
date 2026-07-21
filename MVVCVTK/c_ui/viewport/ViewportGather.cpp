@@ -91,9 +91,6 @@ void ViewportGather::setPrimary3DMode(VizMode mode)
         return;
     }
 
-    m_view3d.getService()->SetVizMode(m_current3DMode);
-    m_view3d.getContext()->SetCameraStyleByVizMode(m_current3DMode);
-
     request3DRebuildFromCurrentImage();
 
     m_view3d.getService()->SetPendingUpdatesProcessed();

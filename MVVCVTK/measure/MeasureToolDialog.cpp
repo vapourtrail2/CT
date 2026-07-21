@@ -1,10 +1,11 @@
 #include "measure/MeasureToolDialog.h"
 
 #include "measure/MeasurementOverlayStrategy.h"
+#include "measure/MeasurementInteractionHandler.h"
 #include "measure/MeasurementSession.h"
-#include "c_ui/qt/QtRenderContext.h"
+#include "measure/MeasurementView.h"
+#include "measure/MeasurementZoomHandler.h"
 #include "App/AppState.h"
-#include "Service/AppService.h"
 
 #include <QButtonGroup>
 #include <QComboBox>
@@ -21,18 +22,6 @@
 #include <vector>
 
 namespace measure {
-namespace {
-VizMode ToVizMode(MeasureView view)
-{
-    switch (view) {
-    case MeasureView::Axial: return VizMode::SliceTop_down;
-    case MeasureView::Coronal: return VizMode::SliceFront_back;
-    case MeasureView::Sagittal: return VizMode::SliceLeft_right;
-    }
-    return VizMode::SliceTop_down;
-}
-}
-
 MeasureToolDialog::MeasureToolDialog(
     const std::shared_ptr<AbstractDataManager>& dataManager,
     const std::shared_ptr<SharedInteractionState>& sourceState,
@@ -49,12 +38,11 @@ MeasureToolDialog::~MeasureToolDialog()
     if (m_session) {
         m_session->SetChangedCallback({});
     }
-    if (m_service && m_overlay) {
-        m_service->SetOverlayStrategyRemoved(m_overlay);
+    if (const auto& service = m_viewport.getService(); service && m_overlay) {
+        service->SetOverlayStrategyRemoved(m_overlay);
     }
-    m_context.reset();
+    m_viewport.reset();
     m_overlay.reset();
-    m_service.reset();
     m_session.reset();
     m_localState.reset();
     m_localBroadcaster.reset();
@@ -152,23 +140,25 @@ void MeasureToolDialog::BuildMeasurementViewport(
     }
 
     m_session = std::make_shared<MeasurementSession>();
-    m_service = std::make_shared<MedicalVizService>(
-                     m_dataManager, m_localState, m_localBroadcaster);
-    m_context = std::make_shared<QtRenderContext>();
-    m_context->SetQtWidget(m_vtkWidget);
-    m_context->SetServiceBound(m_service);
+    m_viewport.setAttach(m_vtkWidget);
+    m_viewport.setOrientationAxesVisible(false);
+    m_viewport.setMode(GetSliceViewDescriptor(m_currentView).vizMode);
+    ConfigureMeasurementInteraction(m_currentView);
+    m_viewport.setBuild(m_dataManager, m_localState, m_localBroadcaster);
 
-    const VizMode initialMode = ToVizMode(m_currentView);
-    m_service->SetVizMode(initialMode);
-    m_context->SetCameraStyleByVizMode(initialMode);
-    m_context->SetMeasurementRuntime(m_session, m_dataManager, m_currentView);
+    const auto& service = m_viewport.getService();
+    if (!service) {
+        return;
+    }
 
     m_overlay = std::make_shared<MeasurementOverlayStrategy>(
-        m_session, m_service.get(), m_currentView);
+        m_session, service.get(), m_currentView);
 
     m_session->SetChangedCallback([this]() {
         if (m_overlay) m_overlay->Refresh();
-        if (m_service) m_service->SetDirtyMarked();
+        if (const auto& currentService = m_viewport.getService()) {
+            currentService->SetDirtyMarked();
+        }
         if (m_statusLabel && m_session) {
             m_statusLabel->setText(
                 QString::fromUtf8(m_session->StatusMessage().c_str()));
@@ -177,16 +167,16 @@ void MeasureToolDialog::BuildMeasurementViewport(
             ClearCheckedTool();
         }
         QTimer::singleShot(0, this, [this]() {
-            if (m_context) m_context->SetRendered();
+            m_viewport.render();
         });
     });
 
     PublishCurrentImage();
-    m_context->SetStarted();
-    m_service->SetPendingUpdatesProcessed();
-    m_service->SetPendingUpdatesProcessed();
+    m_viewport.start();
+    m_viewport.processPendingUpdates();
+    m_viewport.processPendingUpdates();
     AttachOverlayAfterPipelineReady();
-    m_context->SetRendered();
+    m_viewport.render();
 }
 
 void MeasureToolDialog::PublishCurrentImage()
@@ -211,19 +201,38 @@ void MeasureToolDialog::PublishCurrentImage()
 
 void MeasureToolDialog::AttachOverlayAfterPipelineReady()//管线完成之后再添加测量叠加层，避免在管线未完成时就添加叠加层导致画线出不来的问题
 {
-    if (!m_service || !m_overlay) {
+    const auto& service = m_viewport.getService();
+    if (!service || !m_overlay) {
         return;
     }
 
-    m_service->SetOverlayStrategyAdded(m_overlay);
-    m_service->SetPendingUpdatesProcessed();
+    service->SetOverlayStrategyAdded(m_overlay);
+    m_viewport.processPendingUpdates();
     m_overlay->Refresh();
-    m_service->SetDirtyMarked();
+    service->SetDirtyMarked();
+}
+
+void MeasureToolDialog::ConfigureMeasurementInteraction(MeasureView view)
+{
+    const auto session = m_session;
+    const auto dataManager = m_dataManager;
+    m_viewport.setInteractionHandlerFactory(
+        [session, dataManager, view](
+            AbstractInteractiveService* service,
+            vtkRenderer* renderer) {
+            std::vector<std::unique_ptr<IInteractionHandler>> handlers;
+            handlers.push_back(std::make_unique<MeasurementZoomHandler>(
+                service, renderer));
+            handlers.push_back(std::make_unique<MeasurementInteractionHandler>(
+                session, dataManager, service, renderer, view));
+            return handlers;
+        });
 }
 
 void MeasureToolDialog::SetView(MeasureView view)
 {
-    if (view == m_currentView || !m_service || !m_context || !m_overlay) {
+    const auto& service = m_viewport.getService();
+    if (view == m_currentView || !service || !m_viewport.getContext() || !m_overlay) {
         return;
     }
 
@@ -232,29 +241,28 @@ void MeasureToolDialog::SetView(MeasureView view)
     }
     ClearCheckedTool();
 
-    m_service->SetOverlayStrategyRemoved(m_overlay);
+    service->SetOverlayStrategyRemoved(m_overlay);
     m_currentView = view;
 
-    const VizMode mode = ToVizMode(view);
-    m_service->SetVizMode(mode);
-    m_context->SetCameraStyleByVizMode(mode);
-    m_context->SetMeasurementRuntime(m_session, m_dataManager, view);
+    m_viewport.setMode(GetSliceViewDescriptor(view).vizMode);
+    ConfigureMeasurementInteraction(view);
     m_overlay->SetView(view);
     PublishCurrentImage();
-    m_service->SetPendingUpdatesProcessed();
-    m_service->SetPendingUpdatesProcessed();
+    m_viewport.processPendingUpdates();
+    m_viewport.processPendingUpdates();
     AttachOverlayAfterPipelineReady();
-    m_context->SetRendered();
+    m_viewport.render();
 }
 
 void MeasureToolDialog::BeginTool(MeasureTool tool)
 {
-    if (!m_session || !m_service) {
+    const auto& service = m_viewport.getService();
+    if (!m_session || !service) {
         ClearCheckedTool();
         return;
     }
     m_session->Begin({ tool, m_currentView });
-    m_service->SetDirtyMarked();
+    service->SetDirtyMarked();
     if (m_vtkWidget) {
         m_vtkWidget->setFocus(Qt::MouseFocusReason);
     }

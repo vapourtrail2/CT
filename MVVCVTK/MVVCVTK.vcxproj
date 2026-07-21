@@ -250,7 +250,9 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="measure\MeasurementInteractionHandler.h" />
     <ClInclude Include="measure\MeasurementOverlayStrategy.h" />
     <ClInclude Include="measure\MeasurementSession.h" />
+    <ClInclude Include="measure\MeasurementToolDefinition.h" />
     <ClInclude Include="measure\MeasurementTypes.h" />
+    <ClInclude Include="measure\MeasurementView.h" />
     <ClInclude Include="measure\MeasurementZoomHandler.h" />
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +304,8 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="measure\MeasurementInteractionHandler.cpp" />
     <ClCompile Include="measure\MeasurementOverlayStrategy.cpp" />
     <ClCompile Include="measure\MeasurementSession.cpp" />
+    <ClCompile Include="measure\MeasurementToolDefinition.cpp" />
+    <ClCompile Include="measure\MeasurementView.cpp" />
     <ClCompile Include="measure\MeasurementZoomHandler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

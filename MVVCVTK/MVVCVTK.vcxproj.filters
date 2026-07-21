@@ -112,7 +112,9 @@
     <ClInclude Include="measure\MeasurementInteractionHandler.h"><Filter>measure</Filter></ClInclude>
     <ClInclude Include="measure\MeasurementOverlayStrategy.h"><Filter>measure</Filter></ClInclude>
     <ClInclude Include="measure\MeasurementSession.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementToolDefinition.h"><Filter>measure</Filter></ClInclude>
     <ClInclude Include="measure\MeasurementTypes.h"><Filter>measure</Filter></ClInclude>
+    <ClInclude Include="measure\MeasurementView.h"><Filter>measure</Filter></ClInclude>
     <ClInclude Include="measure\MeasurementZoomHandler.h"><Filter>measure</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +123,8 @@
     <ClCompile Include="measure\MeasurementInteractionHandler.cpp"><Filter>measure</Filter></ClCompile>
     <ClCompile Include="measure\MeasurementOverlayStrategy.cpp"><Filter>measure</Filter></ClCompile>
     <ClCompile Include="measure\MeasurementSession.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementToolDefinition.cpp"><Filter>measure</Filter></ClCompile>
+    <ClCompile Include="measure\MeasurementView.cpp"><Filter>measure</Filter></ClCompile>
     <ClCompile Include="measure\MeasurementZoomHandler.cpp"><Filter>measure</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>

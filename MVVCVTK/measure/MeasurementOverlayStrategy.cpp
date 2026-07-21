@@ -1,6 +1,8 @@
 #include "measure/MeasurementOverlayStrategy.h"
 #include "measure/MeasurementGeometry.h"
 #include "measure/MeasurementSession.h"
+#include "measure/MeasurementToolDefinition.h"
+#include "measure/MeasurementView.h"
 
 #include <vtkActor.h>
 #include <vtkBillboardTextActor3D.h>
@@ -14,37 +16,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <sstream>
-#include <type_traits>
-#include <variant>
 
 namespace measure {
-namespace {
-constexpr double kPi = 3.14159265358979323846;
-
-std::string LabelText(const MeasurementEntity& entity)
-{
-    std::ostringstream stream;
-    stream.setf(std::ios::fixed);
-    stream.precision(3);
-    stream << "M" << entity.id << " ";
-    std::visit([&stream](const auto& result) {
-        using Result = std::decay_t<decltype(result)>;
-        if constexpr (std::is_same_v<Result, LineResult>) {
-            stream << "L=" << result.length;
-        }
-        else if constexpr (std::is_same_v<Result, CircleResult>) {
-            stream << "D=" << result.diameter << " R=" << result.radius;
-        }
-        else {
-            stream << "Arc=" << result.length
-                << " R=" << result.radius
-                << " A=" << std::abs(result.sweepRadians) * 180.0 / kPi << "deg";
-        }
-    }, entity.result);
-    return stream.str();
-}
-}
 
 MeasurementOverlayStrategy::MeasurementOverlayStrategy(
     const std::shared_ptr<MeasurementSession>& session,
@@ -112,7 +85,13 @@ void MeasurementOverlayStrategy::Refresh()
         if (entity.sourceView != m_view || !SourcePlaneMatches(entity)) {
             continue;
         }
-        const auto worldPath = ProjectToCurrentView(EntityPath(entity));
+        const auto& definition = GetMeasurementToolDefinition(entity.type);
+        if (!definition.buildPath) {
+            continue;
+        }
+        const auto physicalPath = definition.buildPath(
+            entity.physicalPoints, entity.plane, &entity.result);
+        const auto worldPath = ProjectToCurrentView(physicalPath);
         if (worldPath.size() < 2) {
             continue;
         }
@@ -123,7 +102,16 @@ void MeasurementOverlayStrategy::Refresh()
 
     if (const auto& draft = m_session->Draft();
         draft && draft->request.view == m_view) {
-        const auto worldPath = ProjectToCurrentView(DraftPath(*draft));
+        std::vector<Point3> candidate = draft->physicalPoints;
+        if (draft->previewPoint) {
+            candidate.push_back(*draft->previewPoint);
+        }
+        std::vector<Point3> physicalPath = candidate;
+        const auto& definition = GetMeasurementToolDefinition(draft->request.tool);
+        if (draft->plane && definition.buildPath) {
+            physicalPath = definition.buildPath(candidate, *draft->plane, nullptr);
+        }
+        const auto worldPath = ProjectToCurrentView(physicalPath);
         if (worldPath.size() >= 2) {
             AddPath(worldPath, false, true);
         }
@@ -135,93 +123,12 @@ void MeasurementOverlayStrategy::Refresh()
     }
 }
 
-std::vector<Point3> MeasurementOverlayStrategy::EntityPath(const MeasurementEntity& entity) const
-{
-    if (entity.type == MeasureTool::Line) {
-        return entity.physicalPoints;
-    }
-
-    std::vector<Point3> path;
-    if (entity.type == MeasureTool::Circle3Point) {
-        const auto* circle = std::get_if<CircleResult>(&entity.result);
-        if (!circle) return path;
-        constexpr int samples = 128;
-        path.reserve(samples + 1);
-        for (int i = 0; i <= samples; ++i) {
-            path.push_back(geometry::CirclePoint(
-                circle->center,
-                entity.plane,
-                circle->radius,
-                2.0 * kPi * static_cast<double>(i) / samples));
-        }
-        return path;
-    }
-
-    const auto* arc = std::get_if<ArcResult>(&entity.result);
-    if (!arc || entity.physicalPoints.empty()) return path;
-    const Point3 relative = geometry::Subtract(entity.physicalPoints.front(), arc->center);
-    const double start = std::atan2(
-        geometry::Dot(relative, entity.plane.v),
-        geometry::Dot(relative, entity.plane.u));
-    constexpr int samples = 64;
-    path.reserve(samples + 1);
-    for (int i = 0; i <= samples; ++i) {
-        const double angle = start + arc->sweepRadians * static_cast<double>(i) / samples;
-        path.push_back(geometry::CirclePoint(arc->center, entity.plane, arc->radius, angle));
-    }
-    return path;
-}
-
-std::vector<Point3> MeasurementOverlayStrategy::DraftPath(const MeasurementDraft& draft) const
-{
-    std::vector<Point3> candidate = draft.physicalPoints;
-    if (draft.previewPoint) {
-        candidate.push_back(*draft.previewPoint);
-    }
-    if (candidate.size() < 2 || !draft.plane) {
-        return candidate;
-    }
-
-    if (draft.request.tool == MeasureTool::Circle3Point && candidate.size() == 3) {
-        if (const auto circle = geometry::ComputeCircle(candidate, *draft.plane)) {
-            std::vector<Point3> path;
-            constexpr int samples = 128;
-            path.reserve(samples + 1);
-            for (int i = 0; i <= samples; ++i) {
-                path.push_back(geometry::CirclePoint(
-                    circle->center,
-                    *draft.plane,
-                    circle->radius,
-                    2.0 * kPi * static_cast<double>(i) / samples));
-            }
-            return path;
-        }
-    }
-    if (draft.request.tool == MeasureTool::Arc3Point && candidate.size() == 3) {
-        if (const auto arc = geometry::ComputeArc(candidate, *draft.plane)) {
-            const Point3 relative = geometry::Subtract(candidate.front(), arc->center);
-            const double start = std::atan2(
-                geometry::Dot(relative, draft.plane->v),
-                geometry::Dot(relative, draft.plane->u));
-            std::vector<Point3> path;
-            constexpr int samples = 64;
-            path.reserve(samples + 1);
-            for (int i = 0; i <= samples; ++i) {
-                const double angle = start + arc->sweepRadians * static_cast<double>(i) / samples;
-                path.push_back(geometry::CirclePoint(arc->center, *draft.plane, arc->radius, angle));
-            }
-            return path;
-        }
-    }
-    return candidate;
-}
-
 std::vector<Point3> MeasurementOverlayStrategy::ProjectToCurrentView(
     const std::vector<Point3>& physicalPath) const
 {
     std::vector<Point3> projected;
     projected.reserve(physicalPath.size());
-    const Point3 normal = CurrentWorldNormal();
+    const Point3 normal = GetSliceViewDescriptor(m_view).normal;
     const auto cursor = m_service->GetCursorWorld();
     const Point3 origin{ cursor[0], cursor[1], cursor[2] };
     constexpr double safeOffset = 0.01;
@@ -253,16 +160,6 @@ bool MeasurementOverlayStrategy::SourcePlaneMatches(const MeasurementEntity& ent
     return std::abs(geometry::Dot(
         entity.plane.normal,
         geometry::Subtract(currentPhysical, entity.plane.origin))) <= entity.plane.sliceTolerance;
-}
-
-Point3 MeasurementOverlayStrategy::CurrentWorldNormal() const
-{
-    switch (m_view) {
-    case MeasureView::Axial: return { 0.0, 0.0, 1.0 };
-    case MeasureView::Coronal: return { 0.0, 1.0, 0.0 };
-    case MeasureView::Sagittal: return { 1.0, 0.0, 0.0 };
-    }
-    return { 0.0, 0.0, 1.0 };
 }
 
 void MeasurementOverlayStrategy::AddPath(
@@ -335,7 +232,7 @@ void MeasurementOverlayStrategy::AddLabel(
         return;
     }
     auto label = vtkSmartPointer<vtkBillboardTextActor3D>::New();
-    label->SetInput(LabelText(entity).c_str());
+    label->SetInput(FormatMeasurementLabel(entity.id, entity.result).c_str());
     const auto& labelPosition = worldPath[worldPath.size() / 2];
     label->SetPosition(labelPosition[0], labelPosition[1], labelPosition[2]);
     label->PickableOff();

@@ -1,8 +1,7 @@
 #include "measure/MeasurementSession.h"
-#include "measure/MeasurementGeometry.h"
+#include "measure/MeasurementToolDefinition.h"
 
 #include <algorithm>
-#include <iomanip>
 #include <sstream>
 
 namespace measure {
@@ -16,11 +15,7 @@ void MeasurementSession::Begin(const MeasureRequest& request)
 {
     m_lastRequest = request;
     m_draft = MeasurementDraft{ request, std::nullopt, {}, std::nullopt };
-    m_statusMessage = request.tool == MeasureTool::Line
-        ? "直线：点击起点和终点，或者按住左键拖动。"
-        : (request.tool == MeasureTool::Circle3Point
-            ? "圆：依次点击圆周上的三个点。"
-            : "圆弧：依次点击起点、经过点和终点。");
+    m_statusMessage = GetMeasurementToolDefinition(request.tool).beginMessage;
     NotifyChanged();
 }
 
@@ -40,7 +35,8 @@ bool MeasurementSession::AppendPoint(
 
     std::vector<Point3> candidate = m_draft->physicalPoints;
     candidate.push_back(physicalPoint);
-    const int required = RequiredPointCount(m_draft->request.tool);
+    const auto& definition = GetMeasurementToolDefinition(m_draft->request.tool);
+    const int required = definition.requiredPointCount;
     if (static_cast<int>(candidate.size()) < required) {
         m_draft->physicalPoints = std::move(candidate);
         m_draft->previewPoint.reset();
@@ -54,40 +50,15 @@ bool MeasurementSession::AppendPoint(
         return true;
     }
 
-    MeasurementResult result = LineResult{};
-    bool valid = false;
-    switch (m_draft->request.tool) {
-    case MeasureTool::Line:
-        if (const auto value = geometry::ComputeLine(candidate)) {
-            result = *value;
-            valid = true;
-        }
-        break;
-    case MeasureTool::Circle3Point:
-        if (const auto value = geometry::ComputeCircle(candidate, *m_draft->plane)) {
-            result = *value;
-            valid = true;
-        }
-        break;
-    case MeasureTool::Arc3Point:
-        if (const auto value = geometry::ComputeArc(candidate, *m_draft->plane)) {
-            result = *value;
-            valid = true;
-        }
-        break;
-    default:
-        break;
-    }
+    const auto result = definition.compute
+        ? definition.compute(candidate, *m_draft->plane)
+        : std::nullopt;
 
-    if (!valid) {
+    if (!result) {
         if (error) {
-            *error = m_draft->request.tool == MeasureTool::Line
-                ? "The two points are too close."
-                : "The three points are collinear or too close.";
+            *error = definition.invalidError;
         }
-        m_statusMessage = m_draft->request.tool == MeasureTool::Line
-            ? "两个点太近，请重新选择终点。"
-            : "三个点过近或接近共线，请重新选择最后一个点。";
+        m_statusMessage = definition.invalidStatus;
         NotifyChanged();
         return false;
     }
@@ -98,26 +69,10 @@ bool MeasurementSession::AppendPoint(
     entity.sourceView = m_draft->request.view;
     entity.plane = *m_draft->plane;
     entity.physicalPoints = std::move(candidate);
-    entity.result = std::move(result);
+    entity.result = *result;
     m_entities.push_back(std::move(entity));
 
-    const auto& completed = m_entities.back();
-    std::ostringstream message;
-    message << std::fixed << std::setprecision(3);
-    if (const auto* line = std::get_if<LineResult>(&completed.result)) {
-        message << "完成：长度 = " << line->length << "（数据物理单位）";
-    }
-    else if (const auto* circle = std::get_if<CircleResult>(&completed.result)) {
-        message << "完成：直径 = " << circle->diameter
-            << "，半径 = " << circle->radius << "（数据物理单位）";
-    }
-    else if (const auto* arc = std::get_if<ArcResult>(&completed.result)) {
-        constexpr double radiansToDegrees = 57.29577951308232;
-        message << "完成：弧长 = " << arc->length
-            << "，半径 = " << arc->radius
-            << "，圆心角 = " << std::abs(arc->sweepRadians) * radiansToDegrees << "°";
-    }
-    m_statusMessage = message.str();
+    m_statusMessage = FormatCompletedMeasurement(m_entities.back().result);
 
     m_draft.reset();
     NotifyChanged();
@@ -222,11 +177,6 @@ void MeasurementSession::NotifyChanged()
     if (m_changed) {
         m_changed();
     }
-}
-
-int MeasurementSession::RequiredPointCount(MeasureTool tool) const
-{
-    return tool == MeasureTool::Line ? 2 : 3;
 }
 
 } // namespace measure

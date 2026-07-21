@@ -1,6 +1,8 @@
 #include "measure/MeasurementInteractionHandler.h"
 #include "measure/MeasurementGeometry.h"
 #include "measure/MeasurementSession.h"
+#include "measure/MeasurementToolDefinition.h"
+#include "measure/MeasurementView.h"
 
 #include "App/AppInterfaces.h"
 #include <vtkCommand.h>
@@ -34,6 +36,12 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
             m_consumingLeftButton = false;
             return { true, true };
         }
+        if (event.vtkEventId == vtkCommand::LeftButtonPressEvent
+            || event.vtkEventId == vtkCommand::LeftButtonReleaseEvent
+            || event.vtkEventId == vtkCommand::MouseWheelForwardEvent
+            || event.vtkEventId == vtkCommand::MouseWheelBackwardEvent) {
+            return { true, true };
+        }
         return {};
     }
 
@@ -58,7 +66,8 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         m_pressX = event.x;
         m_pressY = event.y;
         m_lineDragMoved = false;
-        m_lineDragCandidate = draft->request.tool == MeasureTool::Line
+        m_lineDragCandidate = GetMeasurementToolDefinition(
+            draft->request.tool).supportsDrag
             && draft->physicalPoints.empty();
         const auto physical = DisplayToPhysical(event.x, event.y);
         if (physical) {
@@ -76,7 +85,8 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         if (m_lineDragCandidate && m_lineDragMoved && m_session->IsActive()) {
             const auto& currentDraft = m_session->Draft();
             if (currentDraft
-                && currentDraft->request.tool == MeasureTool::Line
+                && GetMeasurementToolDefinition(
+                    currentDraft->request.tool).supportsDrag
                 && currentDraft->physicalPoints.size() == 1) {
                 const auto physical = DisplayToPhysical(event.x, event.y);
                 if (physical) {
@@ -144,7 +154,7 @@ std::optional<Point3> MeasurementInteractionHandler::DisplayToPhysical(int x, in
     }
 
     const Point3 direction = geometry::Subtract(*farPoint, *nearPoint);
-    const Point3 normal = CurrentWorldNormal();
+    const Point3 normal = GetSliceViewDescriptor(m_view).normal;
     const auto cursor = m_service->GetCursorWorld();
     const Point3 planeOrigin{ cursor[0], cursor[1], cursor[2] };
     const double denominator = geometry::Dot(normal, direction);
@@ -165,15 +175,9 @@ MeasurementPlane MeasurementInteractionHandler::SnapshotPhysicalPlane() const
 {
     const auto cursor = m_service->GetCursorWorld();
     Point3 worldOrigin{ cursor[0], cursor[1], cursor[2] };
-    Point3 worldU{ 1.0, 0.0, 0.0 };
-    Point3 worldV{ 0.0, 1.0, 0.0 };
-    if (m_view == MeasureView::Coronal) {
-        worldV = { 0.0, 0.0, 1.0 };
-    }
-    else if (m_view == MeasureView::Sagittal) {
-        worldU = { 0.0, 1.0, 0.0 };
-        worldV = { 0.0, 0.0, 1.0 };
-    }
+    const auto& view = GetSliceViewDescriptor(m_view);
+    const Point3 worldU = view.u;
+    const Point3 worldV = view.v;
 
     auto toPhysical = [this](const Point3& world) {
         double source[3] = { world[0], world[1], world[2] };
@@ -234,16 +238,6 @@ bool MeasurementInteractionHandler::IsInsideImage(const Point3& physicalPoint) c
         }
     }
     return true;
-}
-
-Point3 MeasurementInteractionHandler::CurrentWorldNormal() const
-{
-    switch (m_view) {
-    case MeasureView::Axial: return { 0.0, 0.0, 1.0 };
-    case MeasureView::Coronal: return { 0.0, 1.0, 0.0 };
-    case MeasureView::Sagittal: return { 1.0, 0.0, 0.0 };
-    }
-    return { 0.0, 0.0, 1.0 };
 }
 
 } // namespace measure

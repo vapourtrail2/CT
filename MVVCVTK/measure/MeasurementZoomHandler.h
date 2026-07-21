@@ -2,8 +2,11 @@
 
 #include "Interaction/IInteractionHandler.h"
 
+#include <memory>
+
 class AbstractInteractiveService;
 class vtkRenderer;
+class Viewer2DHandler;
 
 namespace measure {
 
@@ -13,15 +16,13 @@ public:
     MeasurementZoomHandler(
         AbstractInteractiveService* service,
         vtkRenderer* renderer);
+    ~MeasurementZoomHandler() override;
 
     InteractionResult GetHandleResult(const InteractionEvent& event) override;
 
 private:
-    AbstractInteractiveService* m_service = nullptr;
-    vtkRenderer* m_renderer = nullptr;
+    std::unique_ptr<Viewer2DHandler> m_viewer2D;
     bool m_zooming = false;
-    int m_startY = 0;
-    double m_startScale = 1.0;
 };
 
 } // namespace measure

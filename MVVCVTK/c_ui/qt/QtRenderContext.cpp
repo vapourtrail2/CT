@@ -2,8 +2,6 @@
 #include "Interaction/Viewer2DHandler.h"
 #include "Interaction/Viewer3DHandler.h"
 #include "Interaction/TimeUpdateHandler.h"
-#include "measure/MeasurementInteractionHandler.h"
-#include "measure/MeasurementZoomHandler.h"
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <memory>
@@ -223,14 +221,10 @@ void QtRenderContext::SetServiceBound(std::shared_ptr<AbstractAppService> servic
     /*SetToolMode(m_toolMode);*/
 }
 
-void QtRenderContext::SetMeasurementRuntime(
-    const std::shared_ptr<measure::MeasurementSession>& session,
-    const std::shared_ptr<AbstractDataManager>& dataManager,
-    measure::MeasureView view)
+void QtRenderContext::SetInteractionHandlerFactory(
+    InteractionHandlerFactory factory)
 {
-    m_measurementSession = session;
-    m_measurementDataManager = dataManager;
-    m_measurementView = view;
+    m_interactionHandlerFactory = std::move(factory);
     BuildInteractionRouter();
 }
 
@@ -292,18 +286,14 @@ void QtRenderContext::BuildInteractionRouter()
             m_interactiveService.get(),
             m_renderWindow.GetPointer()));
 
-    if (m_measurementSession && m_measurementDataManager && m_interactiveService) {
-        m_interactionRouter.SetHandlerAdded(
-            std::make_unique<measure::MeasurementInteractionHandler>(
-                m_measurementSession,
-                m_measurementDataManager,
-                m_interactiveService.get(),
-                m_renderer.GetPointer(),
-                m_measurementView));
-        m_interactionRouter.SetHandlerAdded(
-            std::make_unique<measure::MeasurementZoomHandler>(
-                m_interactiveService.get(),
-                m_renderer.GetPointer()));
+    if (m_interactionHandlerFactory) {
+        if (m_interactiveService) {
+            auto handlers = m_interactionHandlerFactory(
+                m_interactiveService.get(), m_renderer.GetPointer());
+            for (auto& handler : handlers) {
+                m_interactionRouter.SetHandlerAdded(std::move(handler));
+            }
+        }
     }
     else {
         m_interactionRouter.SetHandlerAdded(

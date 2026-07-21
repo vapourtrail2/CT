@@ -36,7 +36,6 @@ public:
 
 private:
     void NotifyChanged();
-    int RequiredPointCount(MeasureTool tool) const;
 
     ChangedCallback m_changed;
     MeasureRequest m_lastRequest;

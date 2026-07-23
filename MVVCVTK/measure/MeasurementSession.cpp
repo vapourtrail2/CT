@@ -1,5 +1,8 @@
+#include <iostream>
+#include <QDebug>
 #include "measure/MeasurementSession.h"
 #include "measure/MeasurementToolDefinition.h"
+
 
 #include <algorithm>
 #include <sstream>
@@ -37,17 +40,26 @@ bool MeasurementSession::AppendPoint(
     }
 
     std::vector<Point3> candidate = m_draft->physicalPoints;
-    candidate.push_back(physicalPoint);
-    const auto& definition = GetMeasurementToolDefinition(m_draft->request.tool);
-    const int required = definition.requiredPointCount;
+    /*for (size_t i = 0; i < candidate.size(); i++)
+    {
+        Point3& point = candidate[i];
+
+        std::cout << point[0] << "," << point[1] << "," << point[2] << std::endl;
+    }*/
+    candidate.push_back(physicalPoint);//放在候选者里 ，而不是立即写回草稿 是因为最后一个点加入后还要验证结果是否有效
+    const auto& definition = GetMeasurementToolDefinition(m_draft->request.tool);//返回线工具的配置
+	const int required = definition.requiredPointCount;//需要的点数 线是2点
     if (static_cast<int>(candidate.size()) < required) {
+        
         m_draft->physicalPoints = std::move(candidate);
         m_draft->previewPoint.reset();
+
         std::ostringstream message;
         message << "已选择第 " << m_draft->physicalPoints.size()
             << " 个点，还需要 "
             << (required - static_cast<int>(m_draft->physicalPoints.size()))
             << " 个点。";
+
         m_statusMessage = message.str();
         NotifyChanged();
         return true;
@@ -69,7 +81,7 @@ bool MeasurementSession::AppendPoint(
     MeasurementEntity entity;
     entity.id = m_nextId++;
     entity.type = m_draft->request.tool;
-    entity.sourceView = m_draft->request.view;
+    entity.where2DViewer = m_draft->request.view;
     entity.plane = *m_draft->plane;
     entity.physicalPoints = std::move(candidate);
     entity.result = *result;
@@ -194,13 +206,13 @@ void MeasurementSession::ClearView(MeasureView view)
 {
     const bool removesEntities = std::any_of(
         m_entities.begin(), m_entities.end(),
-        [view](const MeasurementEntity& entity) { return entity.sourceView == view; });
+        [view](const MeasurementEntity& entity) { return entity.where2DViewer == view; });
     if (removesEntities) {
         RecordHistory();
     }
     m_entities.erase(
         std::remove_if(m_entities.begin(), m_entities.end(),
-            [view](const MeasurementEntity& entity) { return entity.sourceView == view; }),
+            [view](const MeasurementEntity& entity) { return entity.where2DViewer == view; }),
         m_entities.end());
     const bool removedDraft = m_draft && m_draft->request.view == view;
     if (removedDraft) {
@@ -252,4 +264,4 @@ void MeasurementSession::NotifyChanged()
     }
 }
 
-} // namespace measure
+} 

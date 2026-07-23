@@ -160,12 +160,12 @@ void CTViewer::setRibbonPage(RibbonPage* page)
         return;
     }
 
+    stack_->addWidget(page);
+    ribbonPageRegister_->add(page);
+
     connect(page, &RibbonPage::commandRequested, this, [this](const QString& name) {
         context_.getCommands().run(name);
         });
-
-    stack_->addWidget(page);
-    ribbonPageRegister_->add(page);
     
 }
 
@@ -278,7 +278,7 @@ void CTViewer::showMeasureToolsDialog()
         session->dataMgr,
         session->sharedState,
         this);
-    dialog.exec();
+    dialog.exec();  
 }
 
 void CTViewer::connectAppSignals() {

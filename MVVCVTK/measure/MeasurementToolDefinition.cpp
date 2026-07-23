@@ -111,7 +111,7 @@ std::vector<Point3> BuildArcPath(
     path.reserve(samples + 1);
     for (int i = 0; i <= samples; ++i) {
         const double angle = start
-            + computed->sweepRadians * static_cast<double>(i) / samples;
+            + computed->radiusAngle * static_cast<double>(i) / samples;
         path.push_back(geometry::CirclePoint(
             computed->center, plane, computed->radius, angle));
     }
@@ -136,8 +136,8 @@ const MeasurementToolDefinition kLine{
     "直线：点击起点和终点，或者按住左键拖动。",
     "The two points are too close.",
     "两个点太近，请重新选择终点。",
-    &ComputeLine,
-    &BuildLinePath
+    &ComputeLine,// 支持函数 
+    &BuildLinePath// 绘制路径函数
 };
 
 const MeasurementToolDefinition kCircle{
@@ -191,7 +191,7 @@ std::string FormatMeasurementLabel(
         else {
             stream << "Arc=" << value.length
                 << " R=" << value.radius
-                << " A=" << std::abs(value.sweepRadians) * 180.0 / kPi << "deg";
+                << " A=" << std::abs(value.radiusAngle) * 180.0 / kPi << "deg";
         }
     }, result);
     return stream.str();
@@ -214,7 +214,7 @@ std::string FormatCompletedMeasurement(const MeasurementResult& result)
             stream << "完成：弧长 = " << value.length
                 << "，半径 = " << value.radius
                 << "，圆心角 = "
-                << std::abs(value.sweepRadians) * 180.0 / kPi << "°";
+                << std::abs(value.radiusAngle) * 180.0 / kPi << "°";
         }
     }, result);
     return stream.str();

@@ -180,7 +180,7 @@ std::optional<ArcResult> ComputeArc(
     ArcResult result;
     result.center = circle->center;
     result.radius = circle->radius;
-    result.sweepRadians = sweep;
+    result.radiusAngle = sweep;
     result.length = circle->radius * std::abs(sweep);
     return result;
 }

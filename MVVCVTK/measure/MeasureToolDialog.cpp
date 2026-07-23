@@ -118,22 +118,36 @@ void MeasureToolDialog::BuildUi()
             SetView(static_cast<MeasureView>(m_viewCombo->itemData(index).toInt()));
         });
     connect(m_lineButton, &QPushButton::clicked, this,
-        [this]() { BeginTool(MeasureTool::Line); });
+        [this]() {
+            BeginTool(MeasureTool::Line);
+        });
     connect(m_circleButton, &QPushButton::clicked, this,
-        [this]() { BeginTool(MeasureTool::Circle3Point); });
+        [this]() { 
+            BeginTool(MeasureTool::Circle3Point); 
+        });
     connect(m_arcButton, &QPushButton::clicked, this,
-        [this]() { BeginTool(MeasureTool::Arc3Point); });
+        [this]() { 
+            BeginTool(MeasureTool::Arc3Point);
+        });
     connect(m_undoButton, &QPushButton::clicked, this,
-        [this]() { UndoMeasurement(); });
+        [this]() { 
+            UndoMeasurement(); 
+        });
     connect(m_redoButton, &QPushButton::clicked, this,
-        [this]() { RedoMeasurement(); });
+        [this]() { 
+            RedoMeasurement(); 
+        });
 
     auto* undoShortcut = new QShortcut(QKeySequence::Undo, this);
     connect(undoShortcut, &QShortcut::activated, this,
-        [this]() { UndoMeasurement(); });
+        [this]() { 
+            UndoMeasurement();
+        });
     auto* redoShortcut = new QShortcut(QKeySequence::Redo, this);
     connect(redoShortcut, &QShortcut::activated, this,
-        [this]() { RedoMeasurement(); });
+        [this]() { 
+            RedoMeasurement(); 
+        });
 }
 
 void MeasureToolDialog::BuildMeasurementViewport(

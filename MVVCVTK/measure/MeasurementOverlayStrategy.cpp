@@ -82,7 +82,7 @@ void MeasurementOverlayStrategy::Refresh()
     }
 
     for (const auto& entity : m_session->Entities()) {
-        if (entity.sourceView != m_view || !SourcePlaneMatches(entity)) {
+        if (entity.where2DViewer != m_view || !SourcePlaneMatches(entity)) {
             continue;
         }
         const auto& definition = GetMeasurementToolDefinition(entity.type);

@@ -50,7 +50,7 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         return {};
     }
 
-    if (event.vtkEventId == vtkCommand::KeyPressEvent) {
+    /*if (event.vtkEventId == vtkCommand::KeyPressEvent) {
         if (event.keySym == "Escape") {
             m_session->CancelDraft();
             return { true, true };
@@ -59,21 +59,23 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
             m_session->UndoDraftPoint();
             return { true, true };
         }
-    }
+    }*/
 
     if (event.vtkEventId == vtkCommand::LeftButtonPressEvent) {
         m_consumingLeftButton = true;
         m_pressX = event.x;
         m_pressY = event.y;
         m_lineDragMoved = false;
-        m_lineDragCandidate = GetMeasurementToolDefinition(
-            draft->request.tool).supportsDrag
-            && draft->physicalPoints.empty();
-        const auto physical = DisplayToPhysical(event.x, event.y);
+		m_lineDragCandidate = GetMeasurementToolDefinition(//是否允许拖拽
+             draft->request.tool).supportsDrag //true
+            && draft->physicalPoints.empty();//true
+
+		const auto physical = DisplayToPhysical(event.x, event.y);//鼠标点击位置转为物理坐标
+
         if (physical) {
             std::string error;
-            m_session->AppendPoint(*physical, SnapshotPhysicalPlane(), &error);
-        }
+            m_session->AppendPoint(*physical, SnapshotPhysicalPlane(), &error);//SnapshotPhysicalPlane 当前二维切片所在的物理平面
+        }   
         else {
             m_session->SetStatusMessage("点击位置不在图像有效范围内，请在图像上选择点。");
             m_lineDragCandidate = false;

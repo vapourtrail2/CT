@@ -42,12 +42,12 @@ private:
     void UpdateHistoryButtons();
     void ClearCheckedTool();
 
-    std::shared_ptr<AbstractDataManager> m_dataManager;
+    std::shared_ptr<AbstractDataManager> m_dataManager;//被测量的体数据
     std::shared_ptr<SharedStateBroadcaster> m_localBroadcaster;
-    std::shared_ptr<SharedInteractionState> m_localState;
-    std::shared_ptr<MeasurementSession> m_session;
-    std::shared_ptr<MeasurementOverlayStrategy> m_overlay;
-    Viewport m_viewport;
+	std::shared_ptr<SharedInteractionState> m_localState;//测量窗口的自己的状态 避免和主窗口的状态冲突
+    std::shared_ptr<MeasurementSession> m_session;//测量什么 点了哪些点  测量结果 Redo Undo
+	std::shared_ptr<MeasurementOverlayStrategy> m_overlay;//画线 和 文字之类的东西
+    Viewport m_viewport;//显示二维图像 接收鼠标事件
 
     QVTKOpenGLNativeWidget* m_vtkWidget = nullptr;
     QComboBox* m_viewCombo = nullptr;

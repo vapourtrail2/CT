@@ -1,7 +1,6 @@
 #include "measure/MeasurementInteractionHandler.h"
 #include "measure/MeasurementGeometry.h"
 #include "measure/MeasurementSession.h"
-#include "measure/MeasurementToolDefinition.h"
 #include "measure/MeasurementView.h"
 
 #include "App/AppInterfaces.h"
@@ -63,12 +62,6 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
 
     if (event.vtkEventId == vtkCommand::LeftButtonPressEvent) {
         m_consumingLeftButton = true;
-        m_pressX = event.x;
-        m_pressY = event.y;
-        m_lineDragMoved = false;
-		m_lineDragCandidate = GetMeasurementToolDefinition(//是否允许拖拽
-             draft->request.tool).supportsDrag //true
-            && draft->physicalPoints.empty();//true
 
 		const auto physical = DisplayToPhysical(event.x, event.y);//鼠标点击位置转为物理坐标
 
@@ -78,31 +71,12 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         }   
         else {
             m_session->SetStatusMessage("点击位置不在图像有效范围内，请在图像上选择点。");
-            m_lineDragCandidate = false;
         }
         return { true, true };
     }
 
     if (event.vtkEventId == vtkCommand::LeftButtonReleaseEvent && m_consumingLeftButton) {
-        if (m_lineDragCandidate && m_lineDragMoved && m_session->IsActive()) {
-            const auto& currentDraft = m_session->Draft();
-            if (currentDraft
-                && GetMeasurementToolDefinition(
-                    currentDraft->request.tool).supportsDrag
-                && currentDraft->physicalPoints.size() == 1) {
-                const auto physical = DisplayToPhysical(event.x, event.y);
-                if (physical) {
-                    std::string error;
-                    m_session->AppendPoint(*physical, SnapshotPhysicalPlane(), &error);
-                }
-                else {
-                    m_session->SetStatusMessage("终点不在图像有效范围内，请重新选择。");
-                }
-            }
-        }
         m_consumingLeftButton = false;
-        m_lineDragCandidate = false;
-        m_lineDragMoved = false;
         return { true, true };
     }
 
@@ -110,11 +84,6 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         if (!draft->physicalPoints.empty()) {
             const auto preview = DisplayToPhysical(event.x, event.y);
             m_session->UpdatePreview(preview);
-            if (m_lineDragCandidate) {
-                const int dx = event.x - m_pressX;
-                const int dy = event.y - m_pressY;
-                m_lineDragMoved = dx * dx + dy * dy >= 9;
-            }
             return { true, true };
         }
         return {};

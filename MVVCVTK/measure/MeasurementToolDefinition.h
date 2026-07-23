@@ -20,7 +20,6 @@ using MeasurementPathFunction = std::vector<Point3> (*)(
 struct MeasurementToolDefinition {
     MeasureTool tool = MeasureTool::None;
     int requiredPointCount = 0;
-    bool supportsDrag = false;
     const char* beginMessage = "";
     const char* invalidError = "";
     const char* invalidStatus = "";

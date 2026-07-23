@@ -193,18 +193,23 @@ void MeasureToolDialog::BuildMeasurementViewport(
         m_session, service.get(), m_currentView);
 
     m_session->SetChangedCallback([this]() {
-        if (m_overlay) m_overlay->Refresh();
+        if (m_overlay) m_overlay->Refresh();//重新生成 线 圆 控制点和文字
+
         if (const auto& currentService = m_viewport.getService()) {
-            currentService->SetDirtyMarked();
+            currentService->SetDirtyMarked(); //渲染服务场景发生改变  
         }
+
         if (m_statusLabel && m_session) {
             m_statusLabel->setText(
-                QString::fromUtf8(m_session->StatusMessage().c_str()));
+                QString::fromUtf8(m_session->StatusMessage().c_str()));//更新状态文字
         }
+
         if (m_session && !m_session->IsActive()) {
             ClearCheckedTool();
         }
+
         UpdateHistoryButtons();
+
         QTimer::singleShot(0, this, [this]() {
             m_viewport.render();
         });

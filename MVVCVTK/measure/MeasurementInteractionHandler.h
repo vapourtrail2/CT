@@ -36,10 +36,6 @@ private:
     vtkRenderer* m_renderer = nullptr;
     MeasureView m_view = MeasureView::Axial;
     bool m_consumingLeftButton = false;
-    bool m_lineDragCandidate = false;
-    bool m_lineDragMoved = false;
-    int m_pressX = 0;
-    int m_pressY = 0;
 };
 
 } // namespace measure

@@ -11,9 +11,9 @@ namespace measure {
 
 class MeasurementSession {
 public:
-    using ChangedCallback = std::function<void()>;
+    
 
-    void SetChangedCallback(ChangedCallback callback);
+    void SetChangedCallback(std::function<void()> callback);
 
     void Begin(const MeasureRequest& request);
     bool AppendPoint(
@@ -44,7 +44,7 @@ private:
     void RecordHistory();
     void NotifyChanged();
 
-    ChangedCallback m_changed;
+    std::function<void()> m_callback;
     MeasureRequest m_lastRequest;
     std::optional<MeasurementDraft> m_draft;
     std::vector<MeasurementEntity> m_entities;

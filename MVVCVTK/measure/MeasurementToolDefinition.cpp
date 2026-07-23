@@ -121,7 +121,6 @@ std::vector<Point3> BuildArcPath(
 const MeasurementToolDefinition kNone{
     MeasureTool::None,
     0,
-    false,
     "请选择测量工具。",
     "No measurement tool selected.",
     "请选择测量工具。",
@@ -132,8 +131,7 @@ const MeasurementToolDefinition kNone{
 const MeasurementToolDefinition kLine{
     MeasureTool::Line,
     2,
-    true,
-    "直线：点击起点和终点，或者按住左键拖动。",
+    "直线：依次点击起点和终点。",
     "The two points are too close.",
     "两个点太近，请重新选择终点。",
     &ComputeLine,// 支持函数 
@@ -143,7 +141,6 @@ const MeasurementToolDefinition kLine{
 const MeasurementToolDefinition kCircle{
     MeasureTool::Circle3Point,
     3,
-    false,
     "圆：依次点击圆周上的三个点。",
     "The three points are collinear or too close.",
     "三个点过近或接近共线，请重新选择最后一个点。",
@@ -154,7 +151,6 @@ const MeasurementToolDefinition kCircle{
 const MeasurementToolDefinition kArc{
     MeasureTool::Arc3Point,
     3,
-    false,
     "圆弧：依次点击起点、经过点和终点。",
     "The three points are collinear or too close.",
     "三个点过近或接近共线，请重新选择最后一个点。",

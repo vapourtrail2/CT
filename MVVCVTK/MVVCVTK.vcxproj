@@ -135,7 +135,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\MeasureAlgoService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Utils;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\MeasurementAlgo;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\MeasureAlgoStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Services;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Tasks;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Geometry;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Host;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Platform;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render\Strategies;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -161,7 +161,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service\MeasureAlgoService;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Utils;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Math\MeasurementAlgo;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies\MeasureAlgoStrategy;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Strategies;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Service;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Services;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Tasks;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Geometry;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Host;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Platform;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render\Strategies;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -181,44 +181,39 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
   </ItemDefinitionGroup>
   <ItemGroup>
     <QtMoc Include="c_ui\context\SessionManager.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateCommands.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppTypes.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionEvent.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionResult.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionRouter.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer2DHandler.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\GapAnalysisTypes.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\SurfaceRefiner.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VoidDetector.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VolumeBuffer.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StrategyFactory.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppService.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppStateSyncStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService\GapAnalysisService.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\VolumeAnalysisService.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\BaseVisualStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\ColoredPlanesStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\CompositeStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy\GapAlgorithmOverlayStrategies.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\IsoSurfaceStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\MultiSliceStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\SliceStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\VolumeStrategy.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\ImageProcessor.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\InteractionComputeService.h" />
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h" />
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h" />
     <QtMoc Include="c_ui\ribbon\RibbonPage.h" />
     <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Services\AppService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataExportTaskService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataLoadTaskService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\ImageProcessor.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\VolumeTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Geometry\InteractionComputeService.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostCommandRouter.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostCoreServices.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostFeature.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostHotkeyRouter.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostRenderViewSet.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostAdapterTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostCommandTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostRequestTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostSessionTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostValueTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\VtkAppHostSession.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InputCallbackHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionRouter.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer2DHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h" />
     <ClInclude Include="c_ui\command\commands.h" />
     <ClInclude Include="c_ui\context\AppContext.h" />
     <ClInclude Include="c_ui\context\DataSet.h" />
@@ -256,22 +251,31 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="measure\MeasurementZoomHandler.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c_ui\context\SessionManager.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Services\AppService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataExportTaskService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataLoadTaskService.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\ImageProcessor.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\VolumeTypes.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostCommandRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostHotkeyRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostRenderViewSet.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\VtkAppHostSession.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InputCallbackHandler.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Service\AppService.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\ColoredPlanesStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\CompositeStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\IsoSurfaceStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\MultiSliceStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\SliceStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\VolumeStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\ImageProcessor.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Platform\MemMappedFile.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\StdRenderContext.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\ColoredPlanesStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\CompositeStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\IsoSurfaceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\SliceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
+    <ClCompile Include="c_ui\context\SessionManager.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp" />
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp" />
@@ -312,9 +316,4 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
-    </PropertyGroup>
-  </Target>
 </Project>

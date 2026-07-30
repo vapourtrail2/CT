@@ -1,55 +1,28 @@
 #pragma once
-#include "App/AppState.h"
-#include "c_ui/context/Dataset.h"
-#include "c_ui/qt/QtRenderContext.h"
-#include "c_ui/viewport/Viewport.h"
-#include "Data/DataManager.h"
-#include "Service/AppService.h"
-#include <functional>
-#include <memory>
-#include <QPointer> 
-#include <QString>
+
+#include "App/AppTypes.h"
+#include "Host/Types/HostSessionTypes.h"
+
+#include <QPointer>
+#include <QVTKOpenGLNativeWidget.h>
 #include <QWidget>
 
 class QGridLayout;
-class QToolButton;
 
-class ViewportGather : public QWidget
+class ViewportGather final : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ViewportGather(QWidget* parent = nullptr);
-    void initWithData(const Dataset& dataset);
-    void setPrimary3DMode(VizMode mode);    
 
-    bool saveSliceStackAsync(
-        const QString& outputDir,
-        VizMode sliceMode,
-        const double& angle,
-        std::function<void(bool)> onComplete = nullptr);
+    HostSessionConfig getHostConfig() const;
 
-    bool saveTransformedDataAsync(
-        const QString& outputPath,
-        std::function<void(bool)> onComplete = nullptr);
+    // 目前只保存首次构建时的 3D 模式。
+    // 动态切换下一步通过 HostViewSetRequest 实现。
+    void setPrimary3DMode(VizMode mode);
 
 private:
-    void buildUi();
-    void refreshViews();
-    void request3DRebuildFromCurrentImage();
-        
-    std::shared_ptr<AbstractDataManager> m_dataMgr;
-	std::shared_ptr<SharedStateBroadcaster> m_stateBroadcaster;
-    std::shared_ptr<SharedInteractionState> m_sharedState;
-    std::shared_ptr<void> m_lifeToken;//状态位管理
-
-    Viewport m_axial;//z
-	Viewport m_coronal;//y
-	Viewport m_sagittal;//x
-    Viewport m_view3d;
-
-    VizMode m_current3DMode = VizMode::CompositeIsoSurface;
-
-	//以下是放大缩小视口相关的成员
     enum class ViewportId {
         None,
         Axial,
@@ -58,16 +31,30 @@ private:
         View3D
     };
 
-    QGridLayout* m_viewGrid = nullptr;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+    void buildUi();
+
+    QWidget* createViewportContainer(
+        QPointer<QVTKOpenGLNativeWidget>& vtkWidget,
+        ViewportId id);
+
+    void switchViewMaximized(ViewportId id);
+    void setViewportLayout();
+
+private:
+    QGridLayout* m_viewGrid = nullptr;
+
+    QPointer<QVTKOpenGLNativeWidget> m_axial;
+    QPointer<QVTKOpenGLNativeWidget> m_coronal;
+    QPointer<QVTKOpenGLNativeWidget> m_sagittal;
+    QPointer<QVTKOpenGLNativeWidget> m_view3d;
 
     QPointer<QWidget> viewAxialContainer_;
     QPointer<QWidget> viewSagittalContainer_;
     QPointer<QWidget> viewCoronalContainer_;
     QPointer<QWidget> view3DContainer_;
 
-    ViewportId m_maximizedViewport = ViewportId::None;
+    VizMode m_current3DMode =
+        VizMode::CompositeIsoSurface;
 
-    QWidget* createViewportContainer(Viewport& vp, ViewportId id);
-    void switchViewMaximized(ViewportId id);
-    void setViewportLayout();
+    ViewportId m_maximizedViewport = ViewportId::None;
 };

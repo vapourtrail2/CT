@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Host/Types/HostSessionTypes.h"
 #include "App/AppTypes.h"
 #include <functional>
 #include <memory>
@@ -24,18 +24,7 @@ public:
 	SceneTreePanel* getSceneTreePanel() const;
 	RenderPanel* getRenderPanel() const;
 
-	bool bindSession(const Dataset& dataset,
-		QString* err = nullptr);
-
-	bool saveSliceStackAsync(
-		const QString& outputDir,
-		VizMode sliceMode,
-		const double& angle,
-		std::function<void(bool)> onComplete = nullptr);
-
-	bool saveTransformedDataAsync(
-		const QString& outputPath,
-		std::function<void(bool)> onComplete = nullptr);
+	HostSessionConfig getHostConfig() const;
 
 private:
 	void buildUi();	

@@ -1,19 +1,37 @@
 #include "c_ui/context/SessionManager.h"
-#include <QFileInfo>
-#include <qapplication.h>
-#include <QDir>
+#include "Host/Types/HostRequest.h"
 
-//会话协调层，负责管理 AppSession 的生命周期和状态转换
-namespace {
-std::shared_ptr<AbstractDataManager> CreateManagerForPath(const QString& path)
-{
-    const QFileInfo info(path);
-    const QString suffix = info.suffix().toLower();
-    if (info.isDir() || suffix == QStringLiteral("tif") || suffix == QStringLiteral("tiff")) {
-        return std::make_shared<TiffVolumeDataManager>();
-    }
-    return std::make_shared<RawVolumeDataManager>();
+#include <QByteArray>
+#include <QMetaObject>
+#include <QPointer>
+
+#include <limits>
+#include <array>
+
+void setError(QString* err,QString message) {
+    if(err)
+        *err = message;
 }
+
+bool isVoxelCountRight(std::array<int, 3> dimensions, std::size_t& voxelcount) {
+    voxelcount = 1;
+
+    for (auto dimension : dimensions)
+    {
+        if (dimension <= 0) {
+            return false;
+        }
+
+        auto v = static_cast<size_t>(dimension);
+
+        if (voxelcount > std::numeric_limits<size_t>::max() / v) {
+            return false;
+        }
+
+        voxelcount = voxelcount * v;
+    }
+
+    return true;
 }
 
 SessionManager::SessionManager(QObject* parent)
@@ -21,7 +39,63 @@ SessionManager::SessionManager(QObject* parent)
 {
 }
 
-bool SessionManager::openFile(const QString& path, 
+SessionManager::~SessionManager() = default;
+
+
+
+bool SessionManager::initHost(HostSessionConfig config, QString* err)
+{
+    if (config.renderViews.empty()) {
+        setError(
+            err,
+            QStringLiteral("Host render view configuration is empty."));
+        return false;
+    }
+
+    config_ = std::move(config);
+    hasConfig_ = true;
+
+    if (!resetHost(err)) {
+        setState(State::Failed);
+        return false;
+    }
+
+    sourcePath_.clear();
+    pendingSourcePath_.clear();
+    setState(State::Empty);
+   
+    return true;
+}
+
+bool SessionManager::resetHost(QString* errorOut)
+{
+    ++requestGeneration_;
+    hostSession_.reset();
+
+    if (!hasConfig_ || config_.renderViews.empty()) {
+        setError(
+            errorOut,
+            QStringLiteral("Host has not been configured."));
+        return false;
+    }
+
+    auto newHost =
+        std::make_unique<VtkAppHostSession>(config_);
+
+    if (!newHost->BuildSession()) {
+        setError(
+            errorOut,
+            QStringLiteral("Failed to build VTK host session."));
+        return false;
+    }
+
+    hostSession_ = std::move(newHost);
+    return true;
+}
+
+
+
+bool SessionManager::openFile(const QString& path,
     const std::array<float, 3>& spacing,
     const std::array<float, 3>& origin,
     QString* errorOut
@@ -34,29 +108,18 @@ bool SessionManager::openFile(const QString& path,
         }
         return false;
     }
-    auto newSession = std::make_shared<AppSession>();
-    newSession->dataMgr = createDataManagerForPath(p);
 
-	newSession->sharedStateBroadcaster = std::make_shared<SharedStateBroadcaster>();
-    newSession->sharedState = std::make_shared<SharedInteractionState>(newSession->sharedStateBroadcaster);
-	newSession->service = std::make_shared<MedicalVizService>(newSession->dataMgr, newSession->sharedState,newSession->sharedStateBroadcaster);
-    newSession->sourcePath = p;
-	newSession->analysisService = std::make_shared<VolumeAnalysisService>(newSession->dataMgr);
-    
-	auto weakSession = std::weak_ptr<AppSession>(newSession);
-    
-	const QString nativePath = QDir::toNativeSeparators(p);//分隔符转换，确保在不同平台上路径格式正确
-	const QByteArray localPath = nativePath.toLocal8Bit();//这句话的目的是将 QString 转换为本地编码的字节数组，toLocal8Bit() 会根据当前系统的编码设置将 QString 转换为适当的字节序列，确保路径字符串在不同平台上都能正确处理。
+    HostLoadRequest request;
 
-    newSession->service->SetFileLoadedAsync(
-        std::string(localPath.constData(), localPath.size()),
-        spacing,
-        origin,
-        [](bool) {}
-    );
-    m_session = newSession;
-    emit sessionChanged(m_session);
-	return true;
+    const QByteArray utf8Path = p.toUtf8();
+
+    request.filePath = utf8Path.toStdString();
+
+    request.geometry.dimensions = { 0,0,0 };
+    request.geometry.spacing = spacing;
+    request.geometry.origin = origin;
+
+    return sendLoadRequest(std::move(request), p, errorOut);
 }
 
 bool SessionManager::openReconstructedData(
@@ -67,46 +130,134 @@ bool SessionManager::openReconstructedData(
     const QString& sourcePath,
     QString* errorOut)
 {
-    auto rawDataManager = std::make_shared<RawVolumeDataManager>();
-	auto sharedStateBroadcaster = std::make_shared<SharedStateBroadcaster>();
-    auto sharedState = std::make_shared<SharedInteractionState>(sharedStateBroadcaster);
-	auto service = std::make_shared<MedicalVizService>(rawDataManager, sharedState, sharedStateBroadcaster);
-
-    auto newSession = std::make_shared<AppSession>();
-    newSession->dataMgr = rawDataManager;
-	newSession->sharedStateBroadcaster = sharedStateBroadcaster;
-    newSession->sharedState = sharedState;
-    newSession->service = service;
-    newSession->sourcePath = sourcePath.trimmed().isEmpty()
-        ? QStringLiteral("CT reconstruction")
-        : sourcePath.trimmed();
-	newSession->analysisService = std::make_shared<VolumeAnalysisService>(rawDataManager);
-    
-	// 弱引用，用于托管回调中的 this 指针，避免循环引用导致内存泄漏
-	auto weakSession = std::weak_ptr<AppSession>(newSession);
-    const bool started = newSession->service->SetReloadFromBufferAsync(data, dims, spacing, origin, 
-        [](bool){}
-    );
-
-    if (!started)
-    {
-        if (errorOut) *errorOut = QStringLiteral("Service is busy or initialization failed.");
+    if (!data) {
+        setError(
+            errorOut,
+            QStringLiteral("Reconstruction buffer is null."));
         return false;
     }
 
-    m_session = newSession;
-    emit sessionChanged(m_session);
+    std::size_t voxelCount = 0;
+    if (!isVoxelCountRight(dims,voxelCount)) {
+        setError(
+            errorOut,
+            QStringLiteral("Invalid reconstruction dimensions."));
+        return false;
+    }
+
+    HostReloadRequest request;
+
+    // HostReloadRequest 自己拥有数据，不能只把外部 float* 传给 core。
+    request.voxels.assign(data, data + voxelCount);
+    request.geometry.dimensions = dims;
+    request.geometry.spacing = spacing;
+    request.geometry.origin = origin;
+
+    const QString displayPath = sourcePath.trimmed().isEmpty()
+        ? QStringLiteral("CT reconstruction")
+        : sourcePath.trimmed();
+
+    return sendLoadRequest(
+        std::move(request),
+        displayPath,
+        errorOut);
+}
+
+bool SessionManager::sendLoadRequest(
+    HostRequest&& request,
+    const QString& sourcePath,
+    QString* errorOut)
+{
+    if (!hostSession_) {
+        setError(
+            errorOut,
+            QStringLiteral("Host session has not been initialized."));
+        return false;
+    }
+
+    if (state_ == State::Loading) {
+        setError(
+            errorOut,
+            QStringLiteral("A load request is already running."));
+        return false;
+    }
+
+    const std::uint64_t generation = ++requestGeneration_;
+
+    sourcePath_.clear();
+    pendingSourcePath_ = sourcePath;
+    setState(State::Loading);
+
+    QPointer<SessionManager> guard(this);
+
+    const bool started = hostSession_->SendRequest(
+        std::move(request),
+        [guard, generation](bool isSuccess) {
+            if (!guard) {
+                return;
+            }
+
+            QMetaObject::invokeMethod(
+                guard.data(),
+                [guard, generation, isSuccess]() {
+                    if (!guard
+                        || generation != guard->requestGeneration_) {
+                        return;
+                    }
+
+                    if (isSuccess) {
+                        guard->sourcePath_ =
+                            guard->pendingSourcePath_;
+                    }
+
+                    guard->pendingSourcePath_.clear();
+                    guard->setState(
+                        isSuccess ? State::Ready : State::Failed);
+
+                    emit guard->loadFinished(
+                        isSuccess,
+                        isSuccess
+                        ? QString()
+                        : QStringLiteral("Core load request failed."));
+                },
+                Qt::QueuedConnection);
+        });
+
+    if (!started) {
+        ++requestGeneration_;
+        pendingSourcePath_.clear();
+        setState(State::Failed);
+
+        setError(
+            errorOut,
+            QStringLiteral("Core rejected the load request."));
+        return false;
+    }
 
     return true;
 }
 
-std::shared_ptr<AbstractDataManager> SessionManager::createDataManagerForPath(const QString& path) const
+void SessionManager::setState(State state)
 {
-    return CreateManagerForPath(path);
+    if (state_ == state) {
+        return;
+    }
+    // == 和 =
+    
+    state_ = state;
+    emit sessionChanged(state_);
 }
 
 void SessionManager::clearSession()
 {
-    m_session.reset();
-    emit sessionChanged(nullptr);
+    sourcePath_.clear();
+    pendingSourcePath_.clear();
+
+    QString error;
+    if (hasConfig_ && !resetHost(&error)) {
+        setState(State::Failed);
+        return;
+    }
+
+    setState(State::Empty);
 }

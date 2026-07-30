@@ -4,14 +4,6 @@
     <Filter Include="measure">
       <UniqueIdentifier>{88A68D05-53A5-4C91-95C6-6471DAB8722F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="c_ui">
       <UniqueIdentifier>{bf464f89-5f56-4e6d-93c8-c90c599a3aa3}</UniqueIdentifier>
     </Filter>
@@ -39,53 +31,17 @@
     <Filter Include="src">
       <UniqueIdentifier>{ef6d616b-8f91-46f0-a6ff-53cd7e7a06c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\App">
-      <UniqueIdentifier>{45d35f02-4cca-43f1-a50b-fd84574d2b52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\Data">
       <UniqueIdentifier>{8410429a-5450-4dfd-b941-fe4fb4578ba9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\Interaction">
-      <UniqueIdentifier>{752bb37a-a6e2-4bff-9764-59f5728769ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Math">
-      <UniqueIdentifier>{00742ed4-c584-4d98-8e15-33123c09deba}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include\Render">
       <UniqueIdentifier>{82dc6b0a-d9ae-4365-a887-fcb8ec13a704}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Service">
-      <UniqueIdentifier>{9259f69d-60a4-4db9-b6ec-a7aff6073c35}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Strategies">
-      <UniqueIdentifier>{8548a1be-3a16-405e-b4aa-b289a16599ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Utils">
-      <UniqueIdentifier>{63b184db-a74d-4025-9c8a-ba1334b9ff97}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Data">
       <UniqueIdentifier>{9aaedd73-8e01-4d5a-90b3-83b1a09ed27b}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Interaction">
       <UniqueIdentifier>{a9505439-a2de-4275-b9ef-59371a4773e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Service">
-      <UniqueIdentifier>{801488fe-ffcf-4ce0-85eb-9b51b9b84c9d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Strategies">
-      <UniqueIdentifier>{f7b58353-d2ab-44d5-986a-8d98e7a005bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\Utils">
-      <UniqueIdentifier>{20a59f19-585e-4ec6-b3cd-776dc278bda3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Math\GapAnalysis">
-      <UniqueIdentifier>{4e97a9f9-dcdf-421c-b8d6-9f8604cbb11b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Service\GapMeshOverlayService">
-      <UniqueIdentifier>{fb85953b-f5ab-4375-90fd-ad59fff63801}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="include\Strategies\GapMeshOverlayStrategy">
-      <UniqueIdentifier>{69b6514f-d9df-4d3a-ac5f-2dc4dbe263ad}</UniqueIdentifier>
     </Filter>
     <Filter Include="c_ui\workspace">
       <UniqueIdentifier>{eab3d201-b7af-4a42-8dbd-533a061c1e45}</UniqueIdentifier>
@@ -105,51 +61,111 @@
     <Filter Include="c_ui\viewport">
       <UniqueIdentifier>{c6e1bb34-654b-4dca-90f7-373ff422f771}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\Geometry">
+      <UniqueIdentifier>{cc2f218e-367a-4082-9145-7b5e28c3b0d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\App">
+      <UniqueIdentifier>{036ce285-fa66-474c-9598-5627ad172b40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Host">
+      <UniqueIdentifier>{8b76e6ea-435e-450a-bfce-8d82ef675fd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Interaction">
+      <UniqueIdentifier>{dbdb5c29-fb26-43f1-bba9-5f4fa4190dac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Platform">
+      <UniqueIdentifier>{99434857-bc30-4cb5-a70a-1692eb2ce41f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\App">
+      <UniqueIdentifier>{dab15bfc-c158-4d7d-9346-fafcfb23953c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Host">
+      <UniqueIdentifier>{59adf20b-ccbb-4791-9271-7cf4297b82ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform">
+      <UniqueIdentifier>{0cc6bb05-58b3-49eb-aa82-d0b9dc7c4366}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render">
+      <UniqueIdentifier>{5976f4b2-9398-4828-a12d-8ca7be18cd74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature">
+      <UniqueIdentifier>{75937b21-4e4f-4cb8-9c92-ba694821f7e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\GapAnalysis">
+      <UniqueIdentifier>{dbdb6cca-5cab-40be-8061-ab9e0a142e34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop">
+      <UniqueIdentifier>{e63285b1-bd30-4798-9eef-43fe524ca0e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\GapAnalysis\include">
+      <UniqueIdentifier>{c6e05584-b642-43fc-aa09-aa16837e1c31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\GapAnalysis\src">
+      <UniqueIdentifier>{fda461dc-0a2b-48de-966b-f8bc9a1036dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include">
+      <UniqueIdentifier>{709d065f-1163-430c-adae-975295f1f1a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src">
+      <UniqueIdentifier>{f5ebdb3d-58a9-461e-bd0c-c63e99fe635d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Host\Type">
+      <UniqueIdentifier>{f4e8a064-46ca-4bb3-be23-d43c016b051c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="measure\MeasureToolDialog.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementGeometry.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementInteractionHandler.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementOverlayStrategy.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementSession.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementToolDefinition.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementTypes.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementView.h"><Filter>measure</Filter></ClInclude>
-    <ClInclude Include="measure\MeasurementZoomHandler.h"><Filter>measure</Filter></ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="measure\MeasureToolDialog.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementGeometry.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementInteractionHandler.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementSession.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementToolDefinition.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementView.cpp"><Filter>measure</Filter></ClCompile>
-    <ClCompile Include="measure\MeasurementZoomHandler.cpp"><Filter>measure</Filter></ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="c_ui\qt\QtRenderContext.h">
-      <Filter>c_ui\qt</Filter>
+    <ClInclude Include="measure\MeasureToolDialog.h">
+      <Filter>measure</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\nav\UIState.h">
-      <Filter>c_ui\nav</Filter>
+    <ClInclude Include="measure\MeasurementGeometry.h">
+      <Filter>measure</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\nav\TabMap.h">
-      <Filter>c_ui\nav</Filter>
+    <ClInclude Include="measure\MeasurementInteractionHandler.h">
+      <Filter>measure</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
-      <Filter>c_ui\workbenches\common</Filter>
+    <ClInclude Include="measure\MeasurementOverlayStrategy.h">
+      <Filter>measure</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\workbenches\common\IconMaps\RibbonIconMaps.h">
-      <Filter>c_ui\workbenches\common</Filter>
+    <ClInclude Include="measure\MeasurementSession.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementToolDefinition.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementTypes.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementView.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementZoomHandler.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\app\app.h">
+      <Filter>c_ui\app</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\workbenches\common\RibbonBulider.h">
+      <Filter>c_ui\ribbon</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\ImageProcessor.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\VolumeTypes.h">
+      <Filter>include\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Geometry\InteractionComputeService.h">
+      <Filter>include\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h">
       <Filter>include\App</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h">
-      <Filter>include\App</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateCommands.h">
       <Filter>include\App</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h">
@@ -158,22 +174,58 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppTypes.h">
       <Filter>include\App</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataConverters.h">
-      <Filter>include\Data</Filter>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataExportTaskService.h">
+      <Filter>include\App</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Data\DataManager.h">
-      <Filter>include\Data</Filter>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataLoadTaskService.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Services\AppService.h">
+      <Filter>include\App</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostCommandRouter.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostCoreServices.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostFeature.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostHotkeyRouter.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostRenderViewSet.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\VtkAppHostSession.h">
+      <Filter>include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostAdapterTypes.h">
+      <Filter>include\Host\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostCommandTypes.h">
+      <Filter>include\Host\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostRequestTypes.h">
+      <Filter>include\Host\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostSessionTypes.h">
+      <Filter>include\Host\Type</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostValueTypes.h">
+      <Filter>include\Host\Type</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h">
       <Filter>include\Interaction</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionEvent.h">
-      <Filter>include\Interaction</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionResult.h">
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InputCallbackHandler.h">
       <Filter>include\Interaction</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionRouter.h">
+      <Filter>include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\InteractionTypes.h">
       <Filter>include\Interaction</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h">
@@ -185,68 +237,45 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h">
       <Filter>include\Interaction</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\GapAnalysisTypes.h">
-      <Filter>include\Math\GapAnalysis</Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="measure\MeasureToolDialog.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementGeometry.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementInteractionHandler.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementSession.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementToolDefinition.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementView.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementZoomHandler.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\workbenches\common\RibbonBuilder.cpp">
+      <Filter>c_ui\ribbon</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="c_ui\qt\QtRenderContext.h">
+      <Filter>c_ui\qt</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\SurfaceRefiner.h">
-      <Filter>include\Math\GapAnalysis</Filter>
+    <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
+      <Filter>c_ui\workbenches\common</Filter>
     </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VoidDetector.h">
-      <Filter>include\Math\GapAnalysis</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Math\GapAnalysis\VolumeBuffer.h">
-      <Filter>include\Math\GapAnalysis</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h">
-      <Filter>include\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StrategyFactory.h">
-      <Filter>include\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\GapMeshOverlayService\GapAnalysisService.h">
-      <Filter>include\Service\GapMeshOverlayService</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppService.h">
-      <Filter>include\Service</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\AppStateSyncStrategy.h">
-      <Filter>include\Service</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Service\VolumeAnalysisService.h">
-      <Filter>include\Service</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\GapMeshOverlayStrategy\GapAlgorithmOverlayStrategies.h">
-      <Filter>include\Strategies\GapMeshOverlayStrategy</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\BaseVisualStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\ColoredPlanesStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\CompositeStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\IsoSurfaceStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\MultiSliceStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\SliceStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Strategies\VolumeStrategy.h">
-      <Filter>include\Strategies</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\ImageProcessor.h">
-      <Filter>include\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\InteractionComputeService.h">
-      <Filter>include\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Utils\MemMappedFile.h">
-      <Filter>include\Utils</Filter>
+    <ClInclude Include="c_ui\workbenches\common\IconMaps\RibbonIconMaps.h">
+      <Filter>c_ui\workbenches\common</Filter>
     </ClInclude>
     <ClInclude Include="c_ui\command\commands.h">
       <Filter>c_ui\commands</Filter>
@@ -289,9 +318,6 @@
     <ClCompile Include="c_ui\workbenches\GeometryPage.cpp">
       <Filter>c_ui\workbenches</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\workbenches\HelpPage.cpp">
-      <Filter>c_ui\workbenches</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\workbenches\MeasurePage.cpp">
       <Filter>c_ui\workbenches</Filter>
     </ClCompile>
@@ -325,56 +351,8 @@
     <ClCompile Include="c_ui\panels\RenderPanel.cpp">
       <Filter>c_ui\panels</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\nav\TabMap.cpp">
-      <Filter>c_ui\nav</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\viewport\ViewportGather.cpp">
       <Filter>c_ui\viewport</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp">
-      <Filter>src\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp">
-      <Filter>src\Data</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp">
-      <Filter>src\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp">
-      <Filter>src\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp">
-      <Filter>src\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp">
-      <Filter>src\Interaction</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Service\AppService.cpp">
-      <Filter>src\Service</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\ColoredPlanesStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\CompositeStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\IsoSurfaceStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\MultiSliceStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\SliceStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Strategies\VolumeStrategy.cpp">
-      <Filter>src\Strategies</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\ImageProcessor.cpp">
-      <Filter>src\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Utils\MemMappedFile.cpp">
-      <Filter>src\Utils</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
       <Filter>c_ui\workspace</Filter>
@@ -396,9 +374,6 @@
     <QtMoc Include="c_ui\workbenches\DocumentPage.h">
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
-    <QtMoc Include="c_ui\app\app.h">
-      <Filter>c_ui\app</Filter>
-    </QtMoc>
     <QtMoc Include="c_ui\workbenches\AlignmentPage.h">
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
@@ -415,9 +390,6 @@
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
     <QtMoc Include="c_ui\workbenches\GeometryPage.h">
-      <Filter>c_ui\workbenches</Filter>
-    </QtMoc>
-    <QtMoc Include="c_ui\workbenches\HelpPage.h">
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
     <QtMoc Include="c_ui\workbenches\MeasurePage.h">

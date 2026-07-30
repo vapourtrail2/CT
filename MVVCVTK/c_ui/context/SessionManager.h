@@ -1,41 +1,55 @@
 #pragma once
-#include <QObject>
-#include <array>
-#include <memory>
-#include <QString>
-#include "Data/DataManager.h"
-#include "App/AppInterfaces.h"
-#include "App/AppState.h"  
-#include "Service/AppService.h"
-#include "Service/VolumeAnalysisService.h"
-//把这一套后端对象，也就是后端的原子操作组起来 变成session 保持同步 供ui使用 其实也就是会话层
-//打开文件
-//创建当前这次加载所需要的后端对象
-//保存“当前数据会话”
-//把这次会话交给各个页面
-struct AppSession
-{
-    std::shared_ptr<AbstractDataManager> dataMgr;// 用抽象接口
-    std::shared_ptr<SharedStateBroadcaster> sharedStateBroadcaster;
-    std::shared_ptr<SharedInteractionState> sharedState; // ban makeshare
-    std::shared_ptr<VolumeAnalysisService> analysisService; // std::function<void(bool)> 
-	std::shared_ptr<MedicalVizService> service;
-    QString sourcePath; // ban
-};
 
-class SessionManager : public QObject
+#include "Host/Types/HostRequestTypes.h"
+#include "Host/VtkAppHostSession.h"
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <QObject>
+#include <QString>
+
+struct HostRequest;
+class VtkAppHostSession;
+
+class SessionManager final /*wsm*/ : public QObject
 {
     Q_OBJECT
 public:
+    enum  class State
+    {
+        Empty,
+        Loading,
+        Ready,
+        Failed
+    };
+    Q_ENUM(State)
+
     explicit SessionManager(QObject* parent = nullptr);
 
-    std::shared_ptr<AppSession> getSession() const { return m_session; }
+    ~SessionManager() override;
+    
+    State getState() const noexcept
+    {
+        return state_;
+    }
 
+    bool gethasData() const noexcept 
+    {
+        return state_ == State::Ready;
+    }
+
+    QString getSourcePath() const noexcept {
+        return sourcePath_;
+    }
+
+    bool initHost(HostSessionConfig config, QString* err = nullptr);
+    
     bool openFile(const QString& path,
         const std::array<float, 3>& spacing,
         const std::array<float,3>& origin ,
         QString* errorOut = nullptr
         );
+
     bool openReconstructedData(
         const float* data,
         const std::array<int, 3>& dims,
@@ -47,11 +61,29 @@ public:
     void clearSession();
 
 signals:
-    void sessionChanged(std::shared_ptr<AppSession> session);
+    void sessionChanged(SessionManager::State state);
+    void loadFinished(bool issucc, QString message);
 
 private:
-    std::shared_ptr<AbstractDataManager> createDataManagerForPath(const QString& path) const;
+    bool resetHost(QString* errorOut);
 
-    std::shared_ptr<AppSession> m_session;
+    bool sendLoadRequest(
+        HostRequest&& request,
+        const QString& sourcePath,
+        QString* errorOut);
+
+    void setState(State state);
+
+
+private:
+    HostSessionConfig config_;
+    bool hasConfig_ = false;
+    
+    std::unique_ptr<VtkAppHostSession> hostSession_;
+  
+    State state_ = State::Empty;
+    std::uint64_t requestGeneration_ = 0;//什么意思
+    QString sourcePath_;
+    QString pendingSourcePath_;//什么意思
 };
 

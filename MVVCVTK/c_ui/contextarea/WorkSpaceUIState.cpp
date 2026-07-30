@@ -20,3 +20,5 @@ void WorkSpaceUIState::setPrimary3DMode(VizMode mode)
     emit primary3DModeChanged(mode);
 }
 
+//考虑将panel放在这里 ?
+

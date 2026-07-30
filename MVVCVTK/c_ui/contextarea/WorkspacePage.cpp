@@ -3,7 +3,7 @@
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
-#include "c_ui/context/DataSet.h"
+
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -70,36 +70,12 @@ RenderPanel* WorkspacePage::getRenderPanel() const
     return renderPanel_;
 }
 
-bool WorkspacePage::bindSession(const Dataset& dataset, QString* err)
+
+HostSessionConfig WorkspacePage::getHostConfig() const
 {
-    if (!dataset.getValid()) {
-        if (err) {
-            *err = QStringLiteral("Invalid session.");
-        }
-        return false;
+    if (!viewportGather_) {
+        return {};
     }
 
-    viewportGather_->initWithData(dataset);
-    sceneTreePanel_->setSession(dataset);
-    renderPanel_->setSession(dataset);
-  
-    return true;
+    return viewportGather_->getHostConfig();
 }
-
-bool WorkspacePage::saveSliceStackAsync(
-    const QString& outputDir,
-    VizMode sliceMode,
-    const double& angle,
-    std::function<void(bool)> onComplete)    
-{
-    return viewportGather_->saveSliceStackAsync(outputDir, sliceMode, angle, std::move(onComplete));
-}
-
-bool WorkspacePage::saveTransformedDataAsync(
-    const QString& outputPath,
-    std::function<void(bool)> onComplete) 
-{
-    return viewportGather_->saveTransformedDataAsync(outputPath, std::move(onComplete));
-}
-
-

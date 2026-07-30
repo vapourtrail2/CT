@@ -107,36 +107,62 @@ std::optional<Point3> MeasurementInteractionHandler::DisplayToPhysical(int x, in
     auto displayToWorld = [this, x, y](double z) -> std::optional<Point3> {
         m_renderer->SetDisplayPoint(static_cast<double>(x), static_cast<double>(y), z);
         m_renderer->DisplayToWorld();
-        double* homogeneous = m_renderer->GetWorldPoint();
-        if (!homogeneous || std::abs(homogeneous[3]) <= 1e-12) {
+        double* worldpoint = m_renderer->GetWorldPoint();
+        if (!worldpoint || std::abs(worldpoint[3]) <= 1e-12) {
             return std::nullopt;
         }
         return Point3{
-            homogeneous[0] / homogeneous[3],
-            homogeneous[1] / homogeneous[3],
-            homogeneous[2] / homogeneous[3]
+            worldpoint[0] / worldpoint[3],
+            worldpoint[1] / worldpoint[3],
+            worldpoint[2] / worldpoint[3]
         };
     };
 
-    const auto nearPoint = displayToWorld(0.0);
-    const auto farPoint = displayToWorld(1.0);
+    const auto nearPoint = displayToWorld(0.0);//近 远裁剪面 相机能显示的最近和最远边界 别的没必要显示
+    const auto farPoint = displayToWorld(1.0);// 计算射线用的
     if (!nearPoint || !farPoint) {
         return std::nullopt;
     }
 
-    const Point3 direction = geometry::Subtract(*farPoint, *nearPoint);
+    const Point3 direction = geometry::Subtract(*farPoint, *nearPoint);//表示鼠标射线从近裁剪面指向远裁剪面的方向
+    for (size_t i = 0; i < direction.size(); i++)
+    {
+        std::cout << direction[i] <<  " ";
+    }
+
     const Point3 normal = GetSliceViewDescriptor(m_view).normal;
+    /*   normal = { 0, 0, 1 }; //法向量朝Z xy平面
+    u = { 1, 0, 0 };
+    v = { 0, 1, 0 };*/
+
     const auto cursor = m_service->GetCursorWorld();
     const Point3 planeOrigin{ cursor[0], cursor[1], cursor[2] };
+    
+    //判断射线是否平行于平面  点积= 0 射线和平面平行 不相交
+    //计算射线在“垂直切片方向”上的移动量
     const double denominator = geometry::Dot(normal, direction);
     if (std::abs(denominator) <= 1e-12) {
         return std::nullopt;
     }
 
-    const double t = geometry::Dot(normal, geometry::Subtract(planeOrigin, *nearPoint)) / denominator;
-    const Point3 worldPoint = geometry::Add(*nearPoint, geometry::Scale(direction, t));
+    //计算从 nearPoint 出发，沿 direction 走多少，才能到达当前切片平面
+    const Point3 v1 =
+        geometry::Subtract(planeOrigin, *nearPoint);
+
+    const double v2 =   
+        geometry::Dot(normal, v1); // 射线到达切片所需要的法线方向移动量
+
+    const double v3 = 
+        geometry::Dot(normal, direction);   //射线参数每前进 1，能在法线方向前进多少 
+
+    const double v4 =
+        v2 / v3;//射线需要前进的倍率
+
+    const Point3 worldPoint = geometry::Add(*nearPoint, geometry::Scale(direction, v4));
+
     double world[3] = { worldPoint[0], worldPoint[1], worldPoint[2] };
-    double physical[3] = { 0.0, 0.0, 0.0 };
+    double physical[3] = { 0.0, 0.0, 0.0 }; 
+
     m_service->GetModelPositionFromWorld(world, physical);
     const Point3 result{ physical[0], physical[1], physical[2] };
     return IsInsideImage(result) ? std::optional<Point3>(result) : std::nullopt;

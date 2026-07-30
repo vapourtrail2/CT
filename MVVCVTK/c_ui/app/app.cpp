@@ -1,16 +1,20 @@
 #include "c_ui/app/app.h"
+#include "c_ui/MainWindow.h"
 #include <QApplication>
 #include <QCoreApplication>
 #include <QFontDatabase>
 #include <QLoggingCategory>
 #include <QPalette>
 #include <QStyleFactory>
-#include "c_ui/MainWindow.h"
+#include <QSurfaceFormat>
+#include <QVTKOpenGLNativeWidget.h>
 
 App::App() = default;
 
 int App::run(int argc, char** argv)
 {
+    QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+
     QApplication qtApp(argc, argv);
     applyGlobalStyle();
 

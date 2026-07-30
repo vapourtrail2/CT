@@ -10,7 +10,7 @@
 #include <array>
 #include <memory>
 #include <QDoubleSpinBox>
-#include "c_ui/qt/QtRenderContext.h"
+
 #include "c_ui/command/commands.h"
 #include "c_ui/context/AppContext.h"
 
@@ -29,7 +29,7 @@ class WindowPage;
 class ReportPage;
 class AnimationPage;
 
-struct AppSession;
+
 class RenderPanel;
 class SceneTreePanel;
 class TabMap;
@@ -65,7 +65,12 @@ private:
     void connectDocumentSignals();
 
     void connectAppSignals();
-    void handleSessionChanged(const std::shared_ptr<AppSession>& session);
+    void handleSessionChanged(
+        SessionManager::State state);
+
+    void handleLoadFinished(
+        bool issucc,
+        QString message);
 
     void setCommands();
 
@@ -91,7 +96,7 @@ private:
     QPointer<DocumentPage> pageDocument_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;
-	QPointer<QtRenderContext> renderContext_;
+
 
     UiState buildUiState(int index) const;
     void applyUiState(const UiState& state);
@@ -99,7 +104,6 @@ private:
     UIReconstruct3D* uiRecon3d_ = nullptr;  
 
     QPointer<QProgressDialog> ProgressDialog_;
-    std::shared_ptr<void> loadNotifyToken_;//进度条   
 
     QPointer<WorkspacePage> workspacePage_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;

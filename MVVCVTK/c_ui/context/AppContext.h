@@ -1,41 +1,37 @@
 #pragma once
+
 #include "c_ui/command/Commands.h"
 #include "c_ui/context/SessionManager.h"
-#include "c_ui/context/Dataset.h"
 
-// 应用中枢：被注入到各处的“唯一共享对象”
-// 现在先持有命令表；后续会持有 Dataset（打开的数据）/ State 句柄等，
-// 让面板和选项卡只依赖“它一个”
-class AppContext {
+class AppContext
+{
 public:
-	Commands& getCommands() {
-		return commands_;
-	}
-	const Commands& getCommands() const{
-		return commands_;
-	}// 什么意思
+    Commands& getCommands()
+    {
+        return commands_;
+    }
 
-	SessionManager& getSessionManager() {
-		return sessionManager_;
-	}
-	const SessionManager& getSessionManager() const {
-		return sessionManager_;
-	}
+    const Commands& getCommands() const
+    {
+        return commands_;
+    }
 
-	Dataset getDataset() const {
-		return Dataset(sessionManager_.getSession());
-	}
+    SessionManager& getSessionManager()
+    {
+        return sessionManager_;
+    }
 
-	std::shared_ptr<AppSession> getSession() const {
-		return sessionManager_.getSession();
-	}
+    const SessionManager& getSessionManager() const
+    {
+        return sessionManager_;
+    }
 
-	bool hasData()	const {
-		const auto s = getSession();
-		return s && s->dataMgr && s->sharedState;
-	}
-	
+    bool hasData() const
+    {
+        return sessionManager_.gethasData();
+    }
+
 private:
-	Commands commands_;
-	SessionManager sessionManager_;
+    Commands commands_;
+    SessionManager sessionManager_;
 };

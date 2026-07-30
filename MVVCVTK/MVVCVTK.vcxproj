@@ -214,6 +214,16 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\TimeUpdateHandler.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer2DHandler.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Platform\MemMappedFile.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Platform\Path.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\RenderEffect.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\BaseVisualStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\ColoredPlanesStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\CompositeStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\IsoSurfaceStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\SliceStrategy.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\VolumeStrategy.h" />
     <ClInclude Include="c_ui\command\commands.h" />
     <ClInclude Include="c_ui\context\AppContext.h" />
     <ClInclude Include="c_ui\context\DataSet.h" />

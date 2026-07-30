@@ -237,6 +237,36 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\Viewer3DHandler.h">
       <Filter>include\Interaction</Filter>
     </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Platform\MemMappedFile.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Platform\Path.h">
+      <Filter>include\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\RenderEffect.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\StdRenderContext.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\BaseVisualStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\ColoredPlanesStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\CompositeStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\IsoSurfaceStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\SliceStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\VolumeStrategy.h">
+      <Filter>include\Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="measure\MeasureToolDialog.cpp">
@@ -266,6 +296,30 @@
     <ClCompile Include="c_ui\workbenches\common\RibbonBuilder.cpp">
       <Filter>c_ui\ribbon</Filter>
     </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Services\AppService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataExportTaskService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataLoadTaskService.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\ImageProcessor.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\VolumeTypes.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostCommandRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostHotkeyRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostRenderViewSet.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\VtkAppHostSession.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InputCallbackHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Platform\MemMappedFile.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\StdRenderContext.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\ColoredPlanesStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\CompositeStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\IsoSurfaceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\SliceStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\qt\QtRenderContext.h">

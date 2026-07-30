@@ -196,9 +196,27 @@ void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayou
 	buildEmptyPage();
 }
 
-void CTViewer::buildWorkspacePage() {
-    workspacePage_ = new WorkspacePage(secondstack_);
+void CTViewer::buildWorkspacePage()
+{
+    workspacePage_ =
+        new WorkspacePage(secondstack_);
+
     secondstack_->addWidget(workspacePage_);
+
+    QString err;
+
+    const bool ok =
+        context_.getSessionManager().initHost(
+            workspacePage_->getHostConfig(),
+            &err);
+
+    if (!ok) {
+        statusBar()->showMessage(
+            err.isEmpty()
+            ? QStringLiteral("Host 初始化失败。")
+            : err,
+            5000);
+    }
 }
 
 void CTViewer::buildEmptyPage() {
@@ -281,11 +299,22 @@ void CTViewer::showMeasureToolsDialog()
     dialog.exec();  
 }
 
-void CTViewer::connectAppSignals() {
-    connect(&context_.getSessionManager(), &SessionManager::sessionChanged, this,//
-        [this](const std::shared_ptr<AppSession>& session) {
-            handleSessionChanged(session);
-        });
+void CTViewer::connectAppSignals()
+{
+    auto& sessionManager =
+        context_.getSessionManager();
+
+    connect(
+        &sessionManager,
+        &SessionManager::sessionChanged,
+        this,
+        &CTViewer::handleSessionChanged);
+
+    connect(
+        &sessionManager,
+        &SessionManager::loadFinished,
+        this,
+        &CTViewer::handleLoadFinished);
 }
 
 //优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
@@ -619,89 +648,60 @@ void CTViewer::setCloseProgressDialog()
     ProgressDialog_.clear();
 }
 
-void CTViewer::handleSessionChanged(const std::shared_ptr<AppSession>& session)
+void CTViewer::handleSessionChanged(
+    SessionManager::State state)
 {
-    if (!workspacePage_) {
-        return; 
+    Q_UNUSED(state);
+
+    if (!tabBar_) {
+        return;
     }
 
-    if (!session) {
-        if (ProgressDialog_) {
-			setCloseProgressDialog();
+    applyUiState(
+        buildUiState(tabBar_->currentIndex()));
+}
+
+void CTViewer::handleLoadFinished(
+    bool issucc,
+    QString message)
+{
+    setCloseProgressDialog();
+
+    if (!issucc) {
+        const QString errorMessage =
+            message.isEmpty()
+            ? QStringLiteral("加载失败。")
+            : message;
+
+        if (pageDocument_) {
+            pageDocument_->notifyFail(errorMessage);
         }
 
-        loadNotifyToken_.reset();
+        statusBar()->showMessage(
+            errorMessage,
+            3000);
 
         if (tabBar_) {
-            applyUiState(buildUiState(tabBar_->currentIndex()));
+            applyUiState(
+                buildUiState(tabBar_->currentIndex()));
         }
+
         return;
     }
 
-	const Dataset dataset(session);
-
-    QString err;
-    const bool ok = workspacePage_->bindSession(dataset, &err);
-
-    if (!ok) {
-        if (ProgressDialog_) {
-            setCloseProgressDialog();
-        }
-
-        loadNotifyToken_.reset();
-
-        if (auto* bar = statusBar()) {
-            bar->showMessage(
-                err.isEmpty() ? QStringLiteral("Failed to bind workspace session.") : err,
-                3000);
-        }
-        return;
+    if (pageDocument_) {
+        pageDocument_->notifySucc();
     }
 
-    loadNotifyToken_ = std::make_shared<int>(1);
-
-    if (auto broadcaster = dataset.getBroadcaster()) {
-        broadcaster->SetObserver(loadNotifyToken_, [this](UpdateFlags flags) {
-            if (HasFlag(flags, UpdateFlags::DataReady)) {
-                QMetaObject::invokeMethod(this, [this]() {
-                    if (ProgressDialog_) {
-                        setCloseProgressDialog();
-                    }
-
-                    loadNotifyToken_.reset();
-
-                    if (pageDocument_) {
-                        pageDocument_->notifySucc();
-                    }
-                    }, Qt::QueuedConnection);
-                return;
-            }
-
-            if (HasFlag(flags, UpdateFlags::LoadFailed)) {
-                QMetaObject::invokeMethod(this, [this]() {
-                    if (ProgressDialog_) {
-                        setCloseProgressDialog();
-                    }
-
-                    loadNotifyToken_.reset();
-
-                    if (pageDocument_) {
-                        pageDocument_->notifyFail(QStringLiteral("加载失败"));
-                    }
-
-                    if (auto* bar = statusBar()) {
-                        bar->showMessage(QStringLiteral("加载失败"), 3000);
-                    }
-                    }, Qt::QueuedConnection);
-            }
-            });
-    }
-
-
-    if (tabBar_->currentIndex() == TabIndex::File) {
+    if (tabBar_
+        && tabBar_->currentIndex() == TabIndex::File) {
         tabBar_->setCurrentIndex(TabIndex::Start);
         return;
     }
 
-    applyUiState(buildUiState(tabBar_->currentIndex()));
+    if (tabBar_) {
+        applyUiState(
+            buildUiState(tabBar_->currentIndex()));
+    }
 }
+

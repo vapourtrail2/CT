@@ -7,8 +7,6 @@
 #include <QString>
 #include <QWidget>
 
-struct Dataset;
-
 class QSplitter;
 class ViewportGather;
 class SceneTreePanel;
@@ -26,6 +24,16 @@ public:
 
 	HostSessionConfig getHostConfig() const;
 
+	void setDataState(
+		bool hasData,
+		const QString& sourcePath);
+
+signals:
+	void primary3DModeRequested(
+		HostRenderMode mode);
+
+	void visibilityRequested(
+		HostVisibilityParams visibility);
 private:
 	void buildUi();	
 

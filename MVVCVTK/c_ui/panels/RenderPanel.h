@@ -6,14 +6,9 @@
 #include <QPixmap>
 #include <QSlider>
 #include <QWidget>
-#include <memory>
 
-#include "App/AppState.h"
-#include "c_ui/context/DataSet.h"
+#include "Host/Types/HostValueTypes.h"
 
-
-struct AppSession;
-class VolumeAnalysisService;
 class WorkSpaceUIState;
 
 class RenderPanel : public QWidget
@@ -23,18 +18,18 @@ public:
     explicit RenderPanel(QWidget* parent = nullptr);
     ~RenderPanel() override;
 
-    void setSession(const Dataset& dataset);
     void setWorkSpaceUIState(WorkSpaceUIState* state);
+
+signals:
+    void visibilityRequested(
+        HostVisibilityParams visibility);
+    
 
 protected:
     void resizeEvent(QResizeEvent* e) override;
     
 
 private:
-    void setSharedState(const std::shared_ptr<SharedInteractionState>& state,
-                        const std::shared_ptr<SharedStateBroadcaster>& broadcaster);
-    void setAnalysisService(const std::shared_ptr<VolumeAnalysisService>& analysis);
-    void syncFromState(UpdateFlags flags);
     void applyHistogramPixmap();
     void rebuildHistogramPixmap();
     double currentScalarSpan() const;
@@ -56,15 +51,9 @@ private:
     QSlider* windowWidthSlider_ = nullptr;
     QSlider* windowCenterSlider_ = nullptr;
     QComboBox* renderMode_ = nullptr;
-    QCheckBox* clipPlanesToggle_ = nullptr;
+    QCheckBox* mprPlanesToggle_ = nullptr;
     QCheckBox* crosshairToggle_ = nullptr;
     QCheckBox* rulerAxesToggle_ = nullptr;
-
-
-    std::shared_ptr<SharedInteractionState> state_;
-	std::shared_ptr<SharedStateBroadcaster> broadcaster_;
-    std::shared_ptr<VolumeAnalysisService> analysis_;
-    std::shared_ptr<void> lifeToken_;
 
     bool updatingUi_ = false;
 

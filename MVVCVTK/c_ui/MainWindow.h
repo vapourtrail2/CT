@@ -54,40 +54,33 @@ private:
     void buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout);
     void buildRibbonTabs();
-
     void buildRibbonStack(QWidget* totalContainer, QVBoxLayout* rootLayout);
     void buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayout);
     void buildWorkspacePage();
     void buildEmptyPage();
     void applyInitialUiState();
-
     void connectTabSignals();
     void connectDocumentSignals();
-
     void connectAppSignals();
     void handleSessionChanged(
         SessionManager::State state);
-
     void handleLoadFinished(
         bool issucc,
         QString message);
-
     void setCommands();
-
     void onTabChanged(int index);
-
     void onOpenRequested(const QString& path, 
         const std::array<float,3> & spacing,
         const std::array<float,3>& origin);
     void showSaveSliceStackDialog();
     void showSaveTransformedDataDialog();
     void showMeasureToolsDialog();
-
     void setOpenProgressDialog(const QString& text, const QString& title);
     void setCloseProgressDialog();
     void setRibbonPage(RibbonPage* page);
-
     void openCtReconUi();
+    void setPrimary3DMode(HostRenderMode mode);
+    void setVisibility(HostVisibilityParams visibility);
 
 private:
     QPointer<QWidget> whatEmpty_;

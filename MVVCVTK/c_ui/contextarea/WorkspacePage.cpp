@@ -3,8 +3,6 @@
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
-
-
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QSizePolicy>
@@ -45,7 +43,28 @@ void WorkspacePage::buildUi() {
 
     workSpaceUIState_ = new WorkSpaceUIState(this);
     renderPanel_->setWorkSpaceUIState(workSpaceUIState_);
-    connect(workSpaceUIState_, &WorkSpaceUIState::primary3DModeChanged, viewportGather_, &ViewportGather::setPrimary3DMode);
+    connect(
+        renderPanel_,
+        &RenderPanel::visibilityRequested,
+        this,
+        &WorkspacePage::visibilityRequested);
+
+    connect(
+        workSpaceUIState_,
+        &WorkSpaceUIState::primary3DModeChanged,
+        this,
+        [this](VizMode mode) {
+            if (mode == VizMode::CompositeVolume) {
+                emit primary3DModeRequested(
+                    HostRenderMode::CompositeVolume);
+                return;
+            }
+
+            if (mode == VizMode::CompositeIsoSurface) {
+                emit primary3DModeRequested(
+                    HostRenderMode::CompositeIsoSurface);
+            }
+        });
     
     viewportGather_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
     //安装
@@ -78,4 +97,13 @@ HostSessionConfig WorkspacePage::getHostConfig() const
     }
 
     return viewportGather_->getHostConfig();
+}
+
+void WorkspacePage::setDataState(
+    bool hasData,
+    const QString& sourcePath)
+{
+    sceneTreePanel_->setDataState(
+            hasData,
+            sourcePath);
 }

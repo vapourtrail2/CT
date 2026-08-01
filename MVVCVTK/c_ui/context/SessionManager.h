@@ -58,6 +58,10 @@ public:
         const QString& sourcePath,  
         QString* errorOut = nullptr);
 
+    bool sendRequest(
+        HostRequest&& request,
+        HostCompleteCallback onComplete = nullptr);
+
     void clearSession();
 
 signals:

@@ -233,7 +233,10 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\MainWindow.h" />
     <QtMoc Include="c_ui\panels\SceneTreePanel.h" />
     <QtMoc Include="c_ui\panels\RenderPanel.h" />
-    <ClInclude Include="c_ui\qt\QtRenderContext.h" />
+    <ClInclude Include="c_ui\qt\QtRenderContext.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <QtMoc Include="c_ui\workbenches\AlignmentPage.h" />
     <QtMoc Include="c_ui\workbenches\AnalysisPage.h" />
     <QtMoc Include="c_ui\workbenches\AnimationPage.h" />
@@ -250,15 +253,42 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\workbenches\StartPage.h" />
     <QtMoc Include="c_ui\workbenches\VolumePage.h" />
     <QtMoc Include="c_ui\workbenches\WindowPage.h" />
-    <ClInclude Include="measure\MeasureToolDialog.h" />
-    <ClInclude Include="measure\MeasurementGeometry.h" />
-    <ClInclude Include="measure\MeasurementInteractionHandler.h" />
-    <ClInclude Include="measure\MeasurementOverlayStrategy.h" />
-    <ClInclude Include="measure\MeasurementSession.h" />
-    <ClInclude Include="measure\MeasurementToolDefinition.h" />
-    <ClInclude Include="measure\MeasurementTypes.h" />
-    <ClInclude Include="measure\MeasurementView.h" />
-    <ClInclude Include="measure\MeasurementZoomHandler.h" />
+    <ClInclude Include="measure\MeasureToolDialog.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementGeometry.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementInteractionHandler.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementOverlayStrategy.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementSession.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementToolDefinition.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementTypes.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementZoomHandler.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp" />
@@ -287,13 +317,19 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
     <ClCompile Include="c_ui\context\SessionManager.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
-    <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp" />
+    <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp" />
     <ClCompile Include="c_ui\main.cpp" />
     <ClCompile Include="c_ui\MainWindow.cpp" />
     <ClCompile Include="c_ui\panels\RenderPanel.cpp" />
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
-    <ClCompile Include="c_ui\qt\QtRenderContext.cpp" />
+    <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="c_ui\ribbon\RibbonPage.cpp" />
     <ClCompile Include="c_ui\windows\TitleBar.cpp" />
     <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp" />
@@ -313,14 +349,38 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\workbenches\StartPage.cpp" />
     <ClCompile Include="c_ui\workbenches\VolumePage.cpp" />
     <ClCompile Include="c_ui\workbenches\WindowPage.cpp" />
-    <ClCompile Include="measure\MeasureToolDialog.cpp" />
-    <ClCompile Include="measure\MeasurementGeometry.cpp" />
-    <ClCompile Include="measure\MeasurementInteractionHandler.cpp" />
-    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp" />
-    <ClCompile Include="measure\MeasurementSession.cpp" />
-    <ClCompile Include="measure\MeasurementToolDefinition.cpp" />
-    <ClCompile Include="measure\MeasurementView.cpp" />
-    <ClCompile Include="measure\MeasurementZoomHandler.cpp" />
+    <ClCompile Include="measure\MeasureToolDialog.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementGeometry.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementInteractionHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementOverlayStrategy.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementSession.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementToolDefinition.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="measure\MeasurementZoomHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

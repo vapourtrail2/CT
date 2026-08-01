@@ -5,8 +5,10 @@
 #include <QMetaObject>
 #include <QPointer>
 
-#include <limits>
 #include <array>
+#include <limits>
+#include <utility>
+
 
 void setError(QString* err,QString message) {
     if(err)
@@ -161,6 +163,17 @@ bool SessionManager::openReconstructedData(
         std::move(request),
         displayPath,
         errorOut);
+}
+
+bool SessionManager::sendRequest(HostRequest&& request, HostCompleteCallback onComplete)
+{
+    if (!hostSession_) {
+        return false;
+    }
+
+    return hostSession_->SendRequest(
+        std::move(request),
+        std::move(onComplete));
 }
 
 bool SessionManager::sendLoadRequest(

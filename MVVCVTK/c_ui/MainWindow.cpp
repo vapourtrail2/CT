@@ -1,4 +1,5 @@
 #include "c_ui/context/SessionManager.h"
+#include "Host/Types/HostRequestTypes.h"
 #include "c_ui/contextarea/WorkspacePage.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
@@ -7,11 +8,12 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
-#include "measure/MeasureToolDialog.h"
+
 #include "uireconstruct3d.h"
 
 #include <algorithm>
 #include <array>
+#include <utility>
 #include <QApplication>
 #include <QComboBox>
 #include <QDebug>
@@ -203,6 +205,18 @@ void CTViewer::buildWorkspacePage()
 
     secondstack_->addWidget(workspacePage_);
 
+    connect(
+        workspacePage_,
+        &WorkspacePage::primary3DModeRequested,
+        this,
+        &CTViewer::setPrimary3DMode);
+
+    connect(
+        workspacePage_,
+        &WorkspacePage::visibilityRequested,
+        this,
+        &CTViewer::setVisibility);
+
     QString err;
 
     const bool ok =
@@ -283,8 +297,7 @@ void CTViewer::setCommands()
 
 void CTViewer::showMeasureToolsDialog()
 {
-    const auto session = context_.getSession();
-    if (!session || !session->dataMgr || !session->sharedState || !context_.hasData()) {
+    if (!context_.hasData()) {
         QMessageBox::warning(
             this,
             QStringLiteral("二维测量"),
@@ -292,11 +305,12 @@ void CTViewer::showMeasureToolsDialog()
         return;
     }
 
-    measure::MeasureToolDialog dialog(
-        session->dataMgr,
-        session->sharedState,
-        this);
-    dialog.exec();  
+    QMessageBox::information(
+        this,
+        QStringLiteral("二维测量"),
+        QStringLiteral(
+            "二维测量正在迁移到新版 Host 接口，"
+            "当前版本暂不可用。"));
 }
 
 void CTViewer::connectAppSignals()
@@ -427,9 +441,9 @@ void CTViewer::showSaveSliceStackDialog()
 
     auto* form = new QFormLayout();
     auto* direction = new QComboBox(&dialog);
-    direction->addItem(QStringLiteral("从上到下(轴向)"), static_cast<int>(VizMode::SliceTop_down));
-    direction->addItem(QStringLiteral("从前到后(径向)"), static_cast<int>(VizMode::SliceFront_back));
-    direction->addItem(QStringLiteral("从左到右(切向)"), static_cast<int>(VizMode::SliceLeft_right));
+    direction->addItem(QStringLiteral("从上到下(轴向)"), static_cast<int>(HostRenderViewRole::TopDownSlice));
+    direction->addItem(QStringLiteral("从前到后(径向)"), static_cast<int>(HostRenderViewRole::FrontBackSlice));
+    direction->addItem(QStringLiteral("从左到右(切向)"), static_cast<int>(HostRenderViewRole::LeftRightSlice));
 
     form->addRow(QStringLiteral("方向:"), direction);
   
@@ -466,7 +480,7 @@ void CTViewer::showSaveSliceStackDialog()
             return;
         }
 
-        const auto mode = static_cast<VizMode>(direction->currentData().toInt());
+        const auto viewRole = static_cast<HostRenderViewRole>(direction->currentData().toInt());
         const auto angleValue = static_cast<double>(angle->value());
 
         saveButton->setEnabled(false);
@@ -476,29 +490,39 @@ void CTViewer::showSaveSliceStackDialog()
         QPointer<QLabel> statusPtr(statusLabel);
         QPointer<QPushButton> saveButtonPtr(saveButton);
 
-        const bool started = workspacePage_->saveSliceStackAsync(
-            dir,
-            mode,
-            angleValue,
-            [this,dialogPtr, statusPtr, saveButtonPtr](bool ok) {
-                QMetaObject::invokeMethod(qApp, [this,dialogPtr, statusPtr, saveButtonPtr, ok]() {
-                    setCloseProgressDialog();
+        HostSliceExportRequest request;
 
-                    if (statusPtr) {
-                        statusPtr->setText(ok
-                            ? QStringLiteral("保存完成。")
-                            : QStringLiteral("保存失败。"));
-                    }
+        request.outputDir = dir.toUtf8().toStdString();
+        request.sourceView.isViewRoleUsed = true;
+        request.sourceView.viewRole = viewRole;
+        request.angleDeg = angleValue;
 
-                    if (saveButtonPtr) {
-                        saveButtonPtr->setEnabled(true);
-                    }
+        const bool started =
+            context_.getSessionManager().sendRequest(
+                std::move(request),
+                [this, dialogPtr, statusPtr, saveButtonPtr](bool ok) {
+                    QMetaObject::invokeMethod(
+                        qApp,
+                        [this, dialogPtr, statusPtr, saveButtonPtr, ok]() {
+                            setCloseProgressDialog();
 
-                    if (ok) {
-                        dialogPtr->accept();
-                    }
-                    }, Qt::QueuedConnection);
-            });
+                            if (statusPtr) {
+                                statusPtr->setText(
+                                    ok
+                                    ? QStringLiteral("保存完成。")
+                                    : QStringLiteral("保存失败。"));
+                            }
+
+                            if (saveButtonPtr) {
+                                saveButtonPtr->setEnabled(true);
+                            }
+
+                            if (ok && dialogPtr) {
+                                dialogPtr->accept();
+                            }
+                        },
+                        Qt::QueuedConnection);
+                });
 
         if (!started) {
             setCloseProgressDialog();
@@ -513,47 +537,70 @@ void CTViewer::showSaveSliceStackDialog()
 //保存图像
 void CTViewer::showSaveTransformedDataDialog()
 {
-    if (!workspacePage_->getViewportGather() || !context_.hasData()) {
-        QMessageBox::warning(this, QStringLiteral("保存图像"), QStringLiteral("请先加载数据。"));
+    if (!context_.hasData()) {
+        QMessageBox::warning(
+            this,
+            QStringLiteral("保存图像"),
+            QStringLiteral("请先加载数据。"));
         return;
     }
 
-    const QString path = QFileDialog::getSaveFileName(
-        this,
-        QStringLiteral("保存图像"),
-        QString(),
-        QStringLiteral("RAW 文件 (*.raw);;所有文件 (*.*)"));
+    const QString dir =
+        QFileDialog::getExistingDirectory(
+            this,
+            QStringLiteral("选择保存目录"));
 
-    if (path.isEmpty()) {
+    if (dir.isEmpty()) {
         return;
     }
 
-    if (auto* bar = statusBar()) {
-        setOpenProgressDialog(
-            QStringLiteral("saving..."),
-            QStringLiteral("saving"));
-    }
+    setOpenProgressDialog(
+        QStringLiteral("saving..."),
+        QStringLiteral("saving"));
 
+    HostDataExportRequest request;
+
+    request.outputPath = dir.toUtf8().toStdString();
+    request.format = HostDataExportFormat::Raw;
+    request.sourceView.isViewRoleUsed = true;
+    request.sourceView.viewRole = HostRenderViewRole::Primary3D;
     QPointer<CTViewer> self(this);
 
-    const bool started = workspacePage_->saveTransformedDataAsync(
-        path,
-        [this,self](bool ok) {
-            QMetaObject::invokeMethod(qApp, [this,self, ok]() {
-                
-                setCloseProgressDialog();
-                if (auto* bar = self->statusBar()) {
-                    bar->showMessage(
-                        ok ? QStringLiteral("保存完成。") : QStringLiteral("保存失败。"),
-                        3000);
+    const bool started =
+        context_.getSessionManager().sendRequest(
+            std::move(request),
+            [self](bool ok) {
+                if (!self) {
+                    return;
                 }
-                }, Qt::QueuedConnection);
-        });
+
+                QMetaObject::invokeMethod(
+                    self.data(),
+                    [self, ok]() {
+                        if (!self) {
+                            return;
+                        }
+
+                        self->setCloseProgressDialog();
+
+                        if (auto* bar = self->statusBar()) {
+                            bar->showMessage(
+                                ok
+                                ? QStringLiteral("保存完成。")
+                                : QStringLiteral("保存失败。"),
+                                3000);
+                        }
+                    },
+                    Qt::QueuedConnection);
+            });
 
     if (!started) {
-		setCloseProgressDialog();
+        setCloseProgressDialog();
+
         if (auto* bar = statusBar()) {
-            bar->showMessage(QStringLiteral("保存任务启动失败。"), 3000);
+            bar->showMessage(
+                QStringLiteral("保存任务启动失败。"),
+                3000);
         }
     }
 }
@@ -617,6 +664,56 @@ void CTViewer::openCtReconUi()
     uiRecon3d_->activateWindow();
 }
 
+void CTViewer::setPrimary3DMode(
+    HostRenderMode mode)
+{
+    if (!context_.hasData()) {
+        return;
+    }
+
+    HostViewSetRequest request;
+    request.targetView.isViewRoleUsed = true;
+    request.targetView.viewRole =
+        HostRenderViewRole::Primary3D;
+    request.mode = mode;
+    const bool started =
+        context_.getSessionManager().sendRequest(
+            std::move(request));
+
+    if (!started) {
+        statusBar()->showMessage(
+            QStringLiteral("切换三维渲染模式失败。"),
+            3000);
+    }
+}
+
+void CTViewer::setVisibility(
+    HostVisibilityParams visibility)
+{
+    if (!context_.hasData()) {
+        return;
+    }
+
+    HostViewSetRequest request;
+
+    request.targetView.isViewRoleUsed = true;
+    request.targetView.viewRole =
+        HostRenderViewRole::Primary3D;
+
+    request.visibility =
+        std::move(visibility);
+
+    const bool started =
+        context_.getSessionManager().sendRequest(
+            std::move(request));
+
+    if (!started) {
+        statusBar()->showMessage(
+            QStringLiteral("修改显示状态失败。"),
+            3000);
+    }
+}
+
 void CTViewer::setOpenProgressDialog(const QString& text, const QString& title)
 {   
     setCloseProgressDialog();
@@ -651,7 +748,11 @@ void CTViewer::setCloseProgressDialog()
 void CTViewer::handleSessionChanged(
     SessionManager::State state)
 {
-    Q_UNUSED(state);
+    if (workspacePage_) {
+        workspacePage_->setDataState(
+            state == SessionManager::State::Ready,
+            context_.getSessionManager().getSourcePath());
+    }
 
     if (!tabBar_) {
         return;
@@ -704,4 +805,3 @@ void CTViewer::handleLoadFinished(
             buildUiState(tabBar_->currentIndex()));
     }
 }
-

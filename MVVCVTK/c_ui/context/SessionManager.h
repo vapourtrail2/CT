@@ -15,7 +15,7 @@ class SessionManager final /*wsm*/ : public QObject
 {
     Q_OBJECT
 public:
-    enum  class State
+    enum class State
     {
         Empty,
         Loading,
@@ -46,7 +46,7 @@ public:
     
     bool openFile(const QString& path,
         const std::array<float, 3>& spacing,
-        const std::array<float,3>& origin ,
+        const std::array<float,3>& origin,
         QString* errorOut = nullptr
         );
 
@@ -76,8 +76,9 @@ private:
         const QString& sourcePath,
         QString* errorOut);
 
-    void setState(State state);
+    void finishLoadRequest(std::uint64_t generation, bool isSuccess);
 
+    void setState(State state);
 
 private:
     HostSessionConfig config_;

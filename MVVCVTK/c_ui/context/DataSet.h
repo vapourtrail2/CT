@@ -34,7 +34,7 @@
 //    bool getImage() const {
 //        return session_ && session_->dataMgr && session_->dataMgr->GetVtkImage();
 //    }
-//
+//	
 //    std::array<int, 3> getDims() const {
 //        std::array<int, 3> d{ 0, 0, 0 };
 //        if (getImage()) {

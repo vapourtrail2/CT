@@ -25,16 +25,11 @@ void AddHostView(
 
         view.id = std::move(id);
         view.role = role;
-
         view.window.title = view.id;
         view.window.isAxesVisible = isAxesVisible;
         view.window.viewInit.viewMode = mode;
-
-        // Qt持有窗口
         view.renderWindow = vtkWidget->renderWindow();
-
-        // Qt已经有 QApplication 事件循环，不能让 core 再启动一个。
-        view.isEventLoopEnabled = false;
+        view.isEventLoopEnabled = false; // Qt已经有 QApplication 事件循环，不能让 core 再启动一个。
 
         config.renderViews.push_back(std::move(view));
 }
@@ -77,7 +72,6 @@ HostSessionConfig ViewportGather::getHostConfig() const
         ? HostRenderMode::CompositeVolume
         : HostRenderMode::CompositeIsoSurface;
 
-    // Primary3D 必须放在拓扑中，并作为加载请求使用的主视图。
     AddHostView(
         config,
         m_view3d.data(),
@@ -133,13 +127,8 @@ QWidget* ViewportGather::createViewportContainer(
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    vtkWidget =
-        new QVTKOpenGLNativeWidget(container);
-
-    // 必须显式创建 Qt 能使用的 OpenGL RenderWindow。
-    auto renderWindow =
-        vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-
+    vtkWidget = new QVTKOpenGLNativeWidget(container);
+    auto renderWindow =  vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     vtkWidget->setRenderWindow(renderWindow);
 
     auto* button = new QToolButton(container);
@@ -212,7 +201,7 @@ void ViewportGather::setViewportLayout()
     auto* axial = viewAxialContainer_.data();
     auto* sagittal = viewSagittalContainer_.data();
     auto* coronal = viewCoronalContainer_.data();
-    auto* view3d = view3DContainer_.data();
+    auto* view3d = view3DContainer_.data(); 
 
     auto place = [this](
         QWidget* widget,

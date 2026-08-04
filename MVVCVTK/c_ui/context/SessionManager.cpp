@@ -43,8 +43,6 @@ SessionManager::SessionManager(QObject* parent)
 
 SessionManager::~SessionManager() = default;
 
-
-
 bool SessionManager::initHost(HostSessionConfig config, QString* err)
 {
     if (config.renderViews.empty()) {
@@ -201,37 +199,23 @@ bool SessionManager::sendLoadRequest(
     pendingSourcePath_ = sourcePath;
     setState(State::Loading);
 
-    QPointer<SessionManager> guard(this);
+    QPointer<SessionManager> ptr(this);
 
     const bool started = hostSession_->SendRequest(
         std::move(request),
-        [guard, generation](bool isSuccess) {
-            if (!guard) {
+        [ptr, generation](bool isSuccess) {
+            if (!ptr) {
                 return;
             }
 
-            QMetaObject::invokeMethod(
-                guard.data(),
-                [guard, generation, isSuccess]() {
-                    if (!guard
-                        || generation != guard->requestGeneration_) {
-                        return;
+            QMetaObject::invokeMethod(//回到qt线程
+                ptr.data(),
+                [ptr, generation, isSuccess]() {
+                    if (ptr) {
+                        ptr->finishLoadRequest(
+                            generation,
+                            isSuccess);
                     }
-
-                    if (isSuccess) {
-                        guard->sourcePath_ =
-                            guard->pendingSourcePath_;
-                    }
-
-                    guard->pendingSourcePath_.clear();
-                    guard->setState(
-                        isSuccess ? State::Ready : State::Failed);
-
-                    emit guard->loadFinished(
-                        isSuccess,
-                        isSuccess
-                        ? QString()
-                        : QStringLiteral("Core load request failed."));
                 },
                 Qt::QueuedConnection);
         });
@@ -248,6 +232,33 @@ bool SessionManager::sendLoadRequest(
     }
 
     return true;
+}
+
+void SessionManager::finishLoadRequest(//更新状态
+    std::uint64_t generation,
+    bool isSuccess)
+{
+    if (generation != requestGeneration_) {
+        return;
+    }
+
+    if (isSuccess) {
+        sourcePath_ = pendingSourcePath_;
+    }
+
+    pendingSourcePath_.clear();
+
+    setState(
+        isSuccess
+        ? State::Ready
+        : State::Failed);
+
+    emit loadFinished(
+        isSuccess,
+        isSuccess
+        ? QString()
+        : QStringLiteral(
+            "Core load request failed."));
 }
 
 void SessionManager::setState(State state)

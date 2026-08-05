@@ -1,6 +1,5 @@
 #include "c_ui/context/SessionManager.h"
 #include "c_ui/contextarea/WorkspacePage.h"
-#include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
@@ -8,7 +7,6 @@
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
 #include "Host/Types/HostRequestTypes.h"
-
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -116,6 +114,7 @@ void CTViewer::wireConnect() {
     connectTabSignals();
     connectDocumentSignals();
     connectAppSignals();
+	connectRenderPanel();
 }
 
 void CTViewer::buildTitleBar(QWidget* topBarContainer, QVBoxLayout* topBarLayout) 
@@ -205,37 +204,18 @@ void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayou
 
 void CTViewer::buildWorkspacePage()
 {
-    workspacePage_ =
-        new WorkspacePage(secondstack_);
+    workspacePage_  = new WorkspacePage(secondstack_);
 
     secondstack_->addWidget(workspacePage_);
 
-    connect(
-        workspacePage_,
-        &WorkspacePage::primary3DModeRequested,
-        this,
-        &CTViewer::setPrimary3DMode);
-
-    connect(
-        workspacePage_,
-        &WorkspacePage::visibilityRequested,
-        this,
-        &CTViewer::setVisibility);
+    
 
     QString err;
 
-    const bool ok =
-        context_.getSessionManager().initHost(
+    context_.getSessionManager().initHost(
             workspacePage_->getHostConfig(),
             &err);
 
-    if (!ok) {
-        statusBar()->showMessage(
-            err.isEmpty()
-            ? QStringLiteral("Host 初始化失败。")
-            : err,
-            5000);
-    }
 }
 
 void CTViewer::buildEmptyPage() {
@@ -334,6 +314,24 @@ void CTViewer::connectAppSignals()
         &SessionManager::loadFinished,
         this,
         &CTViewer::handleLoadFinished);
+}
+
+void CTViewer::connectRenderPanel()
+{
+    auto* renderPanel =
+        workspacePage_->getRenderPanel();
+
+    connect(
+        renderPanel,
+        &RenderPanel::primary3DModeRequested,
+        this,
+        &CTViewer::setPrimary3DMode);
+
+    connect(
+        renderPanel,
+        &RenderPanel::visibilityRequested,
+        this,
+        &CTViewer::setVisibility);
 }
 
 //优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
@@ -761,15 +759,9 @@ void CTViewer::setPrimary3DMode(
     request.targetView.viewRole =
         HostRenderViewRole::Primary3D;
     request.mode = mode;
-    const bool started =
-        context_.getSessionManager().sendRequest(
+    
+    context_.getSessionManager().sendRequest(
             std::move(request));
-
-    if (!started) {
-        statusBar()->showMessage(
-            QStringLiteral("切换三维渲染模式失败。"),
-            3000);
-    }
 }
 
 void CTViewer::setVisibility(

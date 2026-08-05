@@ -29,7 +29,6 @@ class WindowPage;
 class ReportPage;
 class AnimationPage;
 
-
 class RenderPanel;
 class SceneTreePanel;
 class TabMap;
@@ -62,6 +61,7 @@ private:
     void connectTabSignals();
     void connectDocumentSignals();
     void connectAppSignals();
+    void connectRenderPanel();
     void handleSessionChanged(
         SessionManager::State state);
     void handleLoadFinished(
@@ -83,24 +83,20 @@ private:
     void setVisibility(HostVisibilityParams visibility);
 
 private:
+    UiState buildUiState(int index) const;
+    void applyUiState(const UiState& state);
+
+private:
     QPointer<QWidget> whatEmpty_;
     QPointer<QWidget> emptyPage_;
     QPointer<QTabBar> tabBar_;
     QPointer<DocumentPage> pageDocument_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;
-
-
-    UiState buildUiState(int index) const;
-    void applyUiState(const UiState& state);
-
     UIReconstruct3D* uiRecon3d_ = nullptr;  
-
     QPointer<QProgressDialog> ProgressDialog_;
-
     QPointer<WorkspacePage> workspacePage_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
-
     int iconHeight_ = 100;
     AppContext context_;
 };

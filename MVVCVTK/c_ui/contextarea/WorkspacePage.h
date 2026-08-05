@@ -11,7 +11,7 @@ class QSplitter;
 class ViewportGather;
 class SceneTreePanel;
 class RenderPanel;
-class WorkSpaceUIState;
+
 
 class WorkspacePage : public QWidget {
 	Q_OBJECT
@@ -28,12 +28,6 @@ public:
 		bool hasData,
 		const QString& sourcePath);
 
-signals:
-	void primary3DModeRequested(
-		HostRenderMode mode);
-
-	void visibilityRequested(
-		HostVisibilityParams visibility);
 private:
 	void buildUi();	
 
@@ -43,5 +37,4 @@ private:
 	QPointer<ViewportGather> viewportGather_;
 	QPointer<SceneTreePanel> sceneTreePanel_;
 	QPointer<RenderPanel> renderPanel_;
-	QPointer<WorkSpaceUIState> workSpaceUIState_;
 };

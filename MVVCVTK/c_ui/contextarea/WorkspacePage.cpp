@@ -2,7 +2,6 @@
 #include "c_ui/viewport/ViewportGather.h"
 #include "c_ui/panels/SceneTreePanel.h"
 #include "c_ui/panels/RenderPanel.h"
-#include "c_ui/contextarea/WorkSpaceUIState.h"
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QSizePolicy>
@@ -18,7 +17,7 @@ void WorkspacePage::buildUi() {
     root->setContentsMargins(0, 0, 0, 0);
     root->setSpacing(0);
 
-    workspaceSplit_ = new QSplitter(Qt::Horizontal, this);//第一个参数是水平分割
+    workspaceSplit_ = new QSplitter(Qt::Horizontal, this);
     workspaceSplit_->setObjectName("workspaceSplit");
     root->addWidget(workspaceSplit_, 1);
 
@@ -41,33 +40,6 @@ void WorkspacePage::buildUi() {
     rightSplit_->setStretchFactor(1, 1);
     rightSplit_->setSizes({ 270, 260 });
 
-    workSpaceUIState_ = new WorkSpaceUIState(this);
-    renderPanel_->setWorkSpaceUIState(workSpaceUIState_);
-    connect(
-        renderPanel_,
-        &RenderPanel::visibilityRequested,
-        this,
-        &WorkspacePage::visibilityRequested);
-
-    connect(
-        workSpaceUIState_,
-        &WorkSpaceUIState::primary3DModeChanged,
-        this,
-        [this](VizMode mode) {
-            if (mode == VizMode::CompositeVolume) {
-                emit primary3DModeRequested(
-                    HostRenderMode::CompositeVolume);
-                return;
-            }
-
-            if (mode == VizMode::CompositeIsoSurface) {
-                emit primary3DModeRequested(
-                    HostRenderMode::CompositeIsoSurface);
-            }
-        });
-    
-    viewportGather_->setPrimary3DMode(workSpaceUIState_->getPrimary3DMode());
-    //安装
     workspaceSplit_->addWidget(viewportGather_);
     workspaceSplit_->addWidget(rightSplit_);
     workspaceSplit_->setStretchFactor(0, 50);
@@ -89,10 +61,10 @@ RenderPanel* WorkspacePage::getRenderPanel() const
     return renderPanel_;
 }
 
-
 HostSessionConfig WorkspacePage::getHostConfig() const
 {
-    if (!viewportGather_) {
+    if (!viewportGather_)
+    {
         return {};
     }
 

@@ -8,6 +8,8 @@
 #include <QWidget>
 
 class QGridLayout;
+class QTimer;
+class QEvent;
 
 class ViewportGather final : public QWidget
 {
@@ -21,6 +23,9 @@ public:
     // 目前只保存首次构建时的 3D 模式。
     // 动态切换下一步通过 HostViewSetRequest 实现。
     void setPrimary3DMode(VizMode mode);
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     enum class ViewportId {
@@ -39,6 +44,8 @@ private:
 
     void switchViewMaximized(ViewportId id);
     void setViewportLayout();
+    void scheduleViewportRefresh();
+    void refreshAllViewports();
 
 private:
     QGridLayout* m_viewGrid = nullptr;
@@ -57,4 +64,6 @@ private:
         VizMode::CompositeIsoSurface;
 
     ViewportId m_maximizedViewport = ViewportId::None;
+
+	QTimer* m_refreshTimer = nullptr;
 };

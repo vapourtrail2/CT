@@ -1,17 +1,16 @@
 #include "c_ui/viewport/ViewportGather.h"
 
+#include <QEvent> 
 #include <QGridLayout>
 #include <QToolButton>
 #include <QTimer>
+#include <qdebug.h>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkSmartPointer.h>
 
 #include <string>
 #include <utility>
-
-#include <qdebug.h>
-
 
 void AddHostView(
         HostSessionConfig& config,
@@ -66,29 +65,42 @@ void ViewportGather::buildUi()
 
     setViewportLayout();
 
-	//qDebug() << this->objectName();
+    m_refreshTimer = new QTimer(this);
+    m_refreshTimer->setSingleShot(true);//表示定时器每次只触发一次，不会永久循环。
 
-
-	//改成状态发生变化时才刷新视图，避免每次都刷新
-    auto* refreshTimer = new QTimer(this);
     connect(
-        refreshTimer,
+        m_refreshTimer,
         &QTimer::timeout,
         this,
-        [this]() {
-				m_axial->renderWindow()->Render();
-                m_axial->update();
+        &ViewportGather::refreshAllViewports);
 
-				m_coronal->renderWindow()->Render();
-                m_coronal->update();
-            
-				m_sagittal->renderWindow()->Render();
-                m_sagittal->update();
+    m_axial->installEventFilter(this);
+    m_coronal->installEventFilter(this);
+    m_sagittal->installEventFilter(this);
+    m_view3d->installEventFilter(this);
 
-				m_view3d->renderWindow()->Render();
-                m_view3d->update();
-        });
-	refreshTimer->start(33);// 每隔33ms 发出timeout()信号 主动让视图刷新
+	//qDebug() << this->objectName();
+
+	//改成状态发生变化时才刷新视图，避免每次都刷新
+ //   auto* refreshTimer = new QTimer(this);
+ //   connect(
+ //       refreshTimer,
+ //       &QTimer::timeout,
+ //       this,
+ //       [this]() {
+	//			m_axial->renderWindow()->Render();
+ //               m_axial->update();
+
+	//			m_coronal->renderWindow()->Render();
+ //               m_coronal->update();
+ //           
+	//			m_sagittal->renderWindow()->Render();
+ //               m_sagittal->update();
+
+	//			m_view3d->renderWindow()->Render();
+ //               m_view3d->update();
+ //       });
+	//refreshTimer->start(33);// 每隔33ms 发出timeout()信号 主动让视图刷新
 }
 
 HostSessionConfig ViewportGather::getHostConfig() const
@@ -143,6 +155,59 @@ void ViewportGather::setPrimary3DMode(VizMode mode)
     }
 
     m_current3DMode = mode;
+}
+
+bool ViewportGather::eventFilter(
+    QObject* watched,
+    QEvent* event)
+{
+    const bool isViewport =
+        watched == m_axial
+        || watched == m_coronal
+        || watched == m_sagittal
+        || watched == m_view3d;
+
+    if (isViewport && event) {
+        switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseMove:
+        case QEvent::Wheel:
+            scheduleViewportRefresh();
+            break;
+        default:
+            break;
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
+}
+
+void ViewportGather::scheduleViewportRefresh()
+{
+    if (!m_refreshTimer->isActive()) {
+        m_refreshTimer->start(34);
+    }
+}
+
+void ViewportGather::refreshAllViewports()
+{
+    if (m_axial) {
+        m_axial->renderWindow()->Render();
+        m_axial->update();
+    }
+    if (m_coronal) {
+        m_coronal->renderWindow()->Render();
+        m_coronal->update();
+    }
+    if (m_sagittal) {
+        m_sagittal->renderWindow()->Render();
+        m_sagittal->update();
+    }
+    if (m_view3d) {
+        m_view3d->renderWindow()->Render();
+        m_view3d->update();
+    }
 }
 
 QWidget* ViewportGather::createViewportContainer(

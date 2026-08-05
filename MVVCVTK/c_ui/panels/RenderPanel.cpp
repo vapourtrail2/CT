@@ -30,50 +30,14 @@ RenderPanel::RenderPanel(QWidget* parent)
     auto* v = new QVBoxLayout(this);
     v->setContentsMargins(6, 6, 6, 6);
     v->setSpacing(8);   
-
-    // 直方图屏蔽，不能用死数据
-    // 直方图区域
-    auto* histGroup = new QGroupBox(QStringLiteral("直方图"), this);
-    histGroup->setStyleSheet(
-        "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
-        "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
-    );
-    auto* hv = new QVBoxLayout(histGroup);
-
-    histLabel_ = new QLabel(QStringLiteral("(未加载)"), histGroup);        
-    histLabel_->setFixedHeight(160);
-    histLabel_->setMinimumWidth(0);
-    histLabel_->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
-    histLabel_->setAlignment(Qt::AlignCenter);
-    histLabel_->setStyleSheet("QLabel{background:#111; border:1px solid #444; color:#888;}");
-    hv->addWidget(histLabel_);
-
-    v->addWidget(histGroup);
-        
-    //调节区域
-    auto* isoGroup = new QGroupBox(QStringLiteral("调节"), this);
-    isoGroup->setStyleSheet(
-        "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
-        "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
-    );
-    auto* iv = new QVBoxLayout(isoGroup);
-
-    isoValueLabel_ = new QLabel(QStringLiteral("阈值: -"), isoGroup);
-    isoSlider_ = new QSlider(Qt::Horizontal, isoGroup);
-    isoSlider_->setRange(0, 1000);
-    
-    iv->addWidget(isoValueLabel_);
-    iv->addWidget(isoSlider_);
-    v->addWidget(isoGroup);
-
-    //等待更新
+   
   
-
     auto* wlGroup = new QGroupBox(QStringLiteral("设置"), this);
     wlGroup->setStyleSheet(
         "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
         "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
     );
+    wlGroup->setFixedHeight(250);
     auto* wv = new QVBoxLayout(wlGroup);
 
     renderMode_ = new QComboBox(wlGroup);
@@ -108,11 +72,19 @@ RenderPanel::RenderPanel(QWidget* parent)
     windowCenterLabel_ = new QLabel(QStringLiteral("窗位: -"), wlGroup);
     windowCenterSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     windowCenterSlider_->setRange(0, 1000);
+
+    isoValueLabel_ = new QLabel(QStringLiteral("阈值: -"), wlGroup);
+    isoSlider_ = new QSlider(Qt::Horizontal, wlGroup);
+    isoSlider_->setRange(0, 1000);
+
     wv->addWidget(windowCenterLabel_);
     wv->addWidget(windowCenterSlider_);
 
+    wv->addWidget(isoValueLabel_);
+    wv->addWidget(isoSlider_);
+
     v->addWidget(wlGroup);
-    //待更新
+    
     isoSlider_->setEnabled(false);
     windowWidthSlider_->setEnabled(false);
     windowCenterSlider_->setEnabled(false);

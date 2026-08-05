@@ -122,38 +122,86 @@ bool SessionManager::openFile(const QString& path,
     return sendLoadRequest(std::move(request), p, errorOut);
 }
 
+//bool SessionManager::openReconstructedData(
+//    const float* data,
+//    const std::array<int, 3>& dims,
+//    const std::array<float, 3>& spacing,
+//    const std::array<float, 3>& origin,
+//    const QString& sourcePath,
+//    QString* errorOut)
+//{
+//    if (!data) {
+//        setError(
+//            errorOut,
+//            QStringLiteral("Reconstruction buffer is null."));
+//        return false;
+//    }
+//
+//    std::size_t voxelCount = 0;
+//    if (!isVoxelCountRight(dims,voxelCount)) {
+//        setError(
+//            errorOut,
+//            QStringLiteral("Invalid reconstruction dimensions."));
+//        return false;
+//    }
+//
+//    HostReloadRequest request;
+//
+//    // HostReloadRequest 自己拥有数据，不能只把外部 float* 传给 core。
+//	request.voxels.assign(data, data + voxelCount);//把数据拷贝到 request.voxels 中  复制的 有点问题
+//    request.geometry.dimensions = dims;
+//    request.geometry.spacing = spacing;
+//    request.geometry.origin = origin;
+//
+//    const QString displayPath = sourcePath.trimmed().isEmpty()
+//        ? QStringLiteral("CT reconstruction")
+//        : sourcePath.trimmed();
+//
+//    return sendLoadRequest(
+//        std::move(request),
+//        displayPath,
+//        errorOut);
+//}
+
 bool SessionManager::openReconstructedData(
-    const float* data,
+    std::vector<float>&& voxels,
     const std::array<int, 3>& dims,
     const std::array<float, 3>& spacing,
     const std::array<float, 3>& origin,
     const QString& sourcePath,
     QString* errorOut)
 {
-    if (!data) {
+    std::size_t voxelCount = 0;
+
+    if (!isVoxelCountRight(
+        dims,
+        voxelCount)) {
         setError(
             errorOut,
-            QStringLiteral("Reconstruction buffer is null."));
+            QStringLiteral(
+                "Invalid reconstruction dimensions."));
         return false;
     }
 
-    std::size_t voxelCount = 0;
-    if (!isVoxelCountRight(dims,voxelCount)) {
+    if (voxels.size() != voxelCount) {
         setError(
             errorOut,
-            QStringLiteral("Invalid reconstruction dimensions."));
+            QStringLiteral(
+                "Reconstruction buffer size "
+                "does not match dimensions."));
         return false;
     }
 
     HostReloadRequest request;
 
-    // HostReloadRequest 自己拥有数据，不能只把外部 float* 传给 core。
-    request.voxels.assign(data, data + voxelCount);
+    request.voxels = std::move(voxels);
+
     request.geometry.dimensions = dims;
     request.geometry.spacing = spacing;
     request.geometry.origin = origin;
 
-    const QString displayPath = sourcePath.trimmed().isEmpty()
+    const QString displayPath =
+        sourcePath.trimmed().isEmpty()
         ? QStringLiteral("CT reconstruction")
         : sourcePath.trimmed();
 

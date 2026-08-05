@@ -31,7 +31,7 @@ void WorkspacePage::buildUi() {
 
     renderPanel_ = new RenderPanel(rightSplit_);  
     renderPanel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    renderPanel_->setMaximumHeight(520);
+    renderPanel_->setMaximumHeight(270);
     rightSplit_->addWidget(renderPanel_);
 
     sceneTreePanel_ = new SceneTreePanel(rightSplit_);
@@ -39,7 +39,7 @@ void WorkspacePage::buildUi() {
 
     rightSplit_->setStretchFactor(0, 0);
     rightSplit_->setStretchFactor(1, 1);
-    rightSplit_->setSizes({ 520, 260 });
+    rightSplit_->setSizes({ 270, 260 });
 
     workSpaceUIState_ = new WorkSpaceUIState(this);
     renderPanel_->setWorkSpaceUIState(workSpaceUIState_);

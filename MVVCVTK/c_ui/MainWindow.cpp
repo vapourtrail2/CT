@@ -1,5 +1,4 @@
 #include "c_ui/context/SessionManager.h"
-#include "Host/Types/HostRequestTypes.h"
 #include "c_ui/contextarea/WorkspacePage.h"
 #include "c_ui/contextarea/WorkSpaceUIState.h"
 #include "c_ui/MainWindow.h"
@@ -8,12 +7,15 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
+#include "Host/Types/HostRequestTypes.h"
 
 #include "uireconstruct3d.h"
 
 #include <algorithm>
 #include <array>
-#include <utility>
+#include <cstring>
+#include <memory>
+
 #include <QApplication>
 #include <QComboBox>
 #include <QDebug>
@@ -38,10 +40,13 @@
 #include <QStatusBar>
 #include <QStringList>
 #include <QStyle>
+#include <QThread>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>      
 #include <qwindow.h>
+#include <utility>
+#include <vector>
 
 #include <QVTKOpenGLNativeWidget.h>
 #include <vtkActor.h>
@@ -610,7 +615,7 @@ void CTViewer::openCtReconUi()
 {
     if (!uiRecon3d_) {
         uiRecon3d_ = new UIReconstruct3D(this);
-        QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {
+        QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {//重建完成是我点击？还是什么情况
             float* data = nullptr;
             std::array<float, 3> spacing{}, origin{};
             std::array<int, 3> outSize{};
@@ -625,37 +630,117 @@ void CTViewer::openCtReconUi()
             }
 
             setCloseProgressDialog();
-
             setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
-            QString err;
-            const bool ok = context_.getSessionManager().openReconstructedData(
-                data,
-                outSize,
-                spacing,
-                origin,
-                QStringLiteral("CT reconstruction"),
-                &err);
-
-            if (!ok) {
-                if (ProgressDialog_) {
-                    ProgressDialog_->close();
-                    ProgressDialog_.clear();
-                }
-
-                if (auto* bar = statusBar()) {
-                    bar->showMessage(
-                        err.isEmpty() ? QStringLiteral("Failed to open reconstruction session.") : err,
-                        3000);
-                }
+            if (outSize[0] <= 0
+             || outSize[1] <= 0
+             || outSize[2] <= 0) 
+            {
                 return;
             }
 
-            if (auto* bar = statusBar()) {
-                bar->showMessage(QStringLiteral("Reconstruction completed."), 3000);
-            }
+            const std::size_t voxelCount =
+                static_cast<std::size_t>(outSize[0])
+                * static_cast<std::size_t>(outSize[1])
+                * static_cast<std::size_t>(outSize[2]);
 
-            uiRecon3d_->close();
+            auto voxels = std::make_shared<std::vector<float>>();
+            QPointer<CTViewer> self(this);
+
+            QThread* copyThread = QThread::create(
+                [self, voxels, data, voxelCount, outSize, spacing, origin]() mutable {
+
+                    // 后台线程执行这次大数据复制，避免卡住界面
+                    try {
+                        voxels->assign(data, data + voxelCount);
+                    }
+                    catch (const std::exception& e) {
+                        if (!self) {
+                            return;
+                        }
+
+                        const QString message =
+                            QStringLiteral("Failed to copy reconstruction data: %1")
+                            .arg(QString::fromUtf8(e.what()));
+
+                        QMetaObject::invokeMethod(
+                            self.data(),
+                            [self, message]() {
+                                if (!self) {
+                                    return;
+                                }
+
+                                self->setCloseProgressDialog();
+
+                                if (auto* bar = self->statusBar()) {
+                                    bar->showMessage(message, 5000);
+                                }
+                            },
+                            Qt::QueuedConnection);
+
+                        return;
+                    }
+                    if (!self) {
+                        return;
+                    }
+
+                    // 复制完成后，回到 Qt 主线程调用 SessionManager
+                    QMetaObject::invokeMethod(
+                        self.data(),
+                        [self, voxels, outSize, spacing, origin]() mutable {
+                            if (!self) {
+                                return;
+                            }
+
+                            QString err;
+
+                            const bool ok =
+                                self->context_.getSessionManager().openReconstructedData(
+                                    std::move(*voxels),
+                                    outSize,
+                                    spacing,
+                                    origin,
+                                    QStringLiteral("CT reconstruction"),
+                                    &err);
+
+                            if (!ok) {
+                                if (self->ProgressDialog_) {
+                                    self->ProgressDialog_->close();
+                                    self->ProgressDialog_.clear();
+                                }
+
+                                if (auto* bar = self->statusBar()) {
+                                    bar->showMessage(
+                                        err.isEmpty()
+                                        ? QStringLiteral(
+                                            "Failed to open reconstruction session.")
+                                        : err,
+                                        3000);
+                                }
+                                return;
+                            }
+                            if (auto* bar = self->statusBar()) {
+                                bar->showMessage(
+                                    QStringLiteral(
+                                        "Reconstruction data submitted to Core."),
+                                    3000);
+                            }
+
+                            if (self->uiRecon3d_) {
+                                self->uiRecon3d_->close();
+                            }
+                        },
+                        Qt::QueuedConnection);
+                });
+
+            QObject::connect(
+                copyThread,
+                &QThread::finished,
+                copyThread,
+                &QObject::deleteLater);
+
+            copyThread->start();
+
             }, Qt::QueuedConnection);
     }
 

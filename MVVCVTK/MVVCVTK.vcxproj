@@ -226,17 +226,12 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\VolumeStrategy.h" />
     <ClInclude Include="c_ui\command\commands.h" />
     <ClInclude Include="c_ui\context\AppContext.h" />
-    <ClInclude Include="c_ui\context\DataSet.h" />
     <QtMoc Include="c_ui\windows\Titlebar.h" />
     <ClInclude Include="c_ui\viewport\Viewport.h" />
     <ClInclude Include="c_ui\app\app.h" />
     <QtMoc Include="c_ui\MainWindow.h" />
     <QtMoc Include="c_ui\panels\SceneTreePanel.h" />
     <QtMoc Include="c_ui\panels\RenderPanel.h" />
-    <ClInclude Include="c_ui\qt\QtRenderContext.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <QtMoc Include="c_ui\workbenches\AlignmentPage.h" />
     <QtMoc Include="c_ui\workbenches\AnalysisPage.h" />
     <QtMoc Include="c_ui\workbenches\AnimationPage.h" />
@@ -326,10 +321,6 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\MainWindow.cpp" />
     <ClCompile Include="c_ui\panels\RenderPanel.cpp" />
     <ClCompile Include="c_ui\panels\SceneTreePanel.cpp" />
-    <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="c_ui\ribbon\RibbonPage.cpp" />
     <ClCompile Include="c_ui\windows\TitleBar.cpp" />
     <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp" />

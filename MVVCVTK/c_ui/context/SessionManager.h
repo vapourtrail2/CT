@@ -50,12 +50,20 @@ public:
         QString* errorOut = nullptr
         );
 
-    bool openReconstructedData(
+    /*bool openReconstructedData(
         const float* data,
         const std::array<int, 3>& dims,
         const std::array<float, 3>& spacing,
         const std::array<float, 3>& origin,
         const QString& sourcePath,  
+        QString* errorOut = nullptr);*/
+
+    bool openReconstructedData(
+        std::vector<float>&& voxels,
+        const std::array<int, 3>& dims,
+        const std::array<float, 3>& spacing,
+        const std::array<float, 3>& origin,
+        const QString& sourcePath,
         QString* errorOut = nullptr);
 
     bool sendRequest(

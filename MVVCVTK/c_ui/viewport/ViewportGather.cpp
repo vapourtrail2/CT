@@ -68,6 +68,8 @@ void ViewportGather::buildUi()
 
 	//qDebug() << this->objectName();
 
+
+	//改成状态发生变化时才刷新视图，避免每次都刷新
     auto* refreshTimer = new QTimer(this);
     connect(
         refreshTimer,
@@ -86,7 +88,7 @@ void ViewportGather::buildUi()
 				m_view3d->renderWindow()->Render();
                 m_view3d->update();
         });
-	refreshTimer->start(33);// 每隔33ms 主动让视图刷新
+	refreshTimer->start(33);// 每隔33ms 发出timeout()信号 主动让视图刷新
 }
 
 HostSessionConfig ViewportGather::getHostConfig() const

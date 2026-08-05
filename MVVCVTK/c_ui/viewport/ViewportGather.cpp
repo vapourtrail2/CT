@@ -2,12 +2,16 @@
 
 #include <QGridLayout>
 #include <QToolButton>
+#include <QTimer>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkSmartPointer.h>
 
 #include <string>
 #include <utility>
+
+#include <qdebug.h>
+
 
 void AddHostView(
         HostSessionConfig& config,
@@ -61,6 +65,28 @@ void ViewportGather::buildUi()
         createViewportContainer(m_view3d, ViewportId::View3D);
 
     setViewportLayout();
+
+	//qDebug() << this->objectName();
+
+    auto* refreshTimer = new QTimer(this);
+    connect(
+        refreshTimer,
+        &QTimer::timeout,
+        this,
+        [this]() {
+				m_axial->renderWindow()->Render();
+                m_axial->update();
+
+				m_coronal->renderWindow()->Render();
+                m_coronal->update();
+            
+				m_sagittal->renderWindow()->Render();
+                m_sagittal->update();
+
+				m_view3d->renderWindow()->Render();
+                m_view3d->update();
+        });
+	refreshTimer->start(33);// 每隔33ms 主动让视图刷新
 }
 
 HostSessionConfig ViewportGather::getHostConfig() const

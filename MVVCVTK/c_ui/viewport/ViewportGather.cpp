@@ -160,7 +160,7 @@ void ViewportGather::scheduleViewportRefresh()
     m_refresher = 3;
 
     if (!m_refreshTimer->isActive()) {
-        m_refreshTimer->start(34);
+		m_refreshTimer->start(34);//定时器如果没有启动 发送QTimer::timeout信号
     }
 }
 

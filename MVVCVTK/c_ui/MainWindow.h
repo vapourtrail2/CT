@@ -37,7 +37,7 @@ class WorkspacePage;
 class RibbonPageRegister;
 class RibbonPage;
 class UIReconstruct3D;
-class QProgressDialog;//进度条
+class QProgressDialog;
 
 class CTViewer : public QMainWindow
 {
@@ -81,6 +81,7 @@ private:
     void openCtReconUi();
     void set3DMode(HostRenderMode mode);
     void setVisibility(HostVisibilityParams visibility);
+    void setWindowLevel(HostWindowLevelParams windowLevel);
 
 private:
     UiState buildUiState(int index) const;

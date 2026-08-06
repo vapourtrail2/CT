@@ -93,8 +93,6 @@ void RenderPanel::setConnect() {
 
             const auto mode = static_cast<VizMode>(renderMode_->itemData(index).toInt());
 
-            rulerAxesToggle_->setChecked(false);
-
             if (mode == VizMode::CompositeVolume) {
                 emit primary3DModeRequested(
                     HostRenderMode::CompositeVolume);
@@ -104,6 +102,7 @@ void RenderPanel::setConnect() {
             if (mode == VizMode::CompositeIsoSurface) {
                 emit primary3DModeRequested(
                     HostRenderMode::CompositeIsoSurface);
+                return;
             }
         });
 

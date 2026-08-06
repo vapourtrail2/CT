@@ -260,22 +260,17 @@ bool SessionManager::sendLoadRequest(
                 ptr.data(),
                 [ptr, generation, isSuccess]() {
                     if (ptr) {
-                        ptr->finishLoadRequest(
-                            generation,
-                            isSuccess);
+                        ptr->finishLoadRequest(generation,isSuccess);
                     }
                 },
                 Qt::QueuedConnection);
         });
 
-    if (!started) {
+    if (!started)  
+    {
         ++requestGeneration_;
         pendingSourcePath_.clear();
         setState(State::Failed);
-
-        setError(
-            errorOut,
-            QStringLiteral("Core rejected the load request."));
         return false;
     }
 

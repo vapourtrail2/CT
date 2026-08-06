@@ -326,7 +326,7 @@ void CTViewer::connectRenderPanel()
         renderPanel,
         &RenderPanel::primary3DModeRequested,
         this,
-        &CTViewer::setPrimary3DMode);
+        &CTViewer::set3DMode);
 
     connect(
         renderPanel,
@@ -339,10 +339,8 @@ void CTViewer::connectRenderPanel()
 UiState CTViewer::buildUiState(int index) const{
     UiState state;
     state.tabIndex = index;
-
-    //业务集中在一个地方
     const bool hasData = context_.hasData();
-    //文件页
+
     if (index == TabIndex::File) {
 		state.showRibbon = false;
         state.ribbonHeight = 0;
@@ -360,7 +358,6 @@ UiState CTViewer::buildUiState(int index) const{
 }
 
 void CTViewer::applyUiState(const UiState& state) {
-    //界面赋值动作 UI问题只看这一个函数
     if (!stack_ || !secondstack_) {
         return;
     }
@@ -377,17 +374,17 @@ void CTViewer::applyUiState(const UiState& state) {
     }
 
     switch (state.contentTarget) {
-    case ContentTarget::Document:
+      case ContentTarget::Document:
         if (pageDocument_) {
             secondstack_->setCurrentWidget(pageDocument_);
         }
         break;
-    case ContentTarget::Workspace:
+      case ContentTarget::Workspace:
         if (workspacePage_) {
             secondstack_->setCurrentWidget(workspacePage_);
         }
         break;
-    case ContentTarget::Empty:
+      case ContentTarget::Empty:
         if (emptyPage_) {
             secondstack_->setCurrentWidget(emptyPage_);
         }
@@ -748,7 +745,7 @@ void CTViewer::openCtReconUi()
     uiRecon3d_->activateWindow();
 }
 
-void CTViewer::setPrimary3DMode(
+void CTViewer::set3DMode(
     HostRenderMode mode)
 {
     if (!context_.hasData()) {
@@ -760,10 +757,14 @@ void CTViewer::setPrimary3DMode(
     request.targetView.viewRole =
         HostRenderViewRole::Primary3D;
     request.mode = mode;
-    context_.getSessionManager().sendRequest(
-            std::move(request));
-    auto* ptr = workspacePage_->getViewportGather();
 
+    if (mode == HostRenderMode::CompositeVolume) {
+        request.transferPreset = HostTransferPreset::Percentile;
+    }
+
+    context_.getSessionManager().sendRequest(std::move(request));
+
+    auto* ptr = workspacePage_->getViewportGather();
     ptr->requestRefresh();
 }
 
@@ -847,39 +848,19 @@ void CTViewer::handleLoadFinished(
     setCloseProgressDialog();
 
     if (!issucc) {
-        const QString errorMessage =
-            message.isEmpty()
-            ? QStringLiteral("加载失败。")
-            : message;
-
-        if (pageDocument_) {
-            pageDocument_->notifyFail(errorMessage);
-        }
-
-        statusBar()->showMessage(
-            errorMessage,
-            3000);
-
-        if (tabBar_) {
-            applyUiState(
-                buildUiState(tabBar_->currentIndex()));
-        }
-
         return;
     }
 
-    if (pageDocument_) {
-        pageDocument_->notifySucc();
-    }
-
-    if (tabBar_
-        && tabBar_->currentIndex() == TabIndex::File) {
+    auto* viewport = workspacePage_->getViewportGather();
+    viewport->requestRefresh();
+        
+    if (tabBar_->currentIndex() == TabIndex::File)
+    {
         tabBar_->setCurrentIndex(TabIndex::Start);
         return;
     }
 
-    if (tabBar_) {
-        applyUiState(
-            buildUiState(tabBar_->currentIndex()));
-    }
+    /*if (tabBar_) {
+        applyUiState(buildUiState(tabBar_->currentIndex()));
+    }*/
 }

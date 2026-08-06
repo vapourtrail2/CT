@@ -79,7 +79,7 @@ private:
     void setCloseProgressDialog();
     void setRibbonPage(RibbonPage* page);
     void openCtReconUi();
-    void setPrimary3DMode(HostRenderMode mode);
+    void set3DMode(HostRenderMode mode);
     void setVisibility(HostVisibilityParams visibility);
 
 private:

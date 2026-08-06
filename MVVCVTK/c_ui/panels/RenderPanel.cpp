@@ -46,9 +46,9 @@ RenderPanel::RenderPanel(QWidget* parent)
         QStringLiteral("标量尺"), wlGroup);
     wv->addWidget(rulerAxesToggle_);
 
-    mprPlanesToggle_->setChecked(true);
+    mprPlanesToggle_->setChecked(false);
     crosshairToggle_->setChecked(true);
-    rulerAxesToggle_->setChecked(true);
+    rulerAxesToggle_->setChecked(false);
 
     windowWidthLabel_ = new QLabel(
         QStringLiteral("窗宽: 待接入"), wlGroup);

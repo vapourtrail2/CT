@@ -81,7 +81,7 @@ private:
     void openCtReconUi();
     void set3DMode(HostRenderMode mode);
     void setVisibility(HostVisibilityParams visibility);
-    void setWindowLevel(HostWindowLevelParams windowLevel);
+   /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
 
 private:
     UiState buildUiState(int index) const;

@@ -33,11 +33,11 @@ void WorkspacePage::buildUi() {
     renderPanel_->setMaximumHeight(270);
     rightSplit_->addWidget(renderPanel_);
 
-    connect(
+    /*connect(
         viewportGather_,
         &ViewportGather::windowLevelStateChanged,
         renderPanel_,
-        &RenderPanel::setWindowLevelState);
+        &RenderPanel::setWindowLevelState);*/
 
     sceneTreePanel_ = new SceneTreePanel(rightSplit_);
     rightSplit_->addWidget(sceneTreePanel_);
@@ -82,9 +82,9 @@ void WorkspacePage::setDataState(
     const QString& sourcePath)
 {
     sceneTreePanel_->setDataState(hasData,sourcePath);
-    renderPanel_->setDataState(hasData);
+    /*renderPanel_->setDataState(hasData);
 
     if (!hasData) {
         viewportGather_->resetWindowLevelState();
-    }
+    }*/
 }

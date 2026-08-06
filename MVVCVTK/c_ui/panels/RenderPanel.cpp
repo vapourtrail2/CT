@@ -2,42 +2,42 @@
 
 #include <QGroupBox>
 #include <QHBoxLayout>
-#include <QSignalBlocker>
+//#include <QSignalBlocker>
 #include <QVBoxLayout>
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
 
-constexpr int kWindowLevelSliderSteps = 1000;
-
-double valueFromSlider(
-    int position,
-    double minimum,
-    double maximum)
-{
-    const double ratio =
-        position / static_cast<double>(
-            kWindowLevelSliderSteps);
-    return minimum + ratio * (maximum - minimum);
-}
-
-int sliderFromValue(//把实际值转换为 0～1000 的滑块位置
-    double value,
-    double minimum,
-    double maximum)
-{
-    if (maximum <= minimum) {
-        return 0;
-    }
-
-    const double ratio = std::clamp(
-        (value - minimum) / (maximum - minimum),
-        0.0,
-        1.0);
-    return static_cast<int>(std::lround(
-        ratio * kWindowLevelSliderSteps));
-}
+//constexpr int kWindowLevelSliderSteps = 1000;
+//
+//double valueFromSlider(
+//    int position,
+//    double minimum,
+//    double maximum)
+//{
+//    const double ratio =
+//        position / static_cast<double>(
+//            kWindowLevelSliderSteps);
+//    return minimum + ratio * (maximum - minimum);
+//}
+//
+//int sliderFromValue(//把实际值转换为 0～1000 的滑块位置
+//    double value,
+//    double minimum,
+//    double maximum)
+//{
+//    if (maximum <= minimum) {
+//        return 0;
+//    }
+//
+//    const double ratio = std::clamp(
+//        (value - minimum) / (maximum - minimum),
+//        0.0,
+//        1.0);
+//    return static_cast<int>(std::lround(
+//        ratio * kWindowLevelSliderSteps));
+//}
 
 
 RenderPanel::RenderPanel(QWidget* parent)
@@ -85,7 +85,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     crosshairToggle_->setChecked(true);
     rulerAxesToggle_->setChecked(false);
 
-    windowWidthLabel_ = new QLabel(
+  /*  windowWidthLabel_ = new QLabel(
         QStringLiteral("窗宽: "), wlGroup);
     windowWidthSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     windowWidthSlider_->setRange(
@@ -103,7 +103,7 @@ RenderPanel::RenderPanel(QWidget* parent)
         kWindowLevelSliderSteps);
     windowCenterSlider_->setEnabled(false);
     wv->addWidget(windowCenterLabel_);
-    wv->addWidget(windowCenterSlider_);
+    wv->addWidget(windowCenterSlider_);*/
 
     isoValueLabel_ = new QLabel(
         QStringLiteral("阈值: "), wlGroup);
@@ -120,89 +120,89 @@ RenderPanel::RenderPanel(QWidget* parent)
 
 RenderPanel::~RenderPanel() = default;
 
-void RenderPanel::setDataState(bool hasData)
-{
-    hasData_ = hasData;
+//void RenderPanel::setDataState(bool hasData)
+//{
+//    hasData_ = hasData;
+//
+//    if (!hasData_) {
+//        hasWindowLevelState_ = false;
+//        windowWidthLabel_->setText(
+//            QStringLiteral("窗宽: "));
+//        windowCenterLabel_->setText(
+//            QStringLiteral("窗位: "));
+//    }
+//
+//    const bool isEnabled =
+//        hasData_ && hasWindowLevelState_;
+//    windowWidthSlider_->setEnabled(isEnabled);
+//    windowCenterSlider_->setEnabled(isEnabled);
+//}
 
-    if (!hasData_) {
-        hasWindowLevelState_ = false;
-        windowWidthLabel_->setText(
-            QStringLiteral("窗宽: "));
-        windowCenterLabel_->setText(
-            QStringLiteral("窗位: "));
-    }
-
-    const bool isEnabled =
-        hasData_ && hasWindowLevelState_;
-    windowWidthSlider_->setEnabled(isEnabled);
-    windowCenterSlider_->setEnabled(isEnabled);
-}
-
-void RenderPanel::setWindowLevelState(
-    double windowWidth,
-    double windowCenter,
-    double scalarMin,
-    double scalarMax)
-{
-    if (!std::isfinite(windowWidth)
-        || windowWidth <= 0.0
-        || !std::isfinite(windowCenter)
-        || !std::isfinite(scalarMin)
-        || !std::isfinite(scalarMax)
-        || scalarMax < scalarMin) {
-        return;
-    }
-
-    const double scalarSpan =
-        std::max(0.01, scalarMax - scalarMin);
-
-    windowWidth_ = windowWidth;
-    windowCenter_ = windowCenter;
-    windowWidthMin_ = 0.01;
-    windowWidthMax_ = std::max(
-        windowWidth,
-        scalarSpan * 2.0);
-    windowCenterMin_ = std::min(
-        scalarMin,
-        windowCenter);
-    windowCenterMax_ = std::max(
-        scalarMax,
-        windowCenter);
-
-    if (windowCenterMax_ <= windowCenterMin_) {
-        windowCenterMin_ -= 0.5;
-        windowCenterMax_ += 0.5;
-    }
-
-    const QSignalBlocker widthBlocker(
-        windowWidthSlider_);
-    const QSignalBlocker centerBlocker(
-        windowCenterSlider_);
-
-    windowWidthSlider_->setValue(
-        sliderFromValue(
-            windowWidth_,
-            windowWidthMin_,
-            windowWidthMax_));
-    windowCenterSlider_->setValue(
-        sliderFromValue(
-            windowCenter_,
-            windowCenterMin_,
-            windowCenterMax_));
-
-    windowWidthLabel_->setText(
-        QStringLiteral("窗宽: %1")
-            .arg(windowWidth_, 0, 'g', 8));
-    windowCenterLabel_->setText(
-        QStringLiteral("窗位: %1")
-            .arg(windowCenter_, 0, 'g', 8));
-
-    hasWindowLevelState_ = true;
-    const bool isEnabled =
-        hasData_ && hasWindowLevelState_;
-    windowWidthSlider_->setEnabled(isEnabled);
-    windowCenterSlider_->setEnabled(isEnabled);
-}
+//void RenderPanel::setWindowLevelState(
+//    double windowWidth,
+//    double windowCenter,
+//    double scalarMin,
+//    double scalarMax)
+//{
+//    if (!std::isfinite(windowWidth)
+//        || windowWidth <= 0.0
+//        || !std::isfinite(windowCenter)
+//        || !std::isfinite(scalarMin)
+//        || !std::isfinite(scalarMax)
+//        || scalarMax < scalarMin) {
+//        return;
+//    }
+//
+//    const double scalarSpan =
+//        std::max(0.01, scalarMax - scalarMin);
+//
+//    windowWidth_ = windowWidth;
+//    windowCenter_ = windowCenter;
+//    windowWidthMin_ = 0.01;
+//    windowWidthMax_ = std::max(
+//        windowWidth,
+//        scalarSpan * 2.0);
+//    windowCenterMin_ = std::min(
+//        scalarMin,
+//        windowCenter);
+//    windowCenterMax_ = std::max(
+//        scalarMax,
+//        windowCenter);
+//
+//    if (windowCenterMax_ <= windowCenterMin_) {
+//        windowCenterMin_ -= 0.5;
+//        windowCenterMax_ += 0.5;
+//    }
+//
+//    const QSignalBlocker widthBlocker(
+//        windowWidthSlider_);
+//    const QSignalBlocker centerBlocker(
+//        windowCenterSlider_);
+//
+//    windowWidthSlider_->setValue(
+//        sliderFromValue(
+//            windowWidth_,
+//            windowWidthMin_,
+//            windowWidthMax_));
+//    windowCenterSlider_->setValue(
+//        sliderFromValue(
+//            windowCenter_,
+//            windowCenterMin_,
+//            windowCenterMax_));
+//
+//    windowWidthLabel_->setText(
+//        QStringLiteral("窗宽: %1")
+//            .arg(windowWidth_, 0, 'g', 8));
+//    windowCenterLabel_->setText(
+//        QStringLiteral("窗位: %1")
+//            .arg(windowCenter_, 0, 'g', 8));
+//
+//    hasWindowLevelState_ = true;
+//    const bool isEnabled =
+//        hasData_ && hasWindowLevelState_;
+//    windowWidthSlider_->setEnabled(isEnabled);
+//    windowCenterSlider_->setEnabled(isEnabled);
+//}
 
 void RenderPanel::setConnect() {
     connect(
@@ -262,7 +262,7 @@ void RenderPanel::setConnect() {
             emit visibilityRequested(std::move(visibility));
         });
 
-    connect(
+   /* connect(
         windowWidthSlider_,
         &QSlider::valueChanged,
         this,
@@ -308,17 +308,17 @@ void RenderPanel::setConnect() {
         windowCenterSlider_,
         &QSlider::sliderReleased,
         this,
-        &RenderPanel::requestWindowLevelUpdate);
+        &RenderPanel::requestWindowLevelUpdate);*/
 }
 
-void RenderPanel::requestWindowLevelUpdate()
-{
-    if (!hasData_ || !hasWindowLevelState_) {
-        return;
-    }
-
-    HostWindowLevelParams windowLevel;
-    windowLevel.windowWidth = windowWidth_;
-    windowLevel.windowCenter = windowCenter_;
-    emit windowLevelRequested(windowLevel);
-}
+//void RenderPanel::requestWindowLevelUpdate()
+//{
+//    if (!hasData_ || !hasWindowLevelState_) {
+//        return;
+//    }
+//
+//    HostWindowLevelParams windowLevel;
+//    windowLevel.windowWidth = windowWidth_;
+//    windowLevel.windowCenter = windowCenter_;
+//    emit windowLevelRequested(windowLevel);
+//}

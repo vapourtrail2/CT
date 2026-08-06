@@ -7,16 +7,16 @@
 #include <QVTKOpenGLNativeWidget.h>
 #include <QWidget>
 
-#include <vtkSmartPointer.h>
-#include <vtkWeakPointer.h>
+//#include <vtkSmartPointer.h>
+//#include <vtkWeakPointer.h>
 
 class QGridLayout;
 class QTimer;
 class QEvent;
-class vtkCallbackCommand;
-class vtkImageData;
-class vtkImageProperty;
-class vtkObject;
+//class vtkCallbackCommand;
+//class vtkImageData;
+//class vtkImageProperty;
+//class vtkObject;
 
 class ViewportGather final : public QWidget
 {
@@ -24,19 +24,19 @@ class ViewportGather final : public QWidget
 
 public:
     explicit ViewportGather(QWidget* parent = nullptr);
-    ~ViewportGather() override;
+    ~ViewportGather();
 
     HostSessionConfig getHostConfig() const;
 
     void requestRefresh();
-    void resetWindowLevelState();
+    //void resetWindowLevelState();
 
-signals:
-    void windowLevelStateChanged(
-        double windowWidth,
-        double windowCenter,
-        double scalarMin,
-        double scalarMax);
+//signals:
+//    void windowLevelStateChanged(
+//        double windowWidth,
+//        double windowCenter,
+//        double scalarMin,
+//        double scalarMax);
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -60,7 +60,7 @@ private:
     void setViewportLayout();
     void scheduleViewportRefresh();
     void refreshAllViewports();
-    void bindWindowLevelSource();
+ /*   void bindWindowLevelSource();
     void clearWindowLevelSource();
     void queueWindowLevelStatePublish();
     void publishWindowLevelState();
@@ -69,7 +69,7 @@ private:
         vtkObject* caller,
         unsigned long eventId,
         void* clientData,
-        void* callData);
+        void* callData);*/
 
 private:
     QGridLayout* m_viewGrid = nullptr;
@@ -81,19 +81,18 @@ private:
     QPointer<QWidget> viewSagittalContainer_;
     QPointer<QWidget> viewCoronalContainer_;
     QPointer<QWidget> view3DContainer_;
-    VizMode m_current3DMode =
-        VizMode::CompositeIsoSurface;
+    VizMode m_current3DMode = VizMode::CompositeIsoSurface;
     ViewportId m_maximizedViewport = ViewportId::None;
     QTimer* m_refreshTimer = nullptr;
     int m_refresher = 0;
-    bool m_hasPublishedWindowLevel = false;
-    double m_publishedWindowWidth = 0.0;
-    double m_publishedWindowCenter = 0.0;
-    double m_publishedScalarMin = 0.0;
-    double m_publishedScalarMax = 0.0;
-    vtkWeakPointer<vtkImageProperty> m_windowLevelProperty;
-    vtkWeakPointer<vtkImageData> m_windowLevelImage;
-    vtkSmartPointer<vtkCallbackCommand> m_windowLevelCallback;
-    unsigned long m_windowLevelObserverTag = 0;
-    bool m_windowLevelPublishQueued = false;
+ //   bool m_hasPublishedWindowLevel = false;
+ //   double m_publishedWindowWidth = 0.0;
+ //   double m_publishedWindowCenter = 0.0;
+ //   double m_publishedScalarMin = 0.0;
+ //   double m_publishedScalarMax = 0.0;*/
+ //   vtkWeakPointer<vtkImageProperty> m_windowLevelProperty;
+ //   vtkWeakPointer<vtkImageData> m_windowLevelImage;
+ //   vtkSmartPointer<vtkCallbackCommand> m_windowLevelCallback;
+ //   unsigned long m_windowLevelObserverTag = 0;
+ //   bool m_windowLevelPublishQueued = false;
 };

@@ -2,22 +2,22 @@
 
 #include <QEvent> 
 #include <QGridLayout>
-#include <QMetaObject>
+//#include <QMetaObject>
 #include <QToolButton>
 #include <QTimer>
 #include <qdebug.h>
 
-#include <vtkCallbackCommand.h>
-#include <vtkCommand.h>
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkImageData.h>
-#include <vtkImageMapper3D.h>
-#include <vtkImageProperty.h>
-#include <vtkImageSlice.h>
-#include <vtkPropCollection.h>
-#include <vtkRenderer.h>
-#include <vtkRendererCollection.h>
+//#include <vtkCallbackCommand.h>
+//#include <vtkCommand.h>
+//#include <vtkImageData.h>
+//#include <vtkImageMapper3D.h>
+//#include <vtkImageProperty.h>
+//#include <vtkImageSlice.h>
+//#include <vtkPropCollection.h>
+//#include <vtkRenderer.h>
+//#include <vtkRendererCollection.h>
 #include <vtkSmartPointer.h>
+#include <vtkGenericOpenGLRenderWindow.h>
 
 #include <cmath>
 #include <string>
@@ -55,10 +55,8 @@ ViewportGather::ViewportGather(QWidget* parent)
     buildUi();
 }
 
-ViewportGather::~ViewportGather()
-{
-    clearWindowLevelSource();
-}
+ViewportGather::~ViewportGather() = default;
+
 
 void ViewportGather::buildUi()
 {
@@ -145,11 +143,11 @@ void ViewportGather::requestRefresh()
     scheduleViewportRefresh();
 }
 
-void ViewportGather::resetWindowLevelState()
-{
-    clearWindowLevelSource();
-    m_hasPublishedWindowLevel = false;
-}
+//void ViewportGather::resetWindowLevelState()
+//{
+//    clearWindowLevelSource();
+//    m_hasPublishedWindowLevel = false;
+//}
 
 bool ViewportGather::eventFilter(
     QObject* watched,
@@ -205,9 +203,9 @@ void ViewportGather::refreshAllViewports()
         m_view3d->update();
     }
 
-    if (!m_windowLevelProperty) {
+  /*  if (!m_windowLevelProperty) {
         bindWindowLevelSource();
-    }
+    }*/
 
     -- m_refresher;
 
@@ -216,155 +214,155 @@ void ViewportGather::refreshAllViewports()
     }
 }
 
-void ViewportGather::bindWindowLevelSource()
-{
-    if (!m_axial || !m_axial->renderWindow()) {
-        return;
-    }
-
-    auto* renderers = m_axial->renderWindow()->GetRenderers();
-
-    if (!renderers) {
-        return;
-    }
-
-    renderers->InitTraversal();
-    while (auto* renderer = renderers->GetNextItem()) {
-        auto* props = renderer->GetViewProps();
-        if (!props) {
-            continue;
-        }
-
-        props->InitTraversal();
-        while (auto* prop = props->GetNextProp()) {
-            auto* imageSlice =
-                vtkImageSlice::SafeDownCast(prop);
-            if (!imageSlice
-                || !imageSlice->GetProperty()
-                || !imageSlice->GetMapper()
-                || !imageSlice->GetMapper()->GetInput()) {
-                continue;
-            }
-
-            m_windowLevelProperty = imageSlice->GetProperty();
-            m_windowLevelImage =
-                imageSlice->GetMapper()->GetInput();
-
-            m_windowLevelCallback =
-                vtkSmartPointer<vtkCallbackCommand>::New();
-            m_windowLevelCallback->SetClientData(this);
-            m_windowLevelCallback->SetCallback(
-                &ViewportGather::onWindowLevelModified);
-
-            m_windowLevelObserverTag =
-                m_windowLevelProperty->AddObserver(
-                    vtkCommand::ModifiedEvent,
-                    m_windowLevelCallback);
-
-            publishWindowLevelState();
-            return;
-        }
-    }
-}
-
-void ViewportGather::clearWindowLevelSource()
-{
-    if (m_windowLevelProperty
-        && m_windowLevelObserverTag != 0) {
-        m_windowLevelProperty->RemoveObserver(
-            m_windowLevelObserverTag);
-    }
-
-    m_windowLevelObserverTag = 0;
-    m_windowLevelCallback = nullptr;
-    m_windowLevelProperty = nullptr;
-    m_windowLevelImage = nullptr;
-    m_windowLevelPublishQueued = false;
-}
-
-void ViewportGather::queueWindowLevelStatePublish()
-{
-    if (m_windowLevelPublishQueued) {
-        return;
-    }
-
-    m_windowLevelPublishQueued = true;
-
-    QMetaObject::invokeMethod(
-        this,
-        [this]() {
-            m_windowLevelPublishQueued = false;
-            publishWindowLevelState();
-        },
-        Qt::QueuedConnection);
-}
-
-void ViewportGather::publishWindowLevelState()
-{
-    if (!m_windowLevelProperty
-        || !m_windowLevelImage) {
-        return;
-    }
-
-    double scalarRange[2] = { 0.0, 0.0 };
-    m_windowLevelImage->GetScalarRange(scalarRange);
-
-    const double windowWidth =
-        m_windowLevelProperty->GetColorWindow();
-    const double windowCenter =
-        m_windowLevelProperty->GetColorLevel();
-
-    if (!std::isfinite(windowWidth)
-        || windowWidth <= 0.0
-        || !std::isfinite(windowCenter)
-        || !std::isfinite(scalarRange[0])
-        || !std::isfinite(scalarRange[1])
-        || scalarRange[1] < scalarRange[0]) {
-        return;
-    }
-
-    constexpr double epsilon = 1e-6;
-    const bool isChanged =
-        !m_hasPublishedWindowLevel
-        || std::abs(windowWidth
-            - m_publishedWindowWidth) > epsilon
-        || std::abs(windowCenter
-            - m_publishedWindowCenter) > epsilon
-        || std::abs(scalarRange[0]
-            - m_publishedScalarMin) > epsilon
-        || std::abs(scalarRange[1]
-            - m_publishedScalarMax) > epsilon;
-
-    if (!isChanged) {
-        return;
-    }
-
-    m_hasPublishedWindowLevel = true;
-    m_publishedWindowWidth = windowWidth;
-    m_publishedWindowCenter = windowCenter;
-    m_publishedScalarMin = scalarRange[0];
-    m_publishedScalarMax = scalarRange[1];
-
-    emit windowLevelStateChanged(
-        windowWidth,
-        windowCenter,
-        scalarRange[0],
-        scalarRange[1]);
-}
-
-void ViewportGather::onWindowLevelModified(
-    vtkObject*,
-    unsigned long,
-    void* clientData,
-    void*)
-{
-    auto* viewport =
-        static_cast<ViewportGather*>(clientData);
-
-    if (viewport) {
-        viewport->queueWindowLevelStatePublish();
-    }
-}
+//void ViewportGather::bindWindowLevelSource()
+//{
+//    if (!m_axial || !m_axial->renderWindow()) {
+//        return;
+//    }
+//
+//    auto* renderers = m_axial->renderWindow()->GetRenderers();
+//
+//    if (!renderers) {
+//        return;
+//    }
+//
+//    renderers->InitTraversal();
+//    while (auto* renderer = renderers->GetNextItem()) {
+//        auto* props = renderer->GetViewProps();
+//        if (!props) {
+//            continue;
+//        }
+//
+//        props->InitTraversal();
+//        while (auto* prop = props->GetNextProp()) {
+//            auto* imageSlice =
+//                vtkImageSlice::SafeDownCast(prop);
+//            if (!imageSlice
+//                || !imageSlice->GetProperty()
+//                || !imageSlice->GetMapper()
+//                || !imageSlice->GetMapper()->GetInput()) {
+//                continue;
+//            }
+//
+//            m_windowLevelProperty = imageSlice->GetProperty();
+//            m_windowLevelImage =
+//                imageSlice->GetMapper()->GetInput();
+//
+//            m_windowLevelCallback =
+//                vtkSmartPointer<vtkCallbackCommand>::New();
+//            m_windowLevelCallback->SetClientData(this);
+//            m_windowLevelCallback->SetCallback(
+//                &ViewportGather::onWindowLevelModified);
+//
+//            m_windowLevelObserverTag =
+//                m_windowLevelProperty->AddObserver(
+//                    vtkCommand::ModifiedEvent,
+//                    m_windowLevelCallback);
+//
+//            publishWindowLevelState();
+//            return;
+//        }
+//    }
+//}
+//
+//void ViewportGather::clearWindowLevelSource()
+//{
+//    if (m_windowLevelProperty
+//        && m_windowLevelObserverTag != 0) {
+//        m_windowLevelProperty->RemoveObserver(
+//            m_windowLevelObserverTag);
+//    }
+//
+//    m_windowLevelObserverTag = 0;
+//    m_windowLevelCallback = nullptr;
+//    m_windowLevelProperty = nullptr;
+//    m_windowLevelImage = nullptr;
+//    m_windowLevelPublishQueued = false;
+//}
+//
+//void ViewportGather::queueWindowLevelStatePublish()
+//{
+//    if (m_windowLevelPublishQueued) {
+//        return;
+//    }
+//
+//    m_windowLevelPublishQueued = true;
+//
+//    QMetaObject::invokeMethod(
+//        this,
+//        [this]() {
+//            m_windowLevelPublishQueued = false;
+//            publishWindowLevelState();
+//        },
+//        Qt::QueuedConnection);
+//}
+//
+//void ViewportGather::publishWindowLevelState()
+//{
+//    if (!m_windowLevelProperty
+//        || !m_windowLevelImage) {
+//        return;
+//    }
+//
+//    double scalarRange[2] = { 0.0, 0.0 };
+//    m_windowLevelImage->GetScalarRange(scalarRange);
+//
+//    const double windowWidth =
+//        m_windowLevelProperty->GetColorWindow();
+//    const double windowCenter =
+//        m_windowLevelProperty->GetColorLevel();
+//
+//    if (!std::isfinite(windowWidth)
+//        || windowWidth <= 0.0
+//        || !std::isfinite(windowCenter)
+//        || !std::isfinite(scalarRange[0])
+//        || !std::isfinite(scalarRange[1])
+//        || scalarRange[1] < scalarRange[0]) {
+//        return;
+//    }
+//
+//    constexpr double epsilon = 1e-6;
+//    const bool isChanged =
+//        !m_hasPublishedWindowLevel
+//        || std::abs(windowWidth
+//            - m_publishedWindowWidth) > epsilon
+//        || std::abs(windowCenter
+//            - m_publishedWindowCenter) > epsilon
+//        || std::abs(scalarRange[0]
+//            - m_publishedScalarMin) > epsilon
+//        || std::abs(scalarRange[1]
+//            - m_publishedScalarMax) > epsilon;
+//
+//    if (!isChanged) {
+//        return;
+//    }
+//
+//    m_hasPublishedWindowLevel = true;
+//    m_publishedWindowWidth = windowWidth;
+//    m_publishedWindowCenter = windowCenter;
+//    m_publishedScalarMin = scalarRange[0];
+//    m_publishedScalarMax = scalarRange[1];
+//
+//    emit windowLevelStateChanged(
+//        windowWidth,
+//        windowCenter,
+//        scalarRange[0],
+//        scalarRange[1]);
+//}
+//
+//void ViewportGather::onWindowLevelModified(
+//    vtkObject*,
+//    unsigned long,
+//    void* clientData,
+//    void*)
+//{
+//    auto* viewport =
+//        static_cast<ViewportGather*>(clientData);
+//
+//    if (viewport) {
+//        viewport->queueWindowLevelStatePublish();
+//    }
+//}
 
 QWidget* ViewportGather::createViewportContainer(
     QPointer<QVTKOpenGLNativeWidget>& vtkWidget,

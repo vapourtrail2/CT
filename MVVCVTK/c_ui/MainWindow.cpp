@@ -334,11 +334,11 @@ void CTViewer::connectRenderPanel()
         this,
         &CTViewer::setVisibility);
 
-    connect(
+   /* connect(
         renderPanel,
         &RenderPanel::windowLevelRequested,
         this,
-        &CTViewer::setWindowLevel);
+        &CTViewer::setWindowLevel);*/
 }
 
 //优化 buildxxx 和 applyxxx分离，build只负责算，apply只负责改界面 
@@ -799,23 +799,23 @@ void CTViewer::setVisibility(
 
 }
 
-void CTViewer::setWindowLevel(
-    HostWindowLevelParams windowLevel)
-{
-    if (!context_.hasData()) {
-        return;
-    }
-
-    HostViewSetRequest request;
-    request.targetView.isViewRoleUsed = true;
-    request.targetView.viewRole = HostRenderViewRole::Primary3D;
-    request.windowLevel = windowLevel;
-
-    context_.getSessionManager().sendRequest(
-        std::move(request));
-
-    workspacePage_->getViewportGather()->requestRefresh();
-}
+//void CTViewer::setWindowLevel(
+//    HostWindowLevelParams windowLevel)
+//{
+//    if (!context_.hasData()) {
+//        return;
+//    }
+//
+//    HostViewSetRequest request;
+//    request.targetView.isViewRoleUsed = true;
+//    request.targetView.viewRole = HostRenderViewRole::Primary3D;
+//    request.windowLevel = windowLevel;
+//
+//    context_.getSessionManager().sendRequest(
+//        std::move(request));
+//
+//    workspacePage_->getViewportGather()->requestRefresh();
+//}
 
 void CTViewer::setOpenProgressDialog(const QString& text, const QString& title)
 {   

@@ -20,9 +20,7 @@ public:
 
     HostSessionConfig getHostConfig() const;
 
-    // 目前只保存首次构建时的 3D 模式。
-    // 动态切换下一步通过 HostViewSetRequest 实现。
-    void setPrimary3DMode(VizMode mode);
+    void requestRefresh();
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -49,21 +47,17 @@ private:
 
 private:
     QGridLayout* m_viewGrid = nullptr;
-
     QPointer<QVTKOpenGLNativeWidget> m_axial;
     QPointer<QVTKOpenGLNativeWidget> m_coronal;
     QPointer<QVTKOpenGLNativeWidget> m_sagittal;
     QPointer<QVTKOpenGLNativeWidget> m_view3d;
-
     QPointer<QWidget> viewAxialContainer_;
     QPointer<QWidget> viewSagittalContainer_;
     QPointer<QWidget> viewCoronalContainer_;
     QPointer<QWidget> view3DContainer_;
-
     VizMode m_current3DMode =
         VizMode::CompositeIsoSurface;
-
     ViewportId m_maximizedViewport = ViewportId::None;
-
 	QTimer* m_refreshTimer = nullptr;
-};
+    int m_refresher = 0;
+};  

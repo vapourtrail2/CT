@@ -3,6 +3,7 @@
 #include "c_ui/MainWindow.h"
 #include "c_ui/panels/RenderPanel.h"
 #include "c_ui/panels/SceneTreePanel.h"
+#include "c_ui/viewport/ViewportGather.h"
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
@@ -759,9 +760,11 @@ void CTViewer::setPrimary3DMode(
     request.targetView.viewRole =
         HostRenderViewRole::Primary3D;
     request.mode = mode;
-    
     context_.getSessionManager().sendRequest(
             std::move(request));
+    auto* ptr = workspacePage_->getViewportGather();
+
+    ptr->requestRefresh();
 }
 
 void CTViewer::setVisibility(
@@ -780,15 +783,13 @@ void CTViewer::setVisibility(
     request.visibility =
         std::move(visibility);
 
-    const bool started =
-        context_.getSessionManager().sendRequest(
+    context_.getSessionManager().sendRequest(
             std::move(request));
 
-    if (!started) {
-        statusBar()->showMessage(
-            QStringLiteral("修改显示状态失败。"),
-            3000);
-    }
+    auto* ptr = workspacePage_->getViewportGather();
+
+    ptr->requestRefresh();
+
 }
 
 void CTViewer::setOpenProgressDialog(const QString& text, const QString& title)

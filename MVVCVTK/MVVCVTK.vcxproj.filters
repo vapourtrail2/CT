@@ -13,14 +13,8 @@
     <Filter Include="c_ui\app">
       <UniqueIdentifier>{6d4f1bad-b9b3-4662-8849-ebc2e637acdc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="c_ui\qt">
-      <UniqueIdentifier>{f4be32e6-3f7c-4612-a6fb-5a890a0ead2d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="c_ui\panels">
       <UniqueIdentifier>{56c8e114-0866-44e4-af47-f52ec539bea1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="c_ui\nav">
-      <UniqueIdentifier>{43d09024-e490-4c8f-8d6c-5ff37d7e1319}</UniqueIdentifier>
     </Filter>
     <Filter Include="c_ui\workbenches\common">
       <UniqueIdentifier>{fe6b4d8b-1e53-4c8a-af87-5a8bb6ffb279}</UniqueIdentifier>
@@ -322,9 +316,6 @@
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="c_ui\qt\QtRenderContext.h">
-      <Filter>c_ui\qt</Filter>
-    </ClInclude>
     <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
       <Filter>c_ui\workbenches\common</Filter>
     </ClInclude>
@@ -334,14 +325,8 @@
     <ClInclude Include="c_ui\command\commands.h">
       <Filter>c_ui\commands</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\context\DataSet.h">
-      <Filter>c_ui\context</Filter>
-    </ClInclude>
     <ClInclude Include="c_ui\context\AppContext.h">
       <Filter>c_ui\context</Filter>
-    </ClInclude>
-    <ClInclude Include="c_ui\viewport\Viewport.h">
-      <Filter>c_ui\viewport</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -393,9 +378,6 @@
     <ClCompile Include="c_ui\app\app.cpp">
       <Filter>c_ui\app</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\qt\QtRenderContext.cpp">
-      <Filter>c_ui\qt</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\context\SessionManager.cpp">
       <Filter>c_ui\context</Filter>
     </ClCompile>
@@ -409,9 +391,6 @@
       <Filter>c_ui\viewport</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
-      <Filter>c_ui\workspace</Filter>
-    </ClCompile>
-    <ClCompile Include="c_ui\contextarea\WorkSpaceUIState.cpp">
       <Filter>c_ui\workspace</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\windows\TitleBar.cpp">
@@ -478,9 +457,6 @@
     </QtMoc>
     <QtMoc Include="c_ui\ribbon\RibbonPage.h">
       <Filter>c_ui\ribbon</Filter>
-    </QtMoc>
-    <QtMoc Include="c_ui\contextarea\WorkSpaceUIState.h">
-      <Filter>c_ui\workspace</Filter>
     </QtMoc>
     <QtMoc Include="c_ui\windows\Titlebar.h">
       <Filter>c_ui\window</Filter>

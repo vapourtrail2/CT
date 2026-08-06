@@ -78,29 +78,6 @@ void ViewportGather::buildUi()
     m_coronal->installEventFilter(this);
     m_sagittal->installEventFilter(this);
     m_view3d->installEventFilter(this);
-
-	//qDebug() << this->objectName();
-
-	//改成状态发生变化时才刷新视图，避免每次都刷新
- //   auto* refreshTimer = new QTimer(this);
- //   connect(
- //       refreshTimer,
- //       &QTimer::timeout,
- //       this,
- //       [this]() {
-	//			m_axial->renderWindow()->Render();
- //               m_axial->update();
-
-	//			m_coronal->renderWindow()->Render();
- //               m_coronal->update();
- //           
-	//			m_sagittal->renderWindow()->Render();
- //               m_sagittal->update();
-
-	//			m_view3d->renderWindow()->Render();
- //               m_view3d->update();
- //       });
-	//refreshTimer->start(33);// 每隔33ms 发出timeout()信号 主动让视图刷新
 }
 
 HostSessionConfig ViewportGather::getHostConfig() const
@@ -147,14 +124,9 @@ HostSessionConfig ViewportGather::getHostConfig() const
     return config;
 }
 
-void ViewportGather::setPrimary3DMode(VizMode mode)
-{
-    if (mode != VizMode::CompositeVolume
-        && mode != VizMode::CompositeIsoSurface) {
-        return;
-    }
-
-    m_current3DMode = mode;
+void ViewportGather::requestRefresh()
+{   
+    scheduleViewportRefresh();
 }
 
 bool ViewportGather::eventFilter(
@@ -185,6 +157,8 @@ bool ViewportGather::eventFilter(
 
 void ViewportGather::scheduleViewportRefresh()
 {
+    m_refresher = 3;
+
     if (!m_refreshTimer->isActive()) {
         m_refreshTimer->start(34);
     }
@@ -207,6 +181,12 @@ void ViewportGather::refreshAllViewports()
     if (m_view3d) {
         m_view3d->renderWindow()->Render();
         m_view3d->update();
+    }
+
+    -- m_refresher;
+
+    if (m_refresher > 0) {
+        m_refreshTimer->start(34);
     }
 }
 

@@ -2,7 +2,7 @@
 
 #include <QGroupBox>
 #include <QHBoxLayout>
-//#include <QSignalBlocker>
+#include <QSignalBlocker>
 #include <QVBoxLayout>
 #include <algorithm>
 #include <cmath>
@@ -37,6 +37,39 @@
 //    return static_cast<int>(std::lround(
 //        ratio * kWindowLevelSliderSteps));
 //}
+
+namespace {
+    int allLength = 1000;
+
+    double getIsoValueFromSlider(
+        int position,
+        double scalarMin,
+        double scalarMax)
+    {
+        const double per = position / static_cast<double>(allLength);
+
+        return scalarMin + per * (scalarMax - scalarMin);
+    }
+
+    int getSliderFromIsoValue(
+        double isoValue,
+        double scalarMin,
+        double scalarMax)
+    {
+        if (scalarMax <= scalarMin) {
+            return 0;
+        }
+
+		const double per = std::clamp(//算出比率 clamp 限制在 0～1 之间
+            (isoValue - scalarMin)
+            / (scalarMax - scalarMin),
+            0.0,
+            1.0);
+
+        return static_cast<int>(std::lround(per * allLength));// 把一个浮点数四舍五入成最接近的整数，并返回 long int 类型
+    }
+}
+
 RenderPanel::RenderPanel(QWidget* parent)
     : QWidget(parent)
 {
@@ -60,8 +93,7 @@ RenderPanel::RenderPanel(QWidget* parent)
         static_cast<int>(VizMode::CompositeVolume));
 
     auto* renderModeRow = new QHBoxLayout();
-    renderModeRow->addWidget(
-        new QLabel(QStringLiteral("3D 模型"), wlGroup));
+    renderModeRow->addWidget(new QLabel(QStringLiteral("3D 模型"), wlGroup));
     renderModeRow->addWidget(renderMode_, 1);
     wv->addLayout(renderModeRow);
 
@@ -100,11 +132,9 @@ RenderPanel::RenderPanel(QWidget* parent)
     windowCenterSlider_->setEnabled(false);
     wv->addWidget(windowCenterLabel_);
     wv->addWidget(windowCenterSlider_);*/
-
-    isoValueLabel_ = new QLabel(
-        QStringLiteral("阈值: "), wlGroup);
+    isoValueLabel_ = new QLabel(QStringLiteral("阈值: "), wlGroup);
     isoSlider_ = new QSlider(Qt::Horizontal, wlGroup);
-    isoSlider_->setRange(0, 1000);
+    isoSlider_->setRange(0, allLength);
     isoSlider_->setEnabled(false);
     wv->addWidget(isoValueLabel_);
     wv->addWidget(isoSlider_);
@@ -115,6 +145,62 @@ RenderPanel::RenderPanel(QWidget* parent)
 }
 
 RenderPanel::~RenderPanel() = default;
+
+void RenderPanel::setIsoValue( //core -> ui 数据初始化
+    double isoValue,
+    double scalarMin,
+    double scalarMax)
+{
+    if (!std::isfinite(isoValue)
+        || !std::isfinite(scalarMin)
+        || !std::isfinite(scalarMax)
+        || scalarMax <= scalarMin
+       ) 
+    {
+        clearIsoValue();
+        return;
+    }
+
+    scalarMin_ = scalarMin;
+    scalarMax_ = scalarMax;
+    isoValue_ = std::clamp(
+        isoValue,
+        scalarMin_,
+        scalarMax_);
+     
+	{//只会改变 isoSlider_ 的值，也就是滑块位置，不会触发 valueChanged 信号
+        const QSignalBlocker blocker(isoSlider_);
+
+        isoSlider_->setValue(
+			getSliderFromIsoValue(//初始化 只是把core拿到的值 转换为滑块位置
+                isoValue_,
+                scalarMin_,
+                scalarMax_));
+    }
+
+    isoValueLabel_->setText(QStringLiteral("阈值: %1").arg(isoValue_, 0, 'g', 8));
+    hasIsoState_ = true;
+	isoSlider_->setEnabled(true);//启用滑块  初始化结束
+
+}
+
+void RenderPanel::clearIsoValue()
+{
+    
+    hasIsoState_ = false;
+
+    isoValue_ = 0.0;
+    scalarMin_ = 0.0;
+    scalarMax_ = 0.0;
+
+    {
+        const QSignalBlocker blocker(isoSlider_);
+        isoSlider_->setValue(0);
+    }
+
+    isoSlider_->setEnabled(false);
+    isoValueLabel_->setText(QStringLiteral("阈值: -"));
+}
 
 //void RenderPanel::setDataState(bool hasData)
 //{
@@ -133,7 +219,6 @@ RenderPanel::~RenderPanel() = default;
 //    windowWidthSlider_->setEnabled(isEnabled);
 //    windowCenterSlider_->setEnabled(isEnabled);
 //}
-
 //void RenderPanel::setWindowLevelState(
 //    double windowWidth,
 //    double windowCenter,
@@ -256,6 +341,31 @@ void RenderPanel::setConnect() {
             visibility.isRulerVisible = checked;
 
             emit visibilityRequested(std::move(visibility));
+        });
+
+    connect(
+        isoSlider_,
+        &QSlider::valueChanged,
+        this,
+        [this](int position) {
+            if (!hasIsoState_) {
+                return;
+            }
+
+            isoValue_ = getIsoValueFromSlider(position, scalarMin_, scalarMax_);
+            isoValueLabel_->setText(QStringLiteral("阈值: %1") .arg(isoValue_, 0, 'g', 8));
+		});
+
+    connect(
+        isoSlider_,
+        &QSlider::sliderReleased,
+        this,
+        [this]() {
+            if (!hasIsoState_) {
+                return;
+            }
+
+            emit isoValueRequested(isoValue_);
         });
 
    /* connect(

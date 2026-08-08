@@ -8,6 +8,7 @@
 #include <array>
 #include <limits>
 #include <utility>
+#include <cmath>
 
 
 void setError(QString* err,QString message) {
@@ -246,9 +247,9 @@ bool SessionManager::sendLoadRequest(
     sourcePath_.clear();
     pendingSourcePath_ = sourcePath;
     setState(State::Loading);
+	emit isoStateCleared();//清除 isoStateChanged 信号 加载第二个文件第一个文件的iosvalue就不会显示
 
     QPointer<SessionManager> ptr(this);
-
     const bool started = hostSession_->SendRequest(
         std::move(request),
         [ptr, generation](bool isSuccess) {
@@ -296,12 +297,52 @@ void SessionManager::finishLoadRequest(//更新状态
         ? State::Ready
         : State::Failed);
 
+    if (isSuccess) {
+        setIsoState();
+    }
+    else {
+        emit isoStateCleared();
+    }
+
     emit loadFinished(
         isSuccess,
         isSuccess
         ? QString()
         : QStringLiteral(
             "Core load request failed."));
+}
+
+void SessionManager::setIsoState()
+{
+    if (!hostSession_) {
+        emit isoStateCleared();
+        return;
+    }
+
+    const auto state = hostSession_->GetScalarState();
+
+    if (!state || !state->isDataReady) {
+
+        emit isoStateCleared();
+        return;
+    }
+
+    const double scalarMin = state->scalarRange[0];
+    const double scalarMax = state->scalarRange[1];
+    const double isoValue = state->isoValue;
+
+    if (!std::isfinite(isoValue)
+        || !std::isfinite(scalarMin)
+        || !std::isfinite(scalarMax)
+        || scalarMax <= scalarMin) {
+        emit isoStateCleared();
+        return;
+    }
+
+    emit isoStateChanged(
+        isoValue,
+        scalarMin,
+        scalarMax);
 }
 
 void SessionManager::setState(State state)
@@ -327,4 +368,5 @@ void SessionManager::clearSession()
     }
 
     setState(State::Empty);
+    emit isoStateCleared();
 }

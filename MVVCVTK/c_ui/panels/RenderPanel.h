@@ -16,7 +16,10 @@ public:
     explicit RenderPanel(QWidget* parent = nullptr);
     ~RenderPanel() override;
 
-   /*void setDataState(bool hasData);*/
+    void setIsoValue(double isovalue, double scalarMin, double scalarMax);
+
+	void clearIsoValue();
+   /*void setDataState(bool hasData);
    /* void setWindowLevelState(
         double windowWidth,
         double windowCenter,
@@ -28,6 +31,7 @@ signals:
 
     void visibilityRequested(HostVisibilityParams visibility);
 
+    void isoValueRequested(double value);
    /* void windowLevelRequested(HostWindowLevelParams windowLevel);*/
 
 private:
@@ -48,6 +52,11 @@ private:
     QCheckBox* crosshairToggle_ = nullptr;
     QCheckBox* rulerAxesToggle_ = nullptr;
 
+private:
+    double isoValue_ = 0.0;
+    double scalarMin_ = 0.0;
+    double scalarMax_ = 0.0;
+    bool hasIsoState_ = false;
  /*   double windowWidth_ = 400.0;
     double windowCenter_ = 40.0;
     double windowWidthMin_ = 0.01;

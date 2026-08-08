@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <cmath>
 #include <memory>
 
 #include <QApplication>
@@ -333,6 +334,26 @@ void CTViewer::connectRenderPanel()
         &RenderPanel::visibilityRequested,
         this,
         &CTViewer::setVisibility);
+
+    connect(
+        renderPanel,
+        &RenderPanel::isoValueRequested,
+        this,
+		&CTViewer::setIsoValue);
+
+    auto& sessionManager = context_.getSessionManager();
+
+	connect(//core -> ui
+        &sessionManager,
+        &SessionManager::isoStateChanged,
+        renderPanel,
+        &RenderPanel::setIsoValue);
+
+    connect(
+        &sessionManager,
+        &SessionManager::isoStateCleared,
+        renderPanel,
+        &RenderPanel::clearIsoValue);
 
    /* connect(
         renderPanel,
@@ -797,6 +818,27 @@ void CTViewer::setVisibility(
 
     ptr->requestRefresh();
 
+}
+
+void CTViewer::setIsoValue(double isoValue)//ui的value ->core
+{
+    if (!context_.hasData() || !std::isfinite(isoValue)) {
+        return;
+    }
+
+    HostViewSetRequest request;
+
+    request.targetView.isViewRoleUsed = true;
+    request.targetView.viewRole = HostRenderViewRole::Primary3D;
+    request.iso = isoValue;
+    const bool started = context_.getSessionManager().sendRequest(std::move(request));
+
+    if (!started) 
+    {
+        return;
+    }
+
+    workspacePage_ ->getViewportGather() ->requestRefresh();
 }
 
 //void CTViewer::setWindowLevel(

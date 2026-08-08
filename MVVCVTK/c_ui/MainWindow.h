@@ -81,6 +81,7 @@ private:
     void openCtReconUi();
     void set3DMode(HostRenderMode mode);
     void setVisibility(HostVisibilityParams visibility);
+    void setIsoValue(double isoValue);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
 
 private:

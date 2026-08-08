@@ -319,7 +319,18 @@ void SessionManager::setIsoState()
         return;
     }
 
-    const auto state = hostSession_->GetScalarState();
+    HostViewTarget target;
+    target.isViewRoleUsed = true;
+    target.viewRole = HostRenderViewRole::Primary3D;
+
+    const auto state = hostSession_->GetRenderViewState(target);
+    if (!state) {
+        // Session 构建失败或目标视图不存在。
+        return;
+    }
+
+    const double iso = state->isoThreshold;
+    const auto scalarRange = state->scalarRange;
 
     if (!state || !state->isDataReady) {
 

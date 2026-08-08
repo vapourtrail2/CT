@@ -8,7 +8,6 @@
 #include <cmath>
 #include <utility>
 
-
 //constexpr int kWindowLevelSliderSteps = 1000;
 //
 //double valueFromSlider(
@@ -38,8 +37,6 @@
 //    return static_cast<int>(std::lround(
 //        ratio * kWindowLevelSliderSteps));
 //}
-
-
 RenderPanel::RenderPanel(QWidget* parent)
     : QWidget(parent)
 {
@@ -52,7 +49,6 @@ RenderPanel::RenderPanel(QWidget* parent)
         "QGroupBox{color:#ddd; border:1px solid #333; margin-top:8px;}"
         "QGroupBox::title{subcontrol-origin: margin; left:8px;}"
     );
-    wlGroup->setFixedHeight(250);
     auto* wv = new QVBoxLayout(wlGroup);
 
     renderMode_ = new QComboBox(wlGroup);

@@ -30,7 +30,7 @@ void WorkspacePage::buildUi() {
 
     renderPanel_ = new RenderPanel(rightSplit_);  
     renderPanel_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    renderPanel_->setMaximumHeight(270);
+    renderPanel_->setMaximumHeight(190);
     rightSplit_->addWidget(renderPanel_);
 
     /*connect(
@@ -44,7 +44,7 @@ void WorkspacePage::buildUi() {
 
     rightSplit_->setStretchFactor(0, 0);
     rightSplit_->setStretchFactor(1, 1);
-    rightSplit_->setSizes({ 270, 260 });
+    rightSplit_->setSizes({ 190, 260 });
 
     workspaceSplit_->addWidget(viewportGather_);
     workspaceSplit_->addWidget(rightSplit_);

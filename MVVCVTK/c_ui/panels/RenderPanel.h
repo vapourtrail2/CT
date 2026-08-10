@@ -27,7 +27,7 @@ public:
         double scalarMax);*/
 
 signals:
-    void primary3DModeRequested(HostRenderMode mode);
+    void primary3DModeRequested(HostRenderMode mode,HostVisibilityParams visibility);
 
     void visibilityRequested(HostVisibilityParams visibility);
 

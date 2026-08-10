@@ -773,7 +773,8 @@ void CTViewer::openCtReconUi()
 }
 
 void CTViewer::set3DMode(
-    HostRenderMode mode)
+    HostRenderMode mode,
+    HostVisibilityParams visibility)
 {
     if (!context_.hasData()) {
         return;
@@ -781,9 +782,9 @@ void CTViewer::set3DMode(
 
     HostViewSetRequest request;
     request.targetView.isViewRoleUsed = true;
-    request.targetView.viewRole =
-        HostRenderViewRole::Primary3D;
+    request.targetView.viewRole = HostRenderViewRole::Primary3D;
     request.mode = mode;
+	request.visibility = std::move(visibility);
 
     if (mode == HostRenderMode::CompositeVolume) {
         request.transferPreset = HostTransferPreset::Percentile;

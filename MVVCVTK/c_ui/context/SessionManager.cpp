@@ -80,8 +80,7 @@ bool SessionManager::resetHost(QString* errorOut)
         return false;
     }
 
-    auto newHost =
-        std::make_unique<VtkAppHostSession>(config_);
+    auto newHost = std::make_unique<VtkAppHostSession>(config_);
 
     if (!newHost->BuildSession()) {
         setError(
@@ -111,58 +110,14 @@ bool SessionManager::openFile(const QString& path,
     }
 
     HostLoadRequest request;
-
     const QByteArray utf8Path = p.toUtf8();
-
     request.filePath = utf8Path.toStdString();
-
     request.geometry.dimensions = { 0,0,0 };
     request.geometry.spacing = spacing;
     request.geometry.origin = origin;
 
     return sendLoadRequest(std::move(request), p, errorOut);
 }
-
-//bool SessionManager::openReconstructedData(
-//    const float* data,
-//    const std::array<int, 3>& dims,
-//    const std::array<float, 3>& spacing,
-//    const std::array<float, 3>& origin,
-//    const QString& sourcePath,
-//    QString* errorOut)
-//{
-//    if (!data) {
-//        setError(
-//            errorOut,
-//            QStringLiteral("Reconstruction buffer is null."));
-//        return false;
-//    }
-//
-//    std::size_t voxelCount = 0;
-//    if (!isVoxelCountRight(dims,voxelCount)) {
-//        setError(
-//            errorOut,
-//            QStringLiteral("Invalid reconstruction dimensions."));
-//        return false;
-//    }
-//
-//    HostReloadRequest request;
-//
-//    // HostReloadRequest 自己拥有数据，不能只把外部 float* 传给 core。
-//	request.voxels.assign(data, data + voxelCount);//把数据拷贝到 request.voxels 中  复制的 有点问题
-//    request.geometry.dimensions = dims;
-//    request.geometry.spacing = spacing;
-//    request.geometry.origin = origin;
-//
-//    const QString displayPath = sourcePath.trimmed().isEmpty()
-//        ? QStringLiteral("CT reconstruction")
-//        : sourcePath.trimmed();
-//
-//    return sendLoadRequest(
-//        std::move(request),
-//        displayPath,
-//        errorOut);
-//}
 
 bool SessionManager::openReconstructedData(
     std::vector<float>&& voxels,
@@ -325,27 +280,18 @@ void SessionManager::setIsoState()
 
     const auto state = hostSession_->GetRenderViewState(target);
     if (!state) {
-        // Session 构建失败或目标视图不存在。
         return;
     }
 
-    const double iso = state->isoThreshold;
-    const auto scalarRange = state->scalarRange;
-
-    if (!state || !state->isDataReady) {
-
-        emit isoStateCleared();
-        return;
-    }
-
+    const double isoValue  = state->isoThreshold;
     const double scalarMin = state->scalarRange[0];
     const double scalarMax = state->scalarRange[1];
-    const double isoValue = state->isoValue;
 
     if (!std::isfinite(isoValue)
         || !std::isfinite(scalarMin)
         || !std::isfinite(scalarMax)
-        || scalarMax <= scalarMin) {
+        || scalarMax <= scalarMin)
+    {
         emit isoStateCleared();
         return;
     }
@@ -361,8 +307,7 @@ void SessionManager::setState(State state)
     if (state_ == state) {
         return;
     }
-    // == 和 =
-    
+
     state_ = state;
     emit sessionChanged(state_);
 }

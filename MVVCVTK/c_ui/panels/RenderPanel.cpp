@@ -178,7 +178,7 @@ void RenderPanel::setIsoValue( //core -> ui 数据初始化
                 scalarMax_));
     }
 
-    isoValueLabel_->setText(QStringLiteral("阈值: %1").arg(isoValue_, 0, 'g', 8));
+    isoValueLabel_->setText(QStringLiteral("阈值: %1").arg(isoValue_, 0, 'f', 4));
     hasIsoState_ = true;
 	isoSlider_->setEnabled(true);//启用滑块  初始化结束
 
@@ -296,18 +296,19 @@ void RenderPanel::setConnect() {
             }
 
             const auto mode = static_cast<VizMode>(renderMode_->itemData(index).toInt());
+            const HostRenderMode requestedMode =
+                mode == VizMode::CompositeVolume
+                ? HostRenderMode::CompositeVolume
+                : HostRenderMode::CompositeIsoSurface;
 
-            if (mode == VizMode::CompositeVolume) {
-                emit primary3DModeRequested(
-                    HostRenderMode::CompositeVolume);
-                return;
-            }
+            HostVisibilityParams visibility;    
+            visibility.isPlanes3DVisible = mprPlanesToggle_->isChecked();
+            visibility.isCrosshairVisible =crosshairToggle_->isChecked();
+            visibility.isRulerVisible =rulerAxesToggle_->isChecked();
 
-            if (mode == VizMode::CompositeIsoSurface) {
-                emit primary3DModeRequested(
-                    HostRenderMode::CompositeIsoSurface);
-                return;
-            }
+            emit primary3DModeRequested(
+                requestedMode,
+                std::move(visibility));
         });
 
     connect(
@@ -353,7 +354,7 @@ void RenderPanel::setConnect() {
             }
 
             isoValue_ = getIsoValueFromSlider(position, scalarMin_, scalarMax_);
-            isoValueLabel_->setText(QStringLiteral("阈值: %1") .arg(isoValue_, 0, 'g', 8));
+            isoValueLabel_->setText(QStringLiteral("阈值: %1") .arg(isoValue_, 0, 'f', 4));
 		});
 
     connect(

@@ -7,6 +7,7 @@
 #include "c_ui/ribbon/RibbonPage.h"
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
+#include "measure/MeasureToolDialog.h"
 #include "Host/Types/HostRequestTypes.h"
 #include "uireconstruct3d.h"
 
@@ -64,7 +65,6 @@ VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
 CTViewer::CTViewer(QWidget* parent)
     : QMainWindow(parent)
 {
-    //无边框窗口+深色主题 
     setWindowFlag(Qt::FramelessWindowHint);
     setWindowTitle(QStringLiteral("GviewCT"));
     setStyleSheet(QStringLiteral(
@@ -292,12 +292,51 @@ void CTViewer::showMeasureToolsDialog()
         return;
     }
 
-    QMessageBox::information(
-        this,
-        QStringLiteral("二维测量"),
-        QStringLiteral(
-            "二维测量正在迁移到新版 Host 接口，"
-            "当前版本暂不可用。"));
+    const ImageSnapshot imageSnapshot = context_.getSessionManager().getImageSnapshot();
+
+    if (!imageSnapshot || !imageSnapshot->image) {
+        QMessageBox::warning(
+            this,
+            QStringLiteral("二维测量"),
+            QStringLiteral("无法取得当前图像数据。"));
+        return;
+    }
+
+    measure::MeasurementViewInitState initialState;
+
+    HostViewTarget sourceTarget;
+    sourceTarget.isViewRoleUsed = true;
+    sourceTarget.viewRole =
+        HostRenderViewRole::TopDownSlice;
+
+    auto& sessionManager = context_.getSessionManager();
+    const auto sourceState =
+        sessionManager.getRenderViewState(sourceTarget);
+
+    if (sourceState) {
+        initialState.cursorWorld = sourceState->cursorWorld;
+        initialState.windowLevel = std::array<double, 2>{
+            sourceState->windowLevel.windowWidth,
+            sourceState->windowLevel.windowCenter
+        };
+        initialState.background = std::array<double, 3>{
+            sourceState->background.r,
+            sourceState->background.g,
+            sourceState->background.b
+        };
+        initialState.visibilityMask =
+            sourceState->visibilityMask;
+        initialState.modelMatrix =
+            sessionManager.getRenderViewModelMatrix(
+                sourceState->id);
+    }
+
+    measure::MeasureToolDialog dialog(
+        imageSnapshot,
+        initialState,
+        this);
+
+    dialog.exec();
 }
 
 void CTViewer::connectAppSignals()

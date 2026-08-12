@@ -246,6 +246,8 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\workbenches\StartPage.h" />
     <QtMoc Include="c_ui\workbenches\VolumePage.h" />
     <QtMoc Include="c_ui\workbenches\WindowPage.h" />
+    <ClInclude Include="measure\MeasurementViewport.h" />
+    <ClInclude Include="measure\MeasurementViewInitState.h" />
     <ClInclude Include="measure\MeasureToolDialog.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -337,6 +339,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <ClCompile Include="c_ui\workbenches\StartPage.cpp" />
     <ClCompile Include="c_ui\workbenches\VolumePage.cpp" />
     <ClCompile Include="c_ui\workbenches\WindowPage.cpp" />
+    <ClCompile Include="measure\MeasurementViewport.cpp" />
     <ClCompile Include="measure\MeasureToolDialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

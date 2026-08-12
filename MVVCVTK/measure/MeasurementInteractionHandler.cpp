@@ -11,13 +11,14 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <iostream>
 
 namespace measure {
 
 MeasurementInteractionHandler::MeasurementInteractionHandler(
     const std::shared_ptr<MeasurementSession>& session,
     const std::shared_ptr<AbstractDataManager>& dataManager,
-    AbstractInteractiveService* service,
+    InteractiveService* service,
     vtkRenderer* renderer,
     MeasureView view)
     : m_session(session)
@@ -28,17 +29,18 @@ MeasurementInteractionHandler::MeasurementInteractionHandler(
 {
 }
 
-InteractionResult MeasurementInteractionHandler::GetHandleResult(const InteractionEvent& event)
+InteractionResult MeasurementInteractionHandler::Send(const InteractionEvent& event)
 {
     if (!m_session || !m_session->IsActive() || !m_service || !m_renderer) {
-        if (event.vtkEventId == vtkCommand::LeftButtonReleaseEvent && m_consumingLeftButton) {
+        if (event.eventKind == InteractionEventKind::PrimaryRelease
+            && m_consumingLeftButton) {
             m_consumingLeftButton = false;
             return { true, true };
         }
-        if (event.vtkEventId == vtkCommand::LeftButtonPressEvent
-            || event.vtkEventId == vtkCommand::LeftButtonReleaseEvent
-            || event.vtkEventId == vtkCommand::MouseWheelForwardEvent
-            || event.vtkEventId == vtkCommand::MouseWheelBackwardEvent) {
+        if (event.eventKind == InteractionEventKind::PrimaryPress
+            || event.eventKind == InteractionEventKind::PrimaryRelease
+            || event.eventKind == InteractionEventKind::WheelForward
+            || event.eventKind == InteractionEventKind::WheelBackward) {
             return { true, true };
         }
         return {};
@@ -49,18 +51,8 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         return {};
     }
 
-    /*if (event.vtkEventId == vtkCommand::KeyPressEvent) {
-        if (event.keySym == "Escape") {
-            m_session->CancelDraft();
-            return { true, true };
-        }
-        if (event.keySym == "BackSpace" || event.keySym == "Backspace") {
-            m_session->UndoDraftPoint();
-            return { true, true };
-        }
-    }*/
 
-    if (event.vtkEventId == vtkCommand::LeftButtonPressEvent) {
+    if (event.eventKind == InteractionEventKind::PrimaryPress) {
         m_consumingLeftButton = true;
 
 		const auto physical = DisplayToPhysical(event.x, event.y);//鼠标点击位置转为物理坐标
@@ -75,12 +67,12 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         return { true, true };
     }
 
-    if (event.vtkEventId == vtkCommand::LeftButtonReleaseEvent && m_consumingLeftButton) {
+    if (event.eventKind == InteractionEventKind::PrimaryRelease && m_consumingLeftButton) {
         m_consumingLeftButton = false;
         return { true, true };
     }
 
-    if (event.vtkEventId == vtkCommand::MouseMoveEvent) {
+    if (event.eventKind == InteractionEventKind::PointerMove) {
         if (!draft->physicalPoints.empty()) {
             const auto preview = DisplayToPhysical(event.x, event.y);
             m_session->UpdatePreview(preview);
@@ -89,8 +81,7 @@ InteractionResult MeasurementInteractionHandler::GetHandleResult(const Interacti
         return {};
     }
 
-    if ((event.vtkEventId == vtkCommand::MouseWheelForwardEvent
-            || event.vtkEventId == vtkCommand::MouseWheelBackwardEvent)
+    if ((event.eventKind == InteractionEventKind::WheelForward|| event.eventKind == InteractionEventKind::WheelBackward)
         && !draft->physicalPoints.empty()) {
         return { true, true };
     }
@@ -125,10 +116,6 @@ std::optional<Point3> MeasurementInteractionHandler::DisplayToPhysical(int x, in
     }
 
     const Point3 direction = geometry::Subtract(*farPoint, *nearPoint);//表示鼠标射线从近裁剪面指向远裁剪面的方向
-    for (size_t i = 0; i < direction.size(); i++)
-    {
-        std::cout << direction[i] <<  " ";
-    }
 
     const Point3 normal = GetSliceViewDescriptor(m_view).normal;
     /*   normal = { 0, 0, 1 }; //法向量朝Z xy平面
@@ -217,10 +204,8 @@ bool MeasurementInteractionHandler::IsInsideImage(const Point3& physicalPoint) c
     if (!m_dataManager) {
         return false;
     }
-    auto image = m_dataManager->GetVtkImage();
-    if (!image) {
-        return false;
-    }
+    const auto snapshot = m_dataManager->GetImageSnapshot();
+    const auto image = snapshot->image;
 
     double source[3] = { physicalPoint[0], physicalPoint[1], physicalPoint[2] };
     double continuousIndex[3] = { 0.0, 0.0, 0.0 };

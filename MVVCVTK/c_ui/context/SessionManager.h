@@ -2,9 +2,12 @@
 
 #include "Host/Types/HostRequestTypes.h"
 #include "Host/VtkAppHostSession.h"
+#include "App/AppInterfaces.h"
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
+#include <string>
 #include <QObject>
 #include <QString>
 
@@ -46,14 +49,6 @@ public:
         QString* errorOut = nullptr
         );
 
-    /*bool openReconstructedData(
-        const float* data,
-        const std::array<int, 3>& dims,
-        const std::array<float, 3>& spacing,
-        const std::array<float, 3>& origin,
-        const QString& sourcePath,  
-        QString* errorOut = nullptr);*/
-
     bool openReconstructedData(
         std::vector<float>&& voxels,
         const std::array<int, 3>& dims,
@@ -61,9 +56,17 @@ public:
         const std::array<float, 3>& origin,
         const QString& sourcePath,
         QString* errorOut = nullptr);
+
     bool sendRequest(
         HostRequest&& request,
         HostCompleteCallback onComplete = nullptr);
+
+    ImageSnapshot getImageSnapshot();
+    std::optional<HostRenderViewState> getRenderViewState(
+        const HostViewTarget& target);
+    std::optional<std::array<double, 16>> getRenderViewModelMatrix(
+        const std::string& viewId);
+
     void clearSession();
 
 signals:
@@ -94,4 +97,3 @@ private:
     QString sourcePath_;
     QString pendingSourcePath_;//什么意思
 };
-

@@ -4,7 +4,7 @@
 
 #include <memory>
 
-class AbstractInteractiveService;
+class InteractiveService;
 class vtkRenderer;
 class Viewer2DHandler;
 
@@ -14,15 +14,15 @@ namespace measure {
 class MeasurementZoomHandler : public IInteractionHandler {
 public:
     MeasurementZoomHandler(
-        AbstractInteractiveService* service,
+        InteractiveService* service,
         vtkRenderer* renderer);
     ~MeasurementZoomHandler() override;
 
-    InteractionResult GetHandleResult(const InteractionEvent& event) override;
+    InteractionResult Send(const InteractionEvent& event) override;
 
 private:
     std::unique_ptr<Viewer2DHandler> m_viewer2D;
     bool m_zooming = false;
 };
 
-} // namespace measure
+} 

@@ -1,15 +1,20 @@
 #include "c_ui/context/SessionManager.h"
 #include "Host/Types/HostRequest.h"
 
+#include "Host/HostFeature.h"
 #include <QByteArray>
 #include <QMetaObject>
 #include <QPointer>
 
+#include <vtkImageSlice.h>
+#include <vtkMatrix4x4.h>
+#include <vtkPropCollection.h>
+#include <vtkRenderer.h>
+
 #include <array>
+#include <cmath>
 #include <limits>
 #include <utility>
-#include <cmath>
-
 
 void setError(QString* err,QString message) {
     if(err)
@@ -36,6 +41,44 @@ bool isVoxelCountRight(std::array<int, 3> dimensions, std::size_t& voxelcount) {
 
     return true;
 }
+
+class ImageSnapshotReader final : public HostFeature
+{
+public:
+    std::string_view GetFeatureId() const noexcept override
+    {
+        return "ui.image-snapshot-reader";
+    }
+
+    bool AttachHost(
+        const HostFeatureContext& context) override
+    {
+        if (!context.getImageSnapshot) {
+            return false;
+        }
+
+        snapshot_ = context.getImageSnapshot();
+        return static_cast<bool>(snapshot_);
+    }
+
+    bool DetachHost() override
+    {
+        return true;
+    }
+
+    bool OnHostTick() override
+    {
+        return true;
+    }
+
+    const ImageSnapshot& getSnapshot() const noexcept
+    {
+        return snapshot_;
+    }
+
+private:
+    ImageSnapshot snapshot_;
+};
 
 SessionManager::SessionManager(QObject* parent)
     : QObject(parent)
@@ -176,6 +219,75 @@ bool SessionManager::sendRequest(HostRequest&& request, HostCompleteCallback onC
     return hostSession_->SendRequest(
         std::move(request),
         std::move(onComplete));
+}
+
+ImageSnapshot SessionManager::getImageSnapshot()
+{
+    if (!hostSession_ || state_ != State::Ready) {
+        return {};
+    }
+
+    auto reader = std::make_shared<ImageSnapshotReader>();
+        
+    if (!hostSession_->AttachFeature(reader)) {
+        return {};
+    }
+
+    const ImageSnapshot snapshot = reader->getSnapshot();
+
+    if (!hostSession_->DetachFeature(*reader)) {
+        return {};
+    }
+
+    return snapshot;
+}
+
+std::optional<HostRenderViewState>
+SessionManager::getRenderViewState(
+    const HostViewTarget& target)
+{
+    if (!hostSession_ || state_ != State::Ready) {
+        return std::nullopt;
+    }
+
+    return hostSession_->GetRenderViewState(target);
+}
+
+std::optional<std::array<double, 16>>
+SessionManager::getRenderViewModelMatrix(
+    const std::string& viewId)
+{
+    if (!hostSession_ || state_ != State::Ready) {
+        return std::nullopt;
+    }
+
+    const auto* endpoint =
+        hostSession_->GetRenderViewEndpoint(viewId);
+
+    if (!endpoint || !endpoint->renderer) {
+        return std::nullopt;
+    }
+
+    auto* props = endpoint->renderer->GetViewProps();
+    if (!props) {
+        return std::nullopt;
+    }
+
+    props->InitTraversal();
+    while (auto* prop = props->GetNextProp()) {
+        auto* imageSlice = vtkImageSlice::SafeDownCast(prop);
+        if (!imageSlice || !imageSlice->GetMatrix()) {
+            continue;
+        }
+
+        std::array<double, 16> matrix{};
+        vtkMatrix4x4::DeepCopy(
+            matrix.data(),
+            imageSlice->GetMatrix());
+        return matrix;
+    }
+
+    return std::nullopt;
 }
 
 bool SessionManager::sendLoadRequest(

@@ -7,7 +7,7 @@
 #include <optional>
 
 class AbstractDataManager;
-class AbstractInteractiveService;
+class InteractiveService;
 class vtkRenderer;
 
 namespace measure {
@@ -16,14 +16,14 @@ class MeasurementSession;
 
 class MeasurementInteractionHandler : public IInteractionHandler {
 public:
-    MeasurementInteractionHandler(
+    MeasurementInteractionHandler(  
         const std::shared_ptr<MeasurementSession>& session,
         const std::shared_ptr<AbstractDataManager>& dataManager,
-        AbstractInteractiveService* service,
+        InteractiveService* service,
         vtkRenderer* renderer,
         MeasureView view);
 
-    InteractionResult GetHandleResult(const InteractionEvent& event) override;
+    InteractionResult Send(const InteractionEvent& event) override;
 
 private:
     std::optional<Point3> DisplayToPhysical(int x, int y) const;
@@ -32,7 +32,7 @@ private:
 
     std::shared_ptr<MeasurementSession> m_session;
     std::shared_ptr<AbstractDataManager> m_dataManager;
-    AbstractInteractiveService* m_service = nullptr;
+    InteractiveService* m_service = nullptr;
     vtkRenderer* m_renderer = nullptr;
     MeasureView m_view = MeasureView::Axial;
     bool m_consumingLeftButton = false;

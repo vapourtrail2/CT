@@ -261,6 +261,12 @@
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\VolumeStrategy.h">
       <Filter>include\Render</Filter>
     </ClInclude>
+    <ClInclude Include="measure\MeasurementViewport.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\MeasurementViewInitState.h">
+      <Filter>measure</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="measure\MeasureToolDialog.cpp">
@@ -314,6 +320,9 @@
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\IsoSurfaceStrategy.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\SliceStrategy.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
+    <ClCompile Include="measure\MeasurementViewport.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">

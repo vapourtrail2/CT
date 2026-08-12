@@ -21,7 +21,7 @@ namespace measure {
 
 MeasurementOverlayStrategy::MeasurementOverlayStrategy(
     const std::shared_ptr<MeasurementSession>& session,
-    AbstractInteractiveService* service,
+    InteractiveService* service,
     MeasureView view)
     : m_session(session)
     , m_service(service)
@@ -34,23 +34,34 @@ void MeasurementOverlayStrategy::SetInputData(vtkSmartPointer<vtkDataObject> dat
     (void)data;
 }
 
-void MeasurementOverlayStrategy::SetRendererAttached(vtkSmartPointer<vtkRenderer> renderer)
+void MeasurementOverlayStrategy::AttachRenderer(
+    vtkSmartPointer<vtkRenderer> renderer)
 {
+    if (!renderer) {
+        return;
+    }
+
     if (m_renderer == renderer) {
+        BaseVisualStrategy::AttachRenderer(renderer);
         Refresh();
         return;
     }
+
     RemoveProps();
+    BaseVisualStrategy::AttachRenderer(renderer);
     m_renderer = renderer;
     Refresh();
 }
 
-void MeasurementOverlayStrategy::SetRendererDetached(vtkSmartPointer<vtkRenderer> renderer)
+void MeasurementOverlayStrategy::DetachRenderer(
+    vtkSmartPointer<vtkRenderer> renderer)
 {
     if (m_renderer == renderer) {
         RemoveProps();
         m_renderer = nullptr;
     }
+
+    BaseVisualStrategy::DetachRenderer(renderer);
 }
 
 void MeasurementOverlayStrategy::SetVisualState(

@@ -70,16 +70,29 @@ void MeasureToolDialog::BuildUi()
     m_arcButton = new QPushButton(QStringLiteral("圆弧"), this);
     m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
     m_redoButton = new QPushButton(QStringLiteral("重做"), this);
+
+    // 这是测量工具栏，不应存在 QDialog 的“默认确认按钮”。
+    // 否则焦点交给 VTK 视图后，Qt 会把蓝框恢复到第一个按钮。
+    for (auto button : {
+        m_lineButton,
+        m_circleButton,
+        m_arcButton,
+        m_undoButton,
+        m_redoButton }) 
+    {
+		button->setAutoDefault(false);//取消默认按钮 避免失去焦点后蓝框恢复到第一个按钮
+    }
+
     for (auto* button : { m_lineButton, m_circleButton, m_arcButton }) {
         button->setCheckable(true);
-        button->setMinimumSize(72, 32);
+        button->setMinimumSize(72, 32); 
     }
     for (auto* button : { m_undoButton, m_redoButton }) {
         button->setMinimumSize(72, 32);
         button->setEnabled(false);
     }
-    m_undoButton->setToolTip(QStringLiteral("撤销最后一次测量或最后一个取点（Ctrl+Z）"));
-    m_redoButton->setToolTip(QStringLiteral("重做最后一次撤销的测量（Ctrl+Y）"));
+    m_undoButton->setToolTip(QStringLiteral("撤销最后一次测量或最后一个取点"));
+    m_redoButton->setToolTip(QStringLiteral("重做最后一次撤销的测量"));
 
     m_toolGroup = new QButtonGroup(this);
     m_toolGroup->setExclusive(true);

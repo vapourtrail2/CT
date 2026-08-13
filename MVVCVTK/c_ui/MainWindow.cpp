@@ -306,30 +306,24 @@ void CTViewer::showMeasureToolsDialog()
 
     HostViewTarget sourceTarget;
     sourceTarget.isViewRoleUsed = true;
-    sourceTarget.viewRole =
-        HostRenderViewRole::TopDownSlice;
+    sourceTarget.viewRole = HostRenderViewRole::TopDownSlice;
 
     auto& sessionManager = context_.getSessionManager();
-    const auto sourceState =
-        sessionManager.getRenderViewState(sourceTarget);
+    const auto sourceState =sessionManager.getRenderViewState(sourceTarget);
 
-    if (sourceState) {
-        initialState.cursorWorld = sourceState->cursorWorld;
-        initialState.windowLevel = std::array<double, 2>{
+    initialState.cursorWorld = sourceState->cursorWorld;
+    initialState.windowLevel = std::array<double, 2>{
             sourceState->windowLevel.windowWidth,
             sourceState->windowLevel.windowCenter
-        };
-        initialState.background = std::array<double, 3>{
+    };
+    initialState.background = std::array<double, 3>{
             sourceState->background.r,
             sourceState->background.g,
             sourceState->background.b
-        };
-        initialState.visibilityMask =
-            sourceState->visibilityMask;
-        initialState.modelMatrix =
-            sessionManager.getRenderViewModelMatrix(
-                sourceState->id);
-    }
+    };
+    initialState.visibilityMask = sourceState->visibilityMask;
+    initialState.modelMatrix =sessionManager.getRenderViewModelMatrix(sourceState->id);
+   
 
     measure::MeasureToolDialog dialog(
         imageSnapshot,

@@ -242,14 +242,9 @@ ImageSnapshot SessionManager::getImageSnapshot()
     return snapshot;
 }
 
-std::optional<HostRenderViewState>
-SessionManager::getRenderViewState(
+std::optional<HostRenderViewState>SessionManager::getRenderViewState(
     const HostViewTarget& target)
 {
-    if (!hostSession_ || state_ != State::Ready) {
-        return std::nullopt;
-    }
-
     return hostSession_->GetRenderViewState(target);
 }
 
@@ -261,8 +256,7 @@ SessionManager::getRenderViewModelMatrix(
         return std::nullopt;
     }
 
-    const auto* endpoint =
-        hostSession_->GetRenderViewEndpoint(viewId);
+    const auto* endpoint = hostSession_->GetRenderViewEndpoint(viewId);
 
     if (!endpoint || !endpoint->renderer) {
         return std::nullopt;

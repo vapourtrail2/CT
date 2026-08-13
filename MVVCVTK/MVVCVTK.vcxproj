@@ -161,7 +161,7 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\include;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Services;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Tasks;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Geometry;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Host;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Platform;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render\Strategies;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include;$(ProjectDir)core\MVVCVTK\MVVCVTK\include;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Services;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\App\Tasks;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Data;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Geometry;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Host;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Interaction;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Platform;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render;$(ProjectDir)core\MVVCVTK\MVVCVTK\include\Render\Strategies;C:\lib\opencv\build\include;$(SolutionDir)libs\include;C:\lib\vtk_install\include\vtk-9.4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -183,6 +183,14 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     <QtMoc Include="c_ui\context\SessionManager.h" />
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h" />
     <QtMoc Include="c_ui\ribbon\RibbonPage.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Algorithms\CropAlgorithm.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Host\CropHostFeature.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropBoxWidget.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropBridge.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropPlaneWidget.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\OrthogonalCropTypes.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Render\CropShaderController.h" />
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Routing\CropRouter.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppInterfaces.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppState.h" />
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\AppStateEvents.h" />
@@ -286,6 +294,13 @@ if exist "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64\bin\windeployqt.exe" "C:\Qt\Qt5.14.2
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Algorithms\CropAlgorithm.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Host\CropHostFeature.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropBoxWidget.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropBridge.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropPlaneWidget.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Render\CropShaderController.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Routing\CropRouter.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Services\AppService.cpp" />
     <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataExportTaskService.cpp" />

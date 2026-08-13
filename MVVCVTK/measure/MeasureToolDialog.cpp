@@ -55,7 +55,7 @@ void MeasureToolDialog::BuildUi()
     auto* controls = new QHBoxLayout();
     controls->setSpacing(8);
     m_statusLabel = new QLabel(QStringLiteral("请选择线、圆或圆弧工具。"), this);
-    m_statusLabel->setStyleSheet(QStringLiteral("color:#e6d66a; padding-left:4px;"));
+    m_statusLabel->setStyleSheet(QStringLiteral("color:#e6d66a; padding-left:4px;"));   
     controls->addWidget(m_statusLabel, 1);
 
     auto* viewLabel = new QLabel(QStringLiteral("二维视图："), this);
@@ -71,8 +71,6 @@ void MeasureToolDialog::BuildUi()
     m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
     m_redoButton = new QPushButton(QStringLiteral("重做"), this);
 
-    // 这是测量工具栏，不应存在 QDialog 的“默认确认按钮”。
-    // 否则焦点交给 VTK 视图后，Qt 会把蓝框恢复到第一个按钮。
     for (auto button : {
         m_lineButton,
         m_circleButton,

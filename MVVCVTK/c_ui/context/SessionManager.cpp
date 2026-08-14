@@ -83,9 +83,18 @@ private:
 SessionManager::SessionManager(QObject* parent)
     : QObject(parent)
 {
+    cropStateTimer_.setInterval(100);
+    connect(
+        &cropStateTimer_,
+        &QTimer::timeout,
+        this,
+        &SessionManager::syncCropHistory);
 }
 
-SessionManager::~SessionManager() = default;
+SessionManager::~SessionManager()
+{
+    clearCropFeature();
+}
 
 bool SessionManager::initHost(HostSessionConfig config, QString* err)
 {
@@ -114,6 +123,7 @@ bool SessionManager::initHost(HostSessionConfig config, QString* err)
 bool SessionManager::resetHost(QString* errorOut)
 {
     ++requestGeneration_;
+    clearCropFeature();
     hostSession_.reset();
 
     if (!hasConfig_ || config_.renderViews.empty()) {
@@ -133,6 +143,89 @@ bool SessionManager::resetHost(QString* errorOut)
     }
 
     hostSession_ = std::move(newHost);
+    if (!resetCropFeature(errorOut)) {
+        hostSession_.reset();
+        return false;
+    }
+
+    return true;
+}
+
+CropHostTarget SessionManager::getCropTarget() const
+{
+    CropHostTarget target;
+    target.referenceView = {
+        "", true, HostRenderViewRole::Primary3D };
+    target.targetViews.viewRoles = {
+        HostRenderViewRole::Primary3D,
+    /*    HostRenderViewRole::TopDownSlice,
+        HostRenderViewRole::FrontBackSlice,
+        HostRenderViewRole::LeftRightSlice*/
+    };
+    target.isTargetViewsUsed = true;
+    target.source = CropHostSource::CurrentImage;
+    return target;
+}
+
+void SessionManager::clearCropHistory()
+{
+    cropRecords_.clear();
+    cropBuildPending_ = false;
+    hasOriginalCrop_ = false;
+    emit cropHistoryChanged();
+}
+
+void SessionManager::clearCropFeature()
+{
+    cropStateTimer_.stop();
+
+    if (hostSession_) {
+        (void)hostSession_->AttachTimer({});
+        if (cropFeature_) {
+            (void)hostSession_->DetachFeature(*cropFeature_);
+        }
+    }
+
+    cropFeature_.reset();
+    clearCropHistory();
+}
+
+bool SessionManager::resetCropFeature(QString* errorOut)
+{
+    clearCropFeature();
+
+    if (!hostSession_) {
+        setError(
+            errorOut,
+            QStringLiteral("Host session has not been initialized."));
+        return false;
+    }
+
+    CropHostConfig config;
+    config.defaultTarget = getCropTarget();
+
+    auto feature = std::make_shared<CropHostFeature>(std::move(config));
+    if (!hostSession_->AttachFeature(feature)) {
+        setError(
+            errorOut,
+            QStringLiteral("Failed to attach Core crop feature."));
+        return false;
+    }
+
+    HostTimerConfig timer;
+    timer.isTimerEnabled = true;
+    timer.targetView = {
+        "", true, HostRenderViewRole::Primary3D };
+    if (!hostSession_->AttachTimer(timer)) {
+        (void)hostSession_->DetachFeature(*feature);
+        setError(
+            errorOut,
+            QStringLiteral("Failed to attach Core crop timer."));
+        return false;
+    }
+
+    cropFeature_ = std::move(feature);
+    cropStateTimer_.start();
     return true;
 }
 
@@ -221,6 +314,269 @@ bool SessionManager::sendRequest(HostRequest&& request, HostCompleteCallback onC
         std::move(onComplete));
 }
 
+bool SessionManager::sendCropAction(CropHostRequest request)
+{
+    return state_ == State::Ready
+        && cropFeature_
+        && !cropBuildPending_
+        && cropFeature_->SendRequest(std::move(request));
+}
+
+bool SessionManager::startBoxCrop()
+{
+    pendingCropShape_ = CropRecordShape::Box;
+
+    CropHostRequest request;
+    request.action = CropHostAction::Box;
+    request.target = getCropTarget();
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    const bool isModeSet = keepCropInside();
+    emit cropHistoryChanged();
+    return isModeSet;
+}
+
+bool SessionManager::startPlaneCrop()
+{
+    pendingCropShape_ = CropRecordShape::Plane;
+
+    CropHostRequest request;
+    request.action = CropHostAction::Plane;
+    request.target = getCropTarget();
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    const bool isModeSet = keepCropInside();
+    emit cropHistoryChanged();
+    return isModeSet;
+}
+
+bool SessionManager::keepCropInside()
+{
+    CropHostRequest request;
+    request.action = CropHostAction::Mode;
+    request.target = getCropTarget();
+    request.removalMode = CropRemovalMode::KeepInside;
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    pendingCropMode_ = CropRemovalMode::KeepInside;
+    syncCropHistory();
+    emit cropHistoryChanged();
+    return true;
+}
+
+bool SessionManager::removeCropInside()
+{
+    CropHostRequest request;
+    request.action = CropHostAction::Mode;
+    request.target = getCropTarget();
+    request.removalMode = CropRemovalMode::RemoveInside;
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    pendingCropMode_ = CropRemovalMode::RemoveInside;
+    syncCropHistory();
+    emit cropHistoryChanged();
+    return true;
+}
+
+bool SessionManager::setCropNode(const std::size_t nodeCount)
+{
+    CropHostRequest request;
+    request.action = CropHostAction::Node;
+    request.nodeCount = nodeCount;
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    syncCropHistory();
+    emit cropHistoryChanged();
+    return true;
+}
+
+bool SessionManager::applyCrop()
+{
+    if (state_ != State::Ready
+        || !cropFeature_
+        || cropBuildPending_) {
+        return false;
+    }
+
+    CropHostRequest request;
+    request.action = CropHostAction::BuildResult;
+    request.target = getCropTarget();
+
+    QPointer<SessionManager> guard(this);
+    const bool started = cropFeature_->SendRequest(
+        std::move(request),
+        [guard](CropBuildResult result) {
+            if (!guard) {
+                return;
+            }
+
+            const bool isSuccess = result.isSucceeded;
+            const QString message = QString::fromStdString(result.message);
+            QMetaObject::invokeMethod(
+                guard.data(),
+                [guard, isSuccess, message]() {
+                    if (!guard) {
+                        return;
+                    }
+
+                    guard->cropBuildPending_ = false;
+                    if (isSuccess) {
+                        guard->hasOriginalCrop_ = true;
+                        guard->setIsoState();
+                    }
+                    guard->syncCropHistory();
+                    emit guard->cropHistoryChanged();
+                    emit guard->cropBuildFinished(
+                        isSuccess,
+                        message);
+                },
+                Qt::QueuedConnection);
+        });
+
+    if (!started) {
+        return false;
+    }
+
+    cropBuildPending_ = true;
+    emit cropHistoryChanged();
+    return true;
+}
+
+bool SessionManager::restoreOriginalCrop()
+{
+    CropHostRequest request;
+    request.action = CropHostAction::RestoreOriginal;
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    cropRecords_.clear();
+    cropBuildPending_ = false;
+    hasOriginalCrop_ = true;
+    setIsoState();
+    emit cropHistoryChanged();
+    return true;
+}
+
+bool SessionManager::exitCrop()
+{
+    CropHostRequest request;
+    request.action = CropHostAction::Exit;
+    if (!sendCropAction(std::move(request))) {
+        return false;
+    }
+
+    syncCropHistory();
+    emit cropHistoryChanged();
+    return true;
+}
+
+CropTreeState SessionManager::getCropTreeState() const
+{
+    CropTreeState treeState;
+    if (!cropFeature_) {
+        return treeState;
+    }
+
+    const CropHostState cropState = cropFeature_->GetState();
+    const auto& history = cropState.history;
+    treeState.isCropping = cropState.isActive;
+    treeState.isBuilding = cropBuildPending_ || cropState.isPublishing;
+    treeState.canApply = !treeState.isBuilding && history.nodeCount > 0;
+    treeState.canRestoreOriginal =
+        !treeState.isBuilding && hasOriginalCrop_;
+
+    for (std::size_t index = 0;
+        index < cropRecords_.size(); ++index) {
+        const auto& record = cropRecords_[index];
+        const std::size_t absoluteNode = index + 1;
+        const bool isApplied = absoluteNode <= history.baseNodeCount;
+        const bool isSelectable =
+            !isApplied
+            && absoluteNode <= history.baseNodeCount
+                + history.operationCount;
+        const std::size_t nodeCount =
+            isSelectable
+            ? absoluteNode - history.baseNodeCount
+            : 0;
+        const QString shape =
+            record.shape == CropRecordShape::Box
+            ? QStringLiteral("框")
+            : QStringLiteral("平面");
+        const QString mode =
+            record.removalMode == CropRemovalMode::RemoveInside
+            ? QStringLiteral("移除内部")
+            : QStringLiteral("保留内部");
+
+        treeState.items.push_back(CropTreeItem{
+            QStringLiteral("裁切 %1｜%2｜%3")
+                .arg(absoluteNode)
+                .arg(shape)
+                .arg(mode),
+            nodeCount,
+            isSelectable && nodeCount == history.nodeCount,
+            isApplied,
+            isSelectable
+        });
+    }
+
+    return treeState;
+}
+
+void SessionManager::syncCropHistory()
+{
+    if (!cropFeature_) {
+        return;
+    }
+
+    const CropHostState cropState = cropFeature_->GetState();
+    const auto& history = cropState.history;
+    bool isChanged = false;
+
+    if (cropRecords_.size() > history.allOperationCount) {
+        cropRecords_.resize(history.allOperationCount);
+        isChanged = true;
+    }
+    while (cropRecords_.size() < history.allOperationCount) {
+        cropRecords_.push_back(CropRecord{
+            pendingCropShape_,
+            pendingCropMode_ });
+        isChanged = true;
+    }
+
+    if (history.hasEditableOp && history.nodeCount > 0) {
+        const std::size_t absoluteNode =
+            history.baseNodeCount + history.nodeCount;
+        if (absoluteNode <= cropRecords_.size()) {
+            auto& record = cropRecords_[absoluteNode - 1];
+            const CropRemovalMode mode =
+                history.editMode == CropRemovalMode::None
+                ? pendingCropMode_
+                : history.editMode;
+            if (record.shape != pendingCropShape_
+                || record.removalMode != mode) {
+                record.shape = pendingCropShape_;
+                record.removalMode = mode;
+                isChanged = true;
+            }
+        }
+    }
+
+    if (isChanged) {
+        emit cropHistoryChanged();
+    }
+}
+
 ImageSnapshot SessionManager::getImageSnapshot()
 {
     if (!hostSession_ || state_ != State::Ready) {
@@ -300,6 +656,10 @@ bool SessionManager::sendLoadRequest(
         setError(
             errorOut,
             QStringLiteral("A load request is already running."));
+        return false;
+    }
+
+    if (!resetCropFeature(errorOut)) {
         return false;
     }
 

@@ -82,6 +82,10 @@ private:
     void set3DMode(HostRenderMode mode,HostVisibilityParams visibility);
     void setVisibility(HostVisibilityParams visibility);
     void setIsoValue(double isoValue);
+    void startBoxCrop();
+    void startPlaneCrop();
+    void updateCropTree();
+    void handleCropBuildFinished(bool isSuccess, QString message);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
 
 private:

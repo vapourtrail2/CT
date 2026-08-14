@@ -210,14 +210,11 @@ void CTViewer::buildWorkspacePage()
 
     secondstack_->addWidget(workspacePage_);
 
-    
-
     QString err;
 
     context_.getSessionManager().initHost(
-            workspacePage_->getHostConfig(),
-            &err);
-
+        workspacePage_->getHostConfig(),
+        &err);
 }
 
 void CTViewer::buildEmptyPage() {
@@ -279,6 +276,12 @@ void CTViewer::setCommands()
         });
     context_.getCommands().add(QStringLiteral("measure.tools.open"), [this]() {
         showMeasureToolsDialog();
+        });
+    context_.getCommands().add(QStringLiteral("crop.box"), [this]() {
+        startBoxCrop();
+        });
+    context_.getCommands().add(QStringLiteral("crop.plane"), [this]() {
+        startPlaneCrop();
         });
 }
 
@@ -349,6 +352,77 @@ void CTViewer::connectAppSignals()
         &SessionManager::loadFinished,
         this,
         &CTViewer::handleLoadFinished);
+
+    connect(
+        &sessionManager,
+        &SessionManager::cropHistoryChanged,
+        this,
+        &CTViewer::updateCropTree);
+
+    connect(
+        &sessionManager,
+        &SessionManager::cropBuildFinished,
+        this,
+        &CTViewer::handleCropBuildFinished);
+
+    auto* sceneTree = workspacePage_->getSceneTreePanel();
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropNodeActivated,
+        this,
+        [this](qulonglong nodeCount) {
+            if (context_.getSessionManager().setCropNode(
+                    static_cast<std::size_t>(nodeCount))) {
+                workspacePage_->getViewportGather()->requestRefresh();
+            }
+        });
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropKeepInsideRequested,
+        this,
+        [this]() {
+            if (context_.getSessionManager().keepCropInside()) {
+                workspacePage_->getViewportGather()->requestRefresh();
+            }
+        });
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropRemoveInsideRequested,
+        this,
+        [this]() {
+            if (context_.getSessionManager().removeCropInside()) {
+                workspacePage_->getViewportGather()->requestRefresh();
+            }
+        });
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropApplyRequested,
+        this,
+        [this]() {
+            if (!context_.getSessionManager().applyCrop()) {
+                statusBar()->showMessage(
+                    QStringLiteral("裁切应用未启动。"),
+                    3000);
+            }
+        });
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropRestoreOriginalRequested,
+        this,
+        [this]() {
+            if (context_.getSessionManager().restoreOriginalCrop()) {
+                workspacePage_->getViewportGather()->requestRefresh();
+            }
+        });
+    connect(
+        sceneTree,
+        &SceneTreePanel::cropExitRequested,
+        this,
+        [this]() {
+            if (context_.getSessionManager().exitCrop()) {
+                workspacePage_->getViewportGather()->requestRefresh();
+            }
+        });
 }
 
 void CTViewer::connectRenderPanel()
@@ -671,7 +745,7 @@ void CTViewer::openCtReconUi()
 {
     if (!uiRecon3d_) {
         uiRecon3d_ = new UIReconstruct3D(this);
-        QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {//重建完成是我点击？还是什么情况
+        QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {
             float* data = nullptr;
             std::array<float, 3> spacing{}, origin{};
             std::array<int, 3> outSize{};
@@ -875,6 +949,77 @@ void CTViewer::setIsoValue(double isoValue)//ui的value ->core
     workspacePage_ ->getViewportGather() ->requestRefresh();
 }
 
+void CTViewer::startBoxCrop()
+{
+    if (!context_.hasData()) {
+        statusBar()->showMessage(
+            QStringLiteral("请先加载数据。"),
+            3000);
+        return;
+    }
+
+    if (!context_.getSessionManager().startBoxCrop()) {
+        statusBar()->showMessage(
+            QStringLiteral("框裁切未启动。"),
+            3000);
+        return;
+    }
+
+    workspacePage_->getViewportGather()->requestRefresh();
+}
+
+void CTViewer::startPlaneCrop()
+{
+    if (!context_.hasData()) {
+        statusBar()->showMessage(
+            QStringLiteral("请先加载数据。"),
+            3000);
+        return;
+    }
+
+    if (!context_.getSessionManager().startPlaneCrop()) {
+        statusBar()->showMessage(
+            QStringLiteral("平面裁切未启动。"),
+            3000);
+        return;
+    }
+
+    workspacePage_->getViewportGather()->requestRefresh();
+}
+
+void CTViewer::updateCropTree()
+{
+    if (!workspacePage_) {
+        return;
+    }
+
+    workspacePage_->getSceneTreePanel()->setCropTreeState(
+        context_.getSessionManager().getCropTreeState());
+}
+
+void CTViewer::handleCropBuildFinished(
+    bool isSuccess,
+    QString message)
+{
+    if (isSuccess) {
+        auto resetSliceCamera = [this](
+            HostRenderViewRole viewRole) {
+                HostViewResetRequest request;
+                request.targetView.isViewRoleUsed = true;
+                request.targetView.viewRole = viewRole;
+
+                context_.getSessionManager().sendRequest(
+                    std::move(request));
+            };
+
+        resetSliceCamera(HostRenderViewRole::TopDownSlice);
+        resetSliceCamera(HostRenderViewRole::FrontBackSlice);
+        resetSliceCamera(HostRenderViewRole::LeftRightSlice);
+
+        workspacePage_->getViewportGather()->requestRefresh();
+    }
+}
+
 //void CTViewer::setWindowLevel(
 //    HostWindowLevelParams windowLevel)
 //{
@@ -931,6 +1076,7 @@ void CTViewer::handleSessionChanged(
         workspacePage_->setDataState(
             state == SessionManager::State::Ready,
             context_.getSessionManager().getSourcePath());
+        updateCropTree();
     }
 
     if (!tabBar_) {

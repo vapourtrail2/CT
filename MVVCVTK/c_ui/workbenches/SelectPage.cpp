@@ -7,6 +7,7 @@
 #include <QFrame>
 #include <QLabel>
 #include <QToolButton>
+#include <QAction>
 #include <QMenu>
 #include <QPainter>
 #include <QPen>
@@ -256,12 +257,26 @@ QWidget* SelectPage::buildRibbon03(QWidget* parent)
                 "QMenu{background:#2b2b2b; border:1px solid #3a3a3a;}"
                 "QMenu::item{color:#e0e0e0; padding:6px 24px;}"
                 "QMenu::item:selected{background:#3a3a3a;}"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_plane.png"), QStringLiteral("裁剪平面"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_frame.png"), QStringLiteral("裁剪框"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_polyline3D.png"), QStringLiteral("裁剪折线3D"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_sphere.png"), QStringLiteral("裁剪球体"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_cylinder.png"), QStringLiteral("裁剪圆柱"));
-            menu->addAction(QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/aligned_clip_frame.png"), QStringLiteral("对齐的裁剪框"));
+            auto* planeAction = menu->addAction(
+                QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_plane.png"),
+                QStringLiteral("裁剪平面"));
+            auto* boxAction = menu->addAction(
+                QIcon(":/select_icons_2/icons_other/select_icons/clip_pull_down_menu/clip_frame.png"),
+                QStringLiteral("裁剪框"));
+            connect(
+                planeAction,
+                &QAction::triggered,
+                this,
+                [this]() {
+                    emit commandRequested(QStringLiteral("crop.plane"));
+                });
+            connect(
+                boxAction,
+                &QAction::triggered,
+                this,
+                [this]() {
+                    emit commandRequested(QStringLiteral("crop.box"));
+                });
             button->setMenu(menu);
             button->setPopupMode(QToolButton::InstantPopup);
         }

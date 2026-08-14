@@ -3,6 +3,7 @@
 #include "Host/Types/HostRequestTypes.h"
 #include "Host/VtkAppHostSession.h"
 #include "App/AppInterfaces.h"
+#include "Host/CropHostFeature.h"
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -10,9 +11,28 @@
 #include <string>
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 struct HostRequest;
 class VtkAppHostSession;
+
+struct CropTreeItem final
+{
+    QString text;
+    std::size_t nodeCount = 0;
+    bool isCurrent = false;
+    bool isApplied = false;
+    bool isSelectable = false;
+};
+
+struct CropTreeState final
+{
+    std::vector<CropTreeItem> items;
+    bool isCropping = false;
+    bool isBuilding = false;
+    bool canApply = false;
+    bool canRestoreOriginal = false;
+};
 
 class SessionManager final /*wsm*/ : public QObject
 {
@@ -67,6 +87,16 @@ public:
     std::optional<std::array<double, 16>> getRenderViewModelMatrix(
         const std::string& viewId);
 
+    bool startBoxCrop();
+    bool startPlaneCrop();
+    bool keepCropInside();
+    bool removeCropInside();
+    bool setCropNode(std::size_t nodeCount);
+    bool applyCrop();
+    bool restoreOriginalCrop();
+    bool exitCrop();
+    CropTreeState getCropTreeState() const;
+
     void clearSession();
 
 signals:
@@ -77,9 +107,17 @@ signals:
         double scalarMin,
         double scalarMax);
     void isoStateCleared();
+    void cropHistoryChanged();
+    void cropBuildFinished(bool isSuccess, QString message);
 
 private:
     bool resetHost(QString* errorOut);
+    bool resetCropFeature(QString* errorOut = nullptr);
+    void clearCropFeature();
+    CropHostTarget getCropTarget() const;
+    bool sendCropAction(CropHostRequest request);
+    void syncCropHistory();
+    void clearCropHistory();
     bool sendLoadRequest(
         HostRequest&& request,
         const QString& sourcePath,
@@ -92,8 +130,28 @@ private:
     HostSessionConfig config_;
     bool hasConfig_ = false;
     std::unique_ptr<VtkAppHostSession> hostSession_;
+    std::shared_ptr<CropHostFeature> cropFeature_;
     State state_ = State::Empty;
-    std::uint64_t requestGeneration_ = 0;//什么意思
+    std::uint64_t requestGeneration_ = 0;
     QString sourcePath_;
-    QString pendingSourcePath_;//什么意思
+    QString pendingSourcePath_;
+
+    enum class CropRecordShape
+    {
+        Box,
+        Plane
+    };
+
+    struct CropRecord final
+    {
+        CropRecordShape shape = CropRecordShape::Box;
+        CropRemovalMode removalMode = CropRemovalMode::KeepInside;
+    };
+
+    std::vector<CropRecord> cropRecords_;
+    CropRecordShape pendingCropShape_ = CropRecordShape::Box;
+    CropRemovalMode pendingCropMode_ = CropRemovalMode::KeepInside;
+    bool cropBuildPending_ = false;
+    bool hasOriginalCrop_ = false;
+    QTimer cropStateTimer_;
 };

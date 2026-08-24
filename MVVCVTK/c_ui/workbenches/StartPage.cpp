@@ -58,7 +58,8 @@ QList<RibbonDef::RibbonButtonDef> StartPagePage::createStartButtons()
             { QStringLiteral("原始体积"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/origin_volume.png"), QString() },
             { QStringLiteral("图像堆栈"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/images_stack.png"), QString() },
             { QStringLiteral("合并对象"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/merge_obj.png"), QString() },
-            { QStringLiteral("CT重建"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"), QStringLiteral("recon.open") }
+            { QStringLiteral("CT重建"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"), QStringLiteral("recon.open") },
+            { QStringLiteral("增量CT重建"), QStringLiteral(":/start_icons02/icons_other/start_icons/volume_input_pull_down_menu/CT_rebuild.png"), QStringLiteral("reconn.open") }
         }
     },
     {

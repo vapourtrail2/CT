@@ -202,17 +202,16 @@ void MeasureToolDialog::SetView(
         m_session->CancelDraft();
     }
 
-    ClearCheckedTool();
-
     if (!m_viewport.SetView(view)) {
         return;
     }
 
+    ClearCheckedTool();
+
     m_currentView = view;
 }
 
-void MeasureToolDialog::BeginTool(
-    MeasureTool tool)
+void MeasureToolDialog::BeginTool(MeasureTool tool)
 {
     if (!m_session || !m_viewport.IsReady()) 
     {

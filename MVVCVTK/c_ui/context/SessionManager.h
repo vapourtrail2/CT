@@ -62,7 +62,16 @@ public:
         return sourcePath_;
     }
 
+    ImageSnapshot getImageSnapshot();
+
+    std::optional<HostRenderViewState> getRenderViewState(
+        const HostViewTarget& target);
+
+    std::optional<std::array<double, 16>> getRenderViewModelMatrix(
+        const std::string& viewId);
+
     bool initHost(HostSessionConfig config, QString* err = nullptr);
+
     bool openFile(const QString& path,
         const std::array<float, 3>& spacing,
         const std::array<float,3>& origin,
@@ -81,12 +90,6 @@ public:
         HostRequest&& request,
         HostCompleteCallback onComplete = nullptr);
 
-    ImageSnapshot getImageSnapshot();
-    std::optional<HostRenderViewState> getRenderViewState(
-        const HostViewTarget& target);
-    std::optional<std::array<double, 16>> getRenderViewModelMatrix(
-        const std::string& viewId);
-
     bool startBoxCrop();
     bool startPlaneCrop();
     bool keepCropInside();
@@ -96,7 +99,6 @@ public:
     bool restoreOriginalCrop();
     bool exitCrop();
     CropTreeState getCropTreeState() const;
-
     void clearSession();
 
 signals:

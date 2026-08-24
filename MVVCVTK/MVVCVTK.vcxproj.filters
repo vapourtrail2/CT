@@ -103,8 +103,59 @@
     <Filter Include="feature\OrthogonalCrop\src">
       <UniqueIdentifier>{f5ebdb3d-58a9-461e-bd0c-c63e99fe635d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\Host\Type">
+    <Filter Include="include\Host\Types">
       <UniqueIdentifier>{f4e8a064-46ca-4bb3-be23-d43c016b051c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\App\Services">
+      <UniqueIdentifier>{02fbcb63-8db6-4a68-a874-08239fb7e1c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\App\Tasks">
+      <UniqueIdentifier>{d95da4ad-bc8f-4280-bf64-bdd1d1039cba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Render\Strategies">
+      <UniqueIdentifier>{3130094b-4f67-4565-afdf-cf209ecbf34f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\App\Services">
+      <UniqueIdentifier>{213838e5-a28f-4acc-a84a-01ceb51981ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\App\Tasks">
+      <UniqueIdentifier>{c1bbdd3b-4324-4f87-87bb-9bb42ead015c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Render\Strategies">
+      <UniqueIdentifier>{46edf9b7-e2fc-4609-87e5-0cc7fd366668}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include\Algorithms">
+      <UniqueIdentifier>{184b86fa-0a33-4f23-b4e6-742cc1ece403}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include\Host">
+      <UniqueIdentifier>{7f0d7b8a-8f99-4429-9451-1cacd7cf41e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include\Interaction">
+      <UniqueIdentifier>{509121de-bb48-4db9-8990-2ad2c21b04fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include\Render">
+      <UniqueIdentifier>{9685854e-1c05-495c-a7e6-033d836f2de1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\include\Routing">
+      <UniqueIdentifier>{5a5d8f89-68fb-4252-a76c-2b57a12b7dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src\Algorithms">
+      <UniqueIdentifier>{67964535-8834-4e29-96e7-b938c1d5a6c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src\Host">
+      <UniqueIdentifier>{e645ad4f-b7c3-4bcc-8674-2db12b866a3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src\Interaction">
+      <UniqueIdentifier>{b800cf3f-a499-4e18-9087-75f1392480b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src\Render">
+      <UniqueIdentifier>{67f68c18-00fb-408f-bc1e-b70233845df2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="feature\OrthogonalCrop\src\Routing">
+      <UniqueIdentifier>{1b4afd60-5f5a-4dc5-8d34-d72fe4dfb323}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c_ui\external">
+      <UniqueIdentifier>{f97aca83-1e53-4784-ba72-73966a9c1736}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -169,13 +220,13 @@
       <Filter>include\App</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataExportTaskService.h">
-      <Filter>include\App</Filter>
+      <Filter>include\App\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Tasks\AppDataLoadTaskService.h">
-      <Filter>include\App</Filter>
+      <Filter>include\App\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\App\Services\AppService.h">
-      <Filter>include\App</Filter>
+      <Filter>include\App\Services</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\HostCommandRouter.h">
       <Filter>include\Host</Filter>
@@ -196,19 +247,19 @@
       <Filter>include\Host</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostAdapterTypes.h">
-      <Filter>include\Host\Type</Filter>
+      <Filter>include\Host\Types</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostCommandTypes.h">
-      <Filter>include\Host\Type</Filter>
+      <Filter>include\Host\Types</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostRequestTypes.h">
-      <Filter>include\Host\Type</Filter>
+      <Filter>include\Host\Types</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostSessionTypes.h">
-      <Filter>include\Host\Type</Filter>
+      <Filter>include\Host\Types</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Host\Types\HostValueTypes.h">
-      <Filter>include\Host\Type</Filter>
+      <Filter>include\Host\Types</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Interaction\IInteractionHandler.h">
       <Filter>include\Interaction</Filter>
@@ -244,28 +295,55 @@
       <Filter>include\Render</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\BaseVisualStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\ColoredPlanesStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\CompositeStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\IsoSurfaceStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\SliceStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
     </ClInclude>
     <ClInclude Include="core\MVVCVTK\MVVCVTK\include\Render\Strategies\VolumeStrategy.h">
-      <Filter>include\Render</Filter>
+      <Filter>include\Render\Strategies</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Algorithms\CropAlgorithm.h">
+      <Filter>feature\OrthogonalCrop\include\Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Host\CropHostFeature.h">
+      <Filter>feature\OrthogonalCrop\include\Host</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropBoxWidget.h">
+      <Filter>feature\OrthogonalCrop\include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropBridge.h">
+      <Filter>feature\OrthogonalCrop\include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Interaction\CropPlaneWidget.h">
+      <Filter>feature\OrthogonalCrop\include\Interaction</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\OrthogonalCropTypes.h">
+      <Filter>feature\OrthogonalCrop\include</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Render\CropShaderController.h">
+      <Filter>feature\OrthogonalCrop\include\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\include\Routing\CropRouter.h">
+      <Filter>feature\OrthogonalCrop\include\Routing</Filter>
     </ClInclude>
     <ClInclude Include="measure\MeasurementViewport.h">
       <Filter>measure</Filter>
     </ClInclude>
     <ClInclude Include="measure\MeasurementViewInitState.h">
       <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\external\reconstruction_result.h">
+      <Filter>c_ui\external</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -296,32 +374,107 @@
     <ClCompile Include="c_ui\workbenches\common\RibbonBuilder.cpp">
       <Filter>c_ui\ribbon</Filter>
     </ClCompile>
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Services\AppService.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataExportTaskService.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataLoadTaskService.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\ImageProcessor.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\VolumeTypes.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostCommandRouter.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostHotkeyRouter.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostRenderViewSet.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\VtkAppHostSession.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InputCallbackHandler.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Platform\MemMappedFile.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\StdRenderContext.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\ColoredPlanesStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\CompositeStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\IsoSurfaceStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\SliceStrategy.cpp" />
-    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp" />
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\AppState.cpp">
+      <Filter>src\App</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Services\AppService.cpp">
+      <Filter>src\App\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataExportTaskService.cpp">
+      <Filter>src\App\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\App\Tasks\AppDataLoadTaskService.cpp">
+      <Filter>src\App\Tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataConverters.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\DataManager.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\ImageProcessor.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Data\VolumeTypes.cpp">
+      <Filter>src\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostCommandRouter.cpp">
+      <Filter>src\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostHotkeyRouter.cpp">
+      <Filter>src\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\HostRenderViewSet.cpp">
+      <Filter>src\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Host\VtkAppHostSession.cpp">
+      <Filter>src\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InputCallbackHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\InteractionRouter.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\TimeUpdateHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer2DHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Interaction\Viewer3DHandler.cpp">
+      <Filter>src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Platform\MemMappedFile.cpp">
+      <Filter>src\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\StdRenderContext.cpp">
+      <Filter>src\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\ColoredPlanesStrategy.cpp">
+      <Filter>src\Render\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\CompositeStrategy.cpp">
+      <Filter>src\Render\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\IsoSurfaceStrategy.cpp">
+      <Filter>src\Render\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\SliceStrategy.cpp">
+      <Filter>src\Render\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\src\Render\Strategies\VolumeStrategy.cpp">
+      <Filter>src\Render\Strategies</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Algorithms\CropAlgorithm.cpp">
+      <Filter>feature\OrthogonalCrop\src\Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Host\CropHostFeature.cpp">
+      <Filter>feature\OrthogonalCrop\src\Host</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropBoxWidget.cpp">
+      <Filter>feature\OrthogonalCrop\src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropBridge.cpp">
+      <Filter>feature\OrthogonalCrop\src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Interaction\CropPlaneWidget.cpp">
+      <Filter>feature\OrthogonalCrop\src\Interaction</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Render\CropShaderController.cpp">
+      <Filter>feature\OrthogonalCrop\src\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="core\MVVCVTK\MVVCVTK\features\OrthogonalCrop\src\Routing\CropRouter.cpp">
+      <Filter>feature\OrthogonalCrop\src\Routing</Filter>
+    </ClCompile>
     <ClCompile Include="measure\MeasurementViewport.cpp">
       <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\external\online_reconstruction_dialog.cpp">
+      <Filter>c_ui\external</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\external\reconstruction_worker.cpp">
+      <Filter>c_ui\external</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -469,6 +622,12 @@
     </QtMoc>
     <QtMoc Include="c_ui\windows\Titlebar.h">
       <Filter>c_ui\window</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\external\online_reconstruction_dialog.h">
+      <Filter>c_ui\external</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\external\reconstruction_worker.h">
+      <Filter>c_ui\external</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

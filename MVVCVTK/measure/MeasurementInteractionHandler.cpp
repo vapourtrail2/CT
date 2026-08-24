@@ -30,7 +30,7 @@ MeasurementInteractionHandler::MeasurementInteractionHandler(
 }
 
 InteractionResult MeasurementInteractionHandler::Send(const InteractionEvent& event)
-{
+{   
     if (!m_session || !m_session->IsActive() || !m_service || !m_renderer) {
         if (event.eventKind == InteractionEventKind::PrimaryRelease
             && m_consumingLeftButton) {
@@ -50,7 +50,6 @@ InteractionResult MeasurementInteractionHandler::Send(const InteractionEvent& ev
     if (!draft || draft->request.view != m_view) {
         return {};
     }
-
 
     if (event.eventKind == InteractionEventKind::PrimaryPress) {
         m_consumingLeftButton = true;

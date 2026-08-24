@@ -84,7 +84,6 @@ void DocumentPage::buildLeftDock()
     addSeparator();
 
     addItem(QStringLiteral("快速导入"));
-    //addItem(QStringLiteral("CT重建"));
     addItem(QStringLiteral("导入"));
     addItem(QStringLiteral("导出"));
     addSeparator();
@@ -158,8 +157,7 @@ void DocumentPage::wireLeftDockSignals(){
                 emit moduleClicked(QStringLiteral("选择：%1").arg(t));
                 showOpenDialog();
             }
-            else if (t == QStringLiteral("CT重建")
-                  || t == QStringLiteral("快速导入")
+            else if (t == QStringLiteral("快速导入")
                   || t == QStringLiteral("导入")
                   || t == QStringLiteral("导出")) {
                 emit moduleClicked(QStringLiteral("正在进入：%1").arg(t));

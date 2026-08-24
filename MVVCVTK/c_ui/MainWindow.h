@@ -79,6 +79,7 @@ private:
     void setCloseProgressDialog();
     void setRibbonPage(RibbonPage* page);
     void openCtReconUi();
+    void openCtReconUi2();
     void set3DMode(HostRenderMode mode,HostVisibilityParams visibility);
     void setVisibility(HostVisibilityParams visibility);
     void setIsoValue(double isoValue);

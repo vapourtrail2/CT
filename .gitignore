@@ -409,3 +409,5 @@ packages/
 *.nupkg
 Microsoft.Windows.CppWinRT.*/
 idontknowwhatitis/Microsoft.Windows.CppWinRT.*/
+
+*.dll

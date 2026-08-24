@@ -9,6 +9,7 @@
 #include "c_ui/workbenches/DocumentPage.h"
 #include "measure/MeasureToolDialog.h"
 #include "Host/Types/HostRequestTypes.h"
+#include "c_ui/external/online_reconstruction_dialog.h"
 #include "uireconstruct3d.h"
 
 #include <algorithm>
@@ -16,6 +17,7 @@
 #include <cstring>
 #include <cmath>
 #include <memory>
+#include <iostream>
 
 #include <QApplication>
 #include <QComboBox>
@@ -268,6 +270,9 @@ void CTViewer::setCommands()
     context_.getCommands().add(QStringLiteral("recon.open"), [this]() {
         openCtReconUi();
         });
+    context_.getCommands().add(QStringLiteral("reconn.open"), [this]() {
+        openCtReconUi2();
+        });
     context_.getCommands().add(QStringLiteral("image.save"), [this]() {
         showSaveTransformedDataDialog();
         });
@@ -312,13 +317,13 @@ void CTViewer::showMeasureToolsDialog()
     sourceTarget.viewRole = HostRenderViewRole::TopDownSlice;
 
     auto& sessionManager = context_.getSessionManager();
-    const auto sourceState =sessionManager.getRenderViewState(sourceTarget);
+    const auto sourceState = sessionManager.getRenderViewState(sourceTarget);
 
     initialState.cursorWorld = sourceState->cursorWorld;
     initialState.windowLevel = std::array<double, 2>{
             sourceState->windowLevel.windowWidth,
             sourceState->windowLevel.windowCenter
-    };
+    }; 
     initialState.background = std::array<double, 3>{
             sourceState->background.r,
             sourceState->background.g,
@@ -333,7 +338,7 @@ void CTViewer::showMeasureToolsDialog()
         initialState,
         this);
 
-    dialog.exec();
+    dialog.exec();//这句话的意思是
 }
 
 void CTViewer::connectAppSignals()
@@ -740,7 +745,7 @@ void CTViewer::showSaveTransformedDataDialog()
     }
 }
 
-//重建
+//重建1
 void CTViewer::openCtReconUi()
 {
     if (!uiRecon3d_) {
@@ -879,6 +884,106 @@ void CTViewer::openCtReconUi()
     uiRecon3d_->activateWindow();
 }
 
+//重建2
+void CTViewer::openCtReconUi2()
+{
+    auto* dialog = new fdkui::OnlineReconstructionDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(
+        dialog,
+        &fdkui::OnlineReconstructionDialog::reconstructionCompleted,
+        this,
+        [this](fdkui::ReconstructionResultPtr result) {
+            if (!result || !result->voxelsZyx || result->voxelsZyx->empty()) {
+                statusBar()->showMessage(
+                    QStringLiteral("增量重建未返回有效体数据。"), 3000);
+                return;
+            }
+
+            const std::array<int, 3> dims{
+                static_cast<int>(result->sizeX),
+                static_cast<int>(result->sizeY),
+                static_cast<int>(result->sizeZ)
+            };
+
+            // 该换算的前提：SDK 的 FOV 是完整体积物理长度， center 是该体积中心坐标。下面“物理坐标”一节必须确认。
+            const std::array<float, 3> spacing{
+                static_cast<float>(result->fovXmm / result->sizeX),
+                static_cast<float>(result->fovYmm / result->sizeY),
+                static_cast<float>(result->fovZmm / result->sizeZ)
+            };
+            const std::array<float, 3> origin{
+                static_cast<float>(result->centerXmm - result->fovXmm / 2.0),
+                static_cast<float>(result->centerYmm - result->fovYmm / 2.0),
+                static_cast<float>(result->centerZmm - result->fovZmm / 2.0)
+            };
+
+            setOpenProgressDialog(
+                QStringLiteral("正在导入增量重建结果"),
+                QStringLiteral("加载中"));
+
+            auto copiedVoxels = std::make_shared<std::vector<float>>();
+            QPointer<CTViewer> self(this);
+            const QString sourcePath = result->configIniPath;
+
+            auto* copyThread = QThread::create(
+                [self, result, copiedVoxels, dims, spacing, origin, sourcePath]() {
+                    try {
+                        *copiedVoxels = *result->voxelsZyx;
+                    }
+                    catch (const std::exception& e) {
+                        QMetaObject::invokeMethod(
+                            self.data(),
+                            [self, message = QString::fromUtf8(e.what())]() {
+                                if (!self) return;
+                                self->setCloseProgressDialog();
+                                self->statusBar()->showMessage(
+                                    QStringLiteral("复制重建结果失败：%1").arg(message),
+                                    5000);
+                            },
+                            Qt::QueuedConnection);
+                        return;
+                    }
+
+                    QMetaObject::invokeMethod(
+                        self.data(),
+                        [self, copiedVoxels, dims, spacing, origin, sourcePath]() mutable {
+                            if (!self) return;
+
+                            QString error;
+                            const bool ok =
+                                self->context_.getSessionManager().openReconstructedData(
+                                    std::move(*copiedVoxels),
+                                    dims,
+                                    spacing,
+                                    origin,
+                                    sourcePath,
+                                    &error);
+
+                            if (!ok) {
+                                self->setCloseProgressDialog();
+                                self->statusBar()->showMessage(
+                                    error.isEmpty()
+                                    ? QStringLiteral("增量重建结果导入失败。")
+                                    : error,
+                                    5000);
+                            }
+                        },
+                        Qt::QueuedConnection);
+                });
+
+            connect(copyThread, &QThread::finished,
+                copyThread, &QObject::deleteLater);
+            copyThread->start();
+        });
+
+    dialog->show();
+    dialog->raise();
+    dialog->activateWindow();
+}
+
+
 void CTViewer::set3DMode(
     HostRenderMode mode,
     HostVisibilityParams visibility)
@@ -993,8 +1098,7 @@ void CTViewer::updateCropTree()
         return;
     }
 
-    workspacePage_->getSceneTreePanel()->setCropTreeState(
-        context_.getSessionManager().getCropTreeState());
+    workspacePage_->getSceneTreePanel()->setCropTreeState(context_.getSessionManager().getCropTreeState());
 }
 
 void CTViewer::handleCropBuildFinished(
@@ -1004,12 +1108,11 @@ void CTViewer::handleCropBuildFinished(
     if (isSuccess) {
         auto resetSliceCamera = [this](
             HostRenderViewRole viewRole) {
-                HostViewResetRequest request;
-                request.targetView.isViewRoleUsed = true;
-                request.targetView.viewRole = viewRole;
-
-                context_.getSessionManager().sendRequest(
-                    std::move(request));
+            HostViewResetRequest request;
+            request.targetView.isViewRoleUsed = true;
+            request.targetView.viewRole = viewRole;
+            context_.getSessionManager().sendRequest(std::move(request));
+                
             };
 
         resetSliceCamera(HostRenderViewRole::TopDownSlice);
@@ -1083,8 +1186,7 @@ void CTViewer::handleSessionChanged(
         return;
     }
 
-    applyUiState(
-        buildUiState(tabBar_->currentIndex()));
+    applyUiState(buildUiState(tabBar_->currentIndex()));
 }
 
 void CTViewer::handleLoadFinished(

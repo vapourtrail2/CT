@@ -51,17 +51,17 @@ namespace measure {
         m_widget = widget;
         m_session = session;
         m_currentView = view;
-        m_dataManager = std::make_shared<RawVolumeDataManager>();// 创建测量窗口独占的数据管理器。
-        m_dataManager->SetImageSnapshot(imageSnapshot->image);
-       
-        bool hasPending = false;
-        if (!m_dataManager->SetCurrentFromPending(
-            hasPending)
-            || !hasPending) {
+        m_dataManager = std::make_shared<RawVolumeDataManager>();
+
+        const auto image = m_dataManager->GetImageSnapshot();
+        ImageState localImageState = *imageSnapshot;//复制imagestate里的指针，
+        ImageSnapshot publishedSnapShot;
+
+        if (!m_dataManager->SetCurrentData(localImageState, image, publishedSnapShot)) {
             Reset();
             return false;
         }
-
+       
         // 创建测量窗口独占的状态。
         m_broadcaster = std::make_shared<SharedStateBroadcaster>();
         m_state = std::make_shared<SharedInteractionState>(m_broadcaster);
@@ -123,16 +123,14 @@ namespace measure {
         m_context->SetInteractorReady();
         m_service->SendUpdates();
 
-        if (initialState.cursorWorld) {
-            const auto& cursor = *initialState.cursorWorld;
-            m_state->SetCursorRawWorld(
+        const auto& cursor = *initialState.cursorWorld;
+        m_state->SetCursorRawWorld(
                 cursor[0], cursor[1], cursor[2]);
-            m_state->SetCursorAxis(-1);
-            m_state->SetCursorWorld(
+        m_state->SetCursorAxis(-1);
+        m_state->SetCursorWorld(
                 cursor[0], cursor[1], cursor[2]);
-            m_service->SendUpdates();
-        }
-        
+        m_service->SendUpdates();
+      
         RebuildHandlers();
         m_overlay = std::make_shared<MeasurementOverlayStrategy>(
                 m_session,
@@ -192,8 +190,7 @@ namespace measure {
             return;
         }
 
-        // 先让 Context 放弃旧回调，
-        // 再销毁旧 Handler。
+        
         m_context->ClearInputHandler();
         m_measurementHandler.reset();
         m_zoomHandler.reset();
@@ -225,10 +222,9 @@ namespace measure {
                 }
 
                 if (m_measurementHandler) {
-                    return m_measurementHandler->Send(
-                        event);
+                    return m_measurementHandler->Send(event);
                 }
-
+               
                 return InteractionResult{};
             },
             {});

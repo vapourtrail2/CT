@@ -1,5 +1,6 @@
 #include "measure/MeasurementViewport.h"
 
+#include "measure/EdgeCaptureController.h"
 #include "measure/MeasurementInteractionHandler.h"
 #include "measure/MeasurementOverlayStrategy.h"
 #include "measure/MeasurementSession.h"
@@ -20,7 +21,7 @@
 #include <algorithm>
 #include <utility>
 
-// ÊµÏÖ¶ÀÁ¢Êı¾İ¸´ÖÆ¡¢¶ÀÁ¢äÖÈ¾¹ÜÏßºÍÇåÀí
+// å®ç°ç‹¬ç«‹æ•°æ®å¤åˆ¶ã€ç‹¬ç«‹æ¸²æŸ“ç®¡çº¿å’Œæ¸…ç†
 
 namespace measure {
 
@@ -54,7 +55,7 @@ namespace measure {
         m_dataManager = std::make_shared<RawVolumeDataManager>();
 
         const auto image = m_dataManager->GetImageSnapshot();
-        ImageState localImageState = *imageSnapshot;//¸´ÖÆimagestateÀïµÄÖ¸Õë£¬
+        ImageState localImageState = *imageSnapshot;//å¤åˆ¶imagestateé‡Œçš„æŒ‡é’ˆï¼Œ
         ImageSnapshot publishedSnapShot;
 
         if (!m_dataManager->SetCurrentData(localImageState, image, publishedSnapShot)) {
@@ -62,7 +63,7 @@ namespace measure {
             return false;
         }
        
-        // ´´½¨²âÁ¿´°¿Ú¶ÀÕ¼µÄ×´Ì¬¡£
+        // åˆ›å»ºæµ‹é‡çª—å£ç‹¬å çš„çŠ¶æ€ã€‚
         m_broadcaster = std::make_shared<SharedStateBroadcaster>();
         m_state = std::make_shared<SharedInteractionState>(m_broadcaster);
         m_state->SetModelMatrix(*initialState.modelMatrix);
@@ -100,7 +101,7 @@ namespace measure {
         m_context->SetCameraStyle(vizMode);
         m_context->SetOrientationAxesVisible(false);
 
-        // Ê¹ÓÃ²âÁ¿´°¿Ú×Ô¼º¸´ÖÆºóµÄÊı¾İ²ÎÊı¡£
+        // ä½¿ç”¨æµ‹é‡çª—å£è‡ªå·±å¤åˆ¶åçš„æ•°æ®å‚æ•°ã€‚
         const auto scalarRange =m_dataManager->GetScalarRange();
         const auto spacing = m_dataManager->GetSpacing();
         const double windowWidth =
@@ -131,6 +132,11 @@ namespace measure {
                 cursor[0], cursor[1], cursor[2]);
         m_service->SendUpdates();
       
+        m_edgeCapture = std::make_unique<EdgeCaptureController>(
+            m_dataManager,
+            m_service.get(),
+            m_context->GetRenderer(),
+            m_currentView);
         RebuildHandlers();
         m_overlay = std::make_shared<MeasurementOverlayStrategy>(
                 m_session,
@@ -157,6 +163,7 @@ namespace measure {
 
         m_measurementHandler.reset();
         m_zoomHandler.reset();
+        m_edgeCapture.reset();
         m_overlay.reset();
 
         m_context.reset();
@@ -221,6 +228,13 @@ namespace measure {
                     }
                 }
 
+                if (m_edgeCapture && m_edgeCapture->IsEnabled()) {
+                    const auto edgeResult = m_edgeCapture->Send(event);
+                    if (edgeResult.isHandled) {
+                        return edgeResult;
+                    }
+                }
+
                 if (m_measurementHandler) {
                     return m_measurementHandler->Send(event);
                 }
@@ -236,6 +250,9 @@ namespace measure {
             return;
         }
         m_overlay->Refresh();
+        if (m_edgeCapture) {
+            m_edgeCapture->Refresh();
+        }
         m_service->SetDirty();
     }
 
@@ -251,7 +268,7 @@ namespace measure {
             return true;
         }
 
-        // ÇĞ»»¹ÜÏßÇ°£¬ÏÈ°Ñ Overlay ´Ó¾É renderer Ğ¶ÏÂ¡£
+        // åˆ‡æ¢ç®¡çº¿å‰ï¼Œå…ˆæŠŠ Overlay ä»æ—§ renderer å¸ä¸‹ã€‚
         if (m_overlay) {
             m_service->RemoveOverlayStrategy(m_overlay);
         }
@@ -261,12 +278,16 @@ namespace measure {
         m_service->SetVizMode(vizMode);
         m_context->SetCameraStyle(vizMode);
 
-        // MeasurementInteractionHandler ÄÚ²¿±£´æÁË view£¬
-        // ËùÒÔÇĞ»»·½Ïòºó±ØĞëÖØ½¨¡£
+        // MeasurementInteractionHandler å†…éƒ¨ä¿å­˜äº† viewï¼Œ
+        // æ‰€ä»¥åˆ‡æ¢æ–¹å‘åå¿…é¡»é‡å»ºã€‚
         RebuildHandlers();
 
-        // ÏÈÈÃ Core Íê³ÉĞÂ·½ÏòÇĞÆ¬¹ÜÏßµÄ¹¹½¨¡£
+        // å…ˆè®© Core å®Œæˆæ–°æ–¹å‘åˆ‡ç‰‡ç®¡çº¿çš„æ„å»ºã€‚
         m_service->SendUpdates();
+
+        if (m_edgeCapture) {
+            m_edgeCapture->SetView(view);
+        }
 
         if (m_overlay) {
             m_overlay->SetView(view);
@@ -278,6 +299,30 @@ namespace measure {
         m_context->SendRender();
 
         return true;
+    }
+
+    void MeasurementViewport::SetEdgeCaptureEnabled(bool enabled)
+    {
+        if (!m_edgeCapture) {
+            return;
+        }
+        m_edgeCapture->SetEnabled(enabled);
+        if (m_widget) {
+            m_widget->setFocus(Qt::MouseFocusReason);
+        }
+    }
+
+    bool MeasurementViewport::IsEdgeCaptureEnabled() const
+    {
+        return m_edgeCapture && m_edgeCapture->IsEnabled();
+    }
+
+    void MeasurementViewport::SetEdgeStatusCallback(
+        std::function<void(const std::string&)> callback)
+    {
+        if (m_edgeCapture) {
+            m_edgeCapture->SetStatusCallback(std::move(callback));
+        }
     }
 
 } // namespace measure

@@ -54,7 +54,7 @@ void MeasureToolDialog::BuildUi()
 
     auto* controls = new QHBoxLayout();
     controls->setSpacing(8);
-    m_statusLabel = new QLabel(QStringLiteral("请选择线、圆或圆弧工具。"), this);
+    m_statusLabel = new QLabel(QStringLiteral("请选择线、圆、圆弧或抓边工具。"), this);
     m_statusLabel->setStyleSheet(QStringLiteral("color:#e6d66a; padding-left:4px;"));   
     controls->addWidget(m_statusLabel, 1);
 
@@ -68,6 +68,7 @@ void MeasureToolDialog::BuildUi()
     m_lineButton = new QPushButton(QStringLiteral("线"), this);
     m_circleButton = new QPushButton(QStringLiteral("圆"), this);
     m_arcButton = new QPushButton(QStringLiteral("圆弧"), this);
+    m_edgeButton = new QPushButton(QStringLiteral("抓边"), this);
     m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
     m_redoButton = new QPushButton(QStringLiteral("重做"), this);
 
@@ -75,13 +76,14 @@ void MeasureToolDialog::BuildUi()
         m_lineButton,
         m_circleButton,
         m_arcButton,
+        m_edgeButton,
         m_undoButton,
         m_redoButton }) 
     {
 		button->setAutoDefault(false);//取消默认按钮 避免失去焦点后蓝框恢复到第一个按钮
     }
 
-    for (auto* button : { m_lineButton, m_circleButton, m_arcButton }) {
+    for (auto* button : { m_lineButton, m_circleButton, m_arcButton, m_edgeButton }) {
         button->setCheckable(true);
         button->setMinimumSize(72, 32); 
     }
@@ -97,6 +99,7 @@ void MeasureToolDialog::BuildUi()
     m_toolGroup->addButton(m_lineButton, static_cast<int>(MeasureTool::Line));
     m_toolGroup->addButton(m_circleButton, static_cast<int>(MeasureTool::Circle3Point));
     m_toolGroup->addButton(m_arcButton, static_cast<int>(MeasureTool::Arc3Point));
+    m_toolGroup->addButton(m_edgeButton, 100);
 
     controls->addWidget(viewLabel);
     controls->addWidget(m_viewCombo);
@@ -107,6 +110,7 @@ void MeasureToolDialog::BuildUi()
     controls->addWidget(m_lineButton);
     controls->addWidget(m_circleButton);
     controls->addWidget(m_arcButton);
+    controls->addWidget(m_edgeButton);
     root->addLayout(controls);
 
     connect(m_viewCombo, qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -125,6 +129,10 @@ void MeasureToolDialog::BuildUi()
     connect(m_arcButton, &QPushButton::clicked, this,
         [this]() { 
             BeginTool(MeasureTool::Arc3Point);
+        });
+    connect(m_edgeButton, &QPushButton::clicked, this,
+        [this]() {
+            BeginEdgeCapture();
         });
     connect(m_undoButton, &QPushButton::clicked, this,
         [this]() { 
@@ -170,6 +178,13 @@ void MeasureToolDialog::BuildMeasurementViewport(
         return;
     }
 
+    m_viewport.SetEdgeStatusCallback(
+        [this](const std::string& message) {
+            if (m_statusLabel) {
+                m_statusLabel->setText(QString::fromUtf8(message.c_str()));
+            }
+        });
+
     m_session->SetChangedCallback(
         [this]() {
             if (m_statusLabel && m_session) {
@@ -201,6 +216,7 @@ void MeasureToolDialog::SetView(
     if (m_session) {
         m_session->CancelDraft();
     }
+    m_viewport.SetEdgeCaptureEnabled(false);
 
     if (!m_viewport.SetView(view)) {
         return;
@@ -219,6 +235,7 @@ void MeasureToolDialog::BeginTool(MeasureTool tool)
         return;
     }
 
+    m_viewport.SetEdgeCaptureEnabled(false);
     m_session->Begin({
         tool,
         m_currentView
@@ -228,6 +245,19 @@ void MeasureToolDialog::BeginTool(MeasureTool tool)
         m_vtkWidget->setFocus(
             Qt::MouseFocusReason);
     }   
+}
+
+void MeasureToolDialog::BeginEdgeCapture()
+{
+    if (!m_session || !m_viewport.IsReady()) {
+        ClearCheckedTool();
+        return;
+    }
+    m_session->CancelDraft();
+    if (m_edgeButton) {
+        m_edgeButton->setChecked(true);
+    }
+    m_viewport.SetEdgeCaptureEnabled(true);
 }
 
 void MeasureToolDialog::UndoMeasurement()

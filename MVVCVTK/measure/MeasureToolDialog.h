@@ -32,12 +32,13 @@ private:
         const MeasurementViewInitState& initialState);
     void SetView(MeasureView view);
     void BeginTool(MeasureTool tool);
+    void BeginEdgeCapture();
     void UndoMeasurement();
     void RedoMeasurement();
     void UpdateHistoryButtons();
     void ClearCheckedTool();
 
-    std::shared_ptr<MeasurementSession> m_session;//²âÁ¿Ê²Ã´ µãÁËÄÄĞ©µã  ²âÁ¿½á¹û Redo Undo
+    std::shared_ptr<MeasurementSession> m_session;//æµ‹é‡ä»€ä¹ˆ ç‚¹äº†å“ªäº›ç‚¹  æµ‹é‡ç»“æœ Redo Undo
     MeasurementViewport m_viewport;
 
     QVTKOpenGLNativeWidget* m_vtkWidget = nullptr;
@@ -47,6 +48,7 @@ private:
     QPushButton* m_lineButton = nullptr;
     QPushButton* m_circleButton = nullptr;
     QPushButton* m_arcButton = nullptr;
+    QPushButton* m_edgeButton = nullptr;
     QPushButton* m_undoButton = nullptr;
     QPushButton* m_redoButton = nullptr;
     MeasureView m_currentView = MeasureView::Axial;

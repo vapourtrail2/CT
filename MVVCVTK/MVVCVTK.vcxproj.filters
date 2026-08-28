@@ -162,6 +162,12 @@
     <ClInclude Include="measure\MeasureToolDialog.h">
       <Filter>measure</Filter>
     </ClInclude>
+    <ClInclude Include="measure\EdgeCaptureController.h">
+      <Filter>measure</Filter>
+    </ClInclude>
+    <ClInclude Include="measure\ZcEdgeAlgorithm.h">
+      <Filter>measure</Filter>
+    </ClInclude>
     <ClInclude Include="measure\MeasurementGeometry.h">
       <Filter>measure</Filter>
     </ClInclude>
@@ -348,6 +354,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="measure\MeasureToolDialog.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\EdgeCaptureController.cpp">
+      <Filter>measure</Filter>
+    </ClCompile>
+    <ClCompile Include="measure\ZcEdgeAlgorithm.cpp">
       <Filter>measure</Filter>
     </ClCompile>
     <ClCompile Include="measure\MeasurementGeometry.cpp">

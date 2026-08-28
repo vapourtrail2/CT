@@ -4,7 +4,9 @@
 #include "measure/MeasurementTypes.h"
 #include "measure/MeasurementViewInitState.h"
 #include <QPointer>
+#include <functional>
 #include <memory>
+#include <string>
 
 class QVTKOpenGLNativeWidget;
 class RawVolumeDataManager;
@@ -19,6 +21,7 @@ namespace measure {
     class MeasurementOverlayStrategy;
     class MeasurementSession;
     class MeasurementZoomHandler;
+    class EdgeCaptureController;
 
     class MeasurementViewport final {
     public:
@@ -45,6 +48,11 @@ namespace measure {
         void Refresh();
 
         bool IsReady() const;
+
+        void SetEdgeCaptureEnabled(bool enabled);
+        bool IsEdgeCaptureEnabled() const;
+        void SetEdgeStatusCallback(
+            std::function<void(const std::string&)> callback);
 
     private:
         void RebuildHandlers();
@@ -78,6 +86,9 @@ namespace measure {
         std::unique_ptr<MeasurementInteractionHandler>
             m_measurementHandler;
 
+        std::unique_ptr<EdgeCaptureController>
+            m_edgeCapture;
+
         MeasureView m_currentView = MeasureView::Axial;
     };
 
@@ -85,26 +96,26 @@ namespace measure {
 
 /*
 m_dataManager
-    Dialog ¶ÀÕ¼µÄÌåÊı¾İ¸±±¾
+    Dialog ç‹¬å çš„ä½“æ•°æ®å‰¯æœ¬
 
 m_broadcaster + m_state
-    Dialog ¶ÀÕ¼µÄÇĞÆ¬Î»ÖÃ¡¢´°¿í´°Î»µÈ×´Ì¬
+    Dialog ç‹¬å çš„åˆ‡ç‰‡ä½ç½®ã€çª—å®½çª—ä½ç­‰çŠ¶æ€
 
 m_service
-    ¹¹½¨²¢¸üĞÂ¶şÎ¬ÇĞÆ¬¹ÜÏß
+    æ„å»ºå¹¶æ›´æ–°äºŒç»´åˆ‡ç‰‡ç®¡çº¿
 
 m_context
-    °Ñ¹ÜÏß°ó¶¨µ½ Dialog µÄ QVTK ¿Ø¼ş£¬²¢½ÓÊÕÊó±êÊÂ¼ş
+    æŠŠç®¡çº¿ç»‘å®šåˆ° Dialog çš„ QVTK æ§ä»¶ï¼Œå¹¶æ¥æ”¶é¼ æ ‡äº‹ä»¶
 
 m_session
-    ±£´æÏß¡¢Ô²¡¢Ô²»¡¡¢²İ¸å¡¢Undo¡¢Redo
+    ä¿å­˜çº¿ã€åœ†ã€åœ†å¼§ã€è‰ç¨¿ã€Undoã€Redo
 
 m_overlay
-    °Ñ²âÁ¿½á¹û»­³öÀ´
+    æŠŠæµ‹é‡ç»“æœç”»å‡ºæ¥
 
 m_zoomHandler
-    ´¦ÀíÓÒ¼üËõ·Å
+    å¤„ç†å³é”®ç¼©æ”¾
 
 m_measurementHandler
-    ´¦Àí×ó¼üÈ¡µãºÍÊó±êÒÆ¶¯Ô¤ÀÀ
+    å¤„ç†å·¦é”®å–ç‚¹å’Œé¼ æ ‡ç§»åŠ¨é¢„è§ˆ
 */

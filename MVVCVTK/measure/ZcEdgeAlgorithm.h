@@ -28,13 +28,13 @@ struct ZcMeasuredLine {
     double y1 = 0.0;
     double x2 = 0.0;
     double y2 = 0.0;
+    int measuredPointsCount = 0;
 };
 
 class ZcEdgeAlgorithm final {
 public:
     struct Options {
-        // 第一版按当前加密狗实测值固定；
-        int featureId = 13;
+        int featureId = 1;
     };
 
     explicit ZcEdgeAlgorithm(Options options = {});

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstring>
 #include <exception>
 #include <filesystem>
@@ -31,6 +32,12 @@ struct TPoint {
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
+};
+
+// ZC_GetMeasuredPoints 当前 C# 调用按 16 字节步长读取 Point.X/Y。
+struct TMeasuredPoint2D {
+    double x = 0.0;
+    double y = 0.0;
 };
 
 struct TMeasureAlgorithmPara {
@@ -81,6 +88,7 @@ struct TMeasureLine {
 
 static_assert(sizeof(TEncryptionData) == 8, "Unexpected TEncryptionData ABI");
 static_assert(sizeof(TPoint) == 24, "Unexpected TPoint ABI");
+static_assert(sizeof(TMeasuredPoint2D) == 16, "Unexpected measured-point ABI");
 static_assert(sizeof(TMeasureAlgorithmPara) == 64, "Unexpected TMeasureAlgorithmPara ABI");
 static_assert(sizeof(TAlgorithmRectFramePara) == 48, "Unexpected TAlgorithmRectFramePara ABI");
 static_assert(sizeof(TMeasureLine) == 128, "Unexpected TMeasureLine ABI");
@@ -94,6 +102,7 @@ using MeasureLineByRectFn = int(__cdecl*)(
     TMeasureAlgorithmPara*,
     TAlgorithmRectFramePara*,
     TMeasureLine*);
+using GetMeasuredPointsFn = int(__cdecl*)(void*);
 
 constexpr int kStructuredExceptionResult =
     (std::numeric_limits<int>::min)();
@@ -220,6 +229,20 @@ int ProtectedMeasureLineByRect(
             algorithmPara,
             framePara,
             measuredLine);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
+int ProtectedGetMeasuredPoints(
+    GetMeasuredPointsFn function,
+    void* measuredPoints,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(measuredPoints);
     }
     __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
         return kStructuredExceptionResult;
@@ -374,15 +397,127 @@ public:
             return false;
         }
 
-        line.x1 = measuredLine.x1;
-        line.y1 = measuredLine.y1;
-        line.x2 = measuredLine.x2;
-        line.y2 = measuredLine.y2;
         std::ostringstream resultDetails;
-        resultDetails << "measured line=("
+        resultDetails << "machine line center=("
+            << measuredLine.x << ',' << measuredLine.y << ',' << measuredLine.z
+            << ") endpoints=("
+            << measuredLine.x1 << ',' << measuredLine.y1 << ',' << measuredLine.z1
+            << ")->("
+            << measuredLine.x2 << ',' << measuredLine.y2 << ',' << measuredLine.z2
+            << ") length=" << measuredLine.length
+            << " direction=" << measuredLine.direction
+            << " points_count=" << measuredLine.pointsCount
+            << " straightness=" << measuredLine.straightness;
+        Trace(resultDetails.str());
+
+        constexpr int kMaximumMeasuredPoints = 4096;
+        if (measuredLine.pointsCount < 2
+            || measuredLine.pointsCount > kMaximumMeasuredPoints) {
+            error = "invalid measured points count: "
+                + std::to_string(measuredLine.pointsCount);
+            Trace(error);
+            return false;
+        }
+
+        // C# 端为该接口准备的是最多 4096 个、每个 16 字节的二维点缓冲区。
+        std::array<TMeasuredPoint2D, kMaximumMeasuredPoints> measuredPoints{};
+        Trace("ZC_GetMeasuredPoints begin capacity=4096 stride=16");
+        exceptionCode = 0;
+        const int pointsResult = ProtectedGetMeasuredPoints(
+            m_getMeasuredPoints,
+            measuredPoints.data(),
+            exceptionCode);
+        if (pointsResult == kStructuredExceptionResult) {
+            error = "ZC_GetMeasuredPoints raised "
+                + StructuredExceptionText(exceptionCode);
+            Trace(error);
+            return false;
+        }
+        Trace("ZC_GetMeasuredPoints returned " + std::to_string(pointsResult));
+        if (pointsResult != 0) {
+            error = "ZC_GetMeasuredPoints returned "
+                + std::to_string(pointsResult);
+            return false;
+        }
+
+        double meanX = 0.0;
+        double meanY = 0.0;
+        double minimumX = (std::numeric_limits<double>::max)();
+        double maximumX = (std::numeric_limits<double>::lowest)();
+        double minimumY = (std::numeric_limits<double>::max)();
+        double maximumY = (std::numeric_limits<double>::lowest)();
+        for (int i = 0; i < measuredLine.pointsCount; ++i) {
+            const auto& point = measuredPoints[static_cast<std::size_t>(i)];
+            if (!std::isfinite(point.x) || !std::isfinite(point.y)) {
+                error = "ZC_GetMeasuredPoints returned a non-finite point at index "
+                    + std::to_string(i);
+                Trace(error);
+                return false;
+            }
+            meanX += point.x;
+            meanY += point.y;
+            minimumX = std::min(minimumX, point.x);
+            maximumX = std::max(maximumX, point.x);
+            minimumY = std::min(minimumY, point.y);
+            maximumY = std::max(maximumY, point.y);
+        }
+        meanX /= measuredLine.pointsCount;
+        meanY /= measuredLine.pointsCount;
+
+        std::ostringstream pointsDetails;
+        pointsDetails << "measured points first=("
+            << measuredPoints.front().x << ',' << measuredPoints.front().y
+            << ") last=("
+            << measuredPoints[static_cast<std::size_t>(measuredLine.pointsCount - 1)].x
+            << ','
+            << measuredPoints[static_cast<std::size_t>(measuredLine.pointsCount - 1)].y
+            << ") bounds=(" << minimumX << ',' << minimumY
+            << ")->(" << maximumX << ',' << maximumY << ')';
+        Trace(pointsDetails.str());
+
+        // 用全部测量点做二维正交最小二乘拟合，并用投影范围确定线段端点。
+        double covarianceXX = 0.0;
+        double covarianceXY = 0.0;
+        double covarianceYY = 0.0;
+        for (int i = 0; i < measuredLine.pointsCount; ++i) {
+            const auto& point = measuredPoints[static_cast<std::size_t>(i)];
+            const double dx = point.x - meanX;
+            const double dy = point.y - meanY;
+            covarianceXX += dx * dx;
+            covarianceXY += dx * dy;
+            covarianceYY += dy * dy;
+        }
+        if (covarianceXX + covarianceYY <= std::numeric_limits<double>::epsilon()) {
+            error = "ZC_GetMeasuredPoints returned coincident points";
+            Trace(error);
+            return false;
+        }
+
+        const double angle = 0.5 * std::atan2(
+            2.0 * covarianceXY,
+            covarianceXX - covarianceYY);
+        const double directionX = std::cos(angle);
+        const double directionY = std::sin(angle);
+        double minimumProjection = (std::numeric_limits<double>::max)();
+        double maximumProjection = (std::numeric_limits<double>::lowest)();
+        for (int i = 0; i < measuredLine.pointsCount; ++i) {
+            const auto& point = measuredPoints[static_cast<std::size_t>(i)];
+            const double projection = (point.x - meanX) * directionX
+                + (point.y - meanY) * directionY;
+            minimumProjection = std::min(minimumProjection, projection);
+            maximumProjection = std::max(maximumProjection, projection);
+        }
+
+        line.x1 = meanX + minimumProjection * directionX;
+        line.y1 = meanY + minimumProjection * directionY;
+        line.x2 = meanX + maximumProjection * directionX;
+        line.y2 = meanY + maximumProjection * directionY;
+        line.measuredPointsCount = measuredLine.pointsCount;
+        std::ostringstream fittedDetails;
+        fittedDetails << "fitted measured-points line=("
             << line.x1 << ',' << line.y1 << ")->("
             << line.x2 << ',' << line.y2 << ')';
-        Trace(resultDetails.str());
+        Trace(fittedDetails.str());
         return true;
     }
 
@@ -420,7 +555,8 @@ private:
         return Resolve("ZC_SetFeatureID", m_setFeatureId, error)
             && Resolve("ZC_Init", m_init, error)
             && Resolve("ZC_InitImage", m_initImage, error)
-            && Resolve("ZC_MeasureLineByRect", m_measureLineByRect, error);
+            && Resolve("ZC_MeasureLineByRect", m_measureLineByRect, error)
+            && Resolve("ZC_GetMeasuredPoints", m_getMeasuredPoints, error);
     }
 
     bool EnsureReady(int width, int height, std::string& error)
@@ -428,7 +564,8 @@ private:
         if (!Load(error)) {
             return false;
         }
-        if (!m_initialized) {
+
+        if (!m_initialized) {//初始化加密狗
             Trace("ZC_SetFeatureID begin FeatureID="
                 + std::to_string(m_options.featureId));
             DWORD exceptionCode = 0;
@@ -507,6 +644,7 @@ private:
     InitFn m_init = nullptr;
     InitImageFn m_initImage = nullptr;
     MeasureLineByRectFn m_measureLineByRect = nullptr;
+    GetMeasuredPointsFn m_getMeasuredPoints = nullptr;
     bool m_initialized = false;
     int m_imageWidth = 0;
     int m_imageHeight = 0;

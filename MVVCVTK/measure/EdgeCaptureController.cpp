@@ -320,7 +320,7 @@ bool EdgeCaptureController::GetImageGeometry(ImageGeometry& geometry) const
     return geometry.width > 1 && geometry.height > 1;
 }
 
-bool EdgeCaptureController::EnsureDefaultRoi()
+bool EdgeCaptureController::EnsureDefaultRoi()//计算矩形位置
 {
     auto& state = CurrentState();
     if (state.initialized) {
@@ -530,8 +530,7 @@ bool EdgeCaptureController::RunMeasurement()
     std::string error;
     if (!m_algorithm.MeasureLineByRect(gray, frame, line, error)) {
         state.result.reset();
-        Report("抓边失败：" + error
-            + "；详细日志：%TEMP%\\GviewCT_ZCAlgorithm.log");
+        Report("抓边失败：" + error);
         Refresh();
         return false;
     }
@@ -549,13 +548,13 @@ bool EdgeCaptureController::RunMeasurement()
         || !pointInsideFrame(line.x1, line.y1)
         || !pointInsideFrame(line.x2, line.y2)) {
         state.result.reset();
-        Report("抓边返回坐标不在矩形内，请检查 DLL 图像坐标的 Y 方向。");
+        Report("DLL 已返回抓边点，但点坐标不在框选区域；请查看日志确认 ZC_GetMeasuredPoints 是否返回整图像素坐标。");
         Refresh();
         return false;
     }
 
     state.result = line;
-    Report("抓边成功。");
+    Report("抓边成功，共获得 " + std::to_string(line.measuredPointsCount) + " 个测量点。");
     Refresh();
     return true;
 }
@@ -643,9 +642,7 @@ void EdgeCaptureController::RequestRender()
 
 void EdgeCaptureController::Report(const std::string& message) const
 {
-    if (m_statusCallback) {
-        m_statusCallback(message);
-    }
+      m_statusCallback(message);
 }
 
 } 

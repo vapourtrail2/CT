@@ -40,6 +40,14 @@ struct TMeasuredPoint2D {
     double y = 0.0;
 };
 
+struct TScalePara {
+    double xScale = 1.0;
+    double yScale = 1.0;
+    double angle = 0.0;
+    std::int32_t calibratedFlag = 1;
+    const char* magnification = nullptr;
+};
+
 struct TMeasureAlgorithmPara {
     std::int32_t zoomIndex = 0;
     std::int32_t edgeContrastType = 0;
@@ -89,6 +97,7 @@ struct TMeasureLine {
 static_assert(sizeof(TEncryptionData) == 8, "Unexpected TEncryptionData ABI");
 static_assert(sizeof(TPoint) == 24, "Unexpected TPoint ABI");
 static_assert(sizeof(TMeasuredPoint2D) == 16, "Unexpected measured-point ABI");
+static_assert(sizeof(TScalePara) == 40, "Unexpected TScalePara ABI");
 static_assert(sizeof(TMeasureAlgorithmPara) == 64, "Unexpected TMeasureAlgorithmPara ABI");
 static_assert(sizeof(TAlgorithmRectFramePara) == 48, "Unexpected TAlgorithmRectFramePara ABI");
 static_assert(sizeof(TMeasureLine) == 128, "Unexpected TMeasureLine ABI");
@@ -103,6 +112,8 @@ using MeasureLineByRectFn = int(__cdecl*)(
     TAlgorithmRectFramePara*,
     TMeasureLine*);
 using GetMeasuredPointsFn = int(__cdecl*)(void*);
+using GetGrayValueFn = int(__cdecl*)(void*, int, int, int*);
+using SetScaleParaFn = int(__cdecl*)(int, TScalePara*);
 
 constexpr int kStructuredExceptionResult =
     (std::numeric_limits<int>::min)();
@@ -351,6 +362,38 @@ int ProtectedGetMeasuredPoints(
     }
 }
 
+int ProtectedGetGrayValue(
+    GetGrayValueFn function,
+    void* image,
+    int x,
+    int y,
+    int* grayValue,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(image, x, y, grayValue);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
+int ProtectedSetScalePara(
+    SetScaleParaFn function,
+    int zoomIndex,
+    TScalePara* scalePara,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(zoomIndex, scalePara);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
 std::string WindowsError(const char* action)
 {
     std::ostringstream stream;
@@ -461,6 +504,38 @@ public:
         TraceAndDumpInputImage(image, frame);
 
         IplImage imageHeader = MakeImageHeader(image);
+        const int probeX = std::max(
+            0,
+            std::min(
+                image.width - 1,
+                static_cast<int>(std::lround(frame.startX + frame.width * 0.5))));
+        const int probeY = std::max(
+            0,
+            std::min(
+                image.height - 1,
+                static_cast<int>(std::lround(frame.startY + frame.height * 0.5))));
+        const int localGray = image.pixels[
+            static_cast<std::size_t>(probeY) * image.widthStep + probeX];
+        int dllGray = -1;
+        DWORD probeExceptionCode = 0;
+        const int probeResult = ProtectedGetGrayValue(
+            m_getGrayValue,
+            &imageHeader,
+            probeX,
+            probeY,
+            &dllGray,
+            probeExceptionCode);
+        std::ostringstream probeDetails;
+        probeDetails << "ZC_GetGrayValue probe=(" << probeX << ',' << probeY
+            << ") local=" << localGray
+            << " dll=" << dllGray
+            << " result=" << probeResult;
+        if (probeResult == kStructuredExceptionResult) {
+            probeDetails << " exception="
+                << StructuredExceptionText(probeExceptionCode);
+        }
+        Trace(probeDetails.str());
+
         TPoint cameraPosition{};
         TMeasureAlgorithmPara algorithmPara{};
         TAlgorithmRectFramePara framePara;
@@ -612,10 +687,47 @@ public:
             maximumProjection = std::max(maximumProjection, projection);
         }
 
-        line.x1 = meanX + minimumProjection * directionX;
-        line.y1 = meanY + minimumProjection * directionY;
-        line.x2 = meanX + maximumProjection * directionX;
-        line.y2 = meanY + maximumProjection * directionY;
+        const double rawX1 = meanX + minimumProjection * directionX;
+        const double rawY1 = meanY + minimumProjection * directionY;
+        const double rawX2 = meanX + maximumProjection * directionX;
+        const double rawY2 = meanY + maximumProjection * directionY;
+
+        // ZC_SetScalePara 使用单位比例时，旧算法通常返回以图像中心为
+        // 原点、Y 轴向上的坐标。若原始点本身已是整图像素坐标则保持原值。
+        const auto insideFrame = [&frame](double x, double y) {
+            constexpr double tolerance = 3.0;
+            return x >= frame.startX - tolerance
+                && x <= frame.startX + frame.width + tolerance
+                && y >= frame.startY - tolerance
+                && y <= frame.startY + frame.height + tolerance;
+        };
+        int rawInsideCount = 0;
+        int centeredInsideCount = 0;
+        for (int i = 0; i < measuredLine.pointsCount; ++i) {
+            const auto& point = measuredPoints[static_cast<std::size_t>(i)];
+            rawInsideCount += insideFrame(point.x, point.y);
+            centeredInsideCount += insideFrame(
+                point.x + image.width * 0.5,
+                image.height * 0.5 - point.y);
+        }
+        if (centeredInsideCount > rawInsideCount) {
+            line.x1 = rawX1 + image.width * 0.5;
+            line.y1 = image.height * 0.5 - rawY1;
+            line.x2 = rawX2 + image.width * 0.5;
+            line.y2 = image.height * 0.5 - rawY2;
+            Trace("measured-points coordinates interpreted as centered machine coordinates"
+                " raw_inside=" + std::to_string(rawInsideCount)
+                + " centered_inside=" + std::to_string(centeredInsideCount));
+        }
+        else {
+            line.x1 = rawX1;
+            line.y1 = rawY1;
+            line.x2 = rawX2;
+            line.y2 = rawY2;
+            Trace("measured-points coordinates interpreted as image pixels"
+                " raw_inside=" + std::to_string(rawInsideCount)
+                + " centered_inside=" + std::to_string(centeredInsideCount));
+        }
         line.measuredPointsCount = measuredLine.pointsCount;
         std::ostringstream fittedDetails;
         fittedDetails << "fitted measured-points line=("
@@ -660,7 +772,9 @@ private:
             && Resolve("ZC_Init", m_init, error)
             && Resolve("ZC_InitImage", m_initImage, error)
             && Resolve("ZC_MeasureLineByRect", m_measureLineByRect, error)
-            && Resolve("ZC_GetMeasuredPoints", m_getMeasuredPoints, error);
+            && Resolve("ZC_GetMeasuredPoints", m_getMeasuredPoints, error)
+            && Resolve("ZC_GetGrayValue", m_getGrayValue, error)
+            && Resolve("ZC_SetScalePara", m_setScalePara, error);
     }
 
     bool EnsureReady(int width, int height, std::string& error)
@@ -739,6 +853,35 @@ private:
             m_imageWidth = width;
             m_imageHeight = height;
         }
+
+        if (!m_scaleInitialized) {
+            // 当前模块只取 DLL 的抓边位置用于界面叠加，不输出相机标定后的
+            // 计量结果。因此使用单位比例，后续再将中心坐标还原为图像像素。
+            std::string magnification = "1";
+            TScalePara scalePara;
+            scalePara.magnification = magnification.c_str();
+            Trace("ZC_SetScalePara begin zoom=0 x_scale=1 y_scale=1"
+                " angle=0 calibrated=true magnification=1");
+            DWORD exceptionCode = 0;
+            const int scaleResult = ProtectedSetScalePara(
+                m_setScalePara,
+                0,
+                &scalePara,
+                exceptionCode);
+            if (scaleResult == kStructuredExceptionResult) {
+                error = "ZC_SetScalePara raised "
+                    + StructuredExceptionText(exceptionCode);
+                Trace(error);
+                return false;
+            }
+            Trace("ZC_SetScalePara returned " + std::to_string(scaleResult));
+            if (scaleResult != 0) {
+                error = "ZC_SetScalePara returned "
+                    + std::to_string(scaleResult);
+                return false;
+            }
+            m_scaleInitialized = true;
+        }
         return true;
     }
 
@@ -749,9 +892,12 @@ private:
     InitImageFn m_initImage = nullptr;
     MeasureLineByRectFn m_measureLineByRect = nullptr;
     GetMeasuredPointsFn m_getMeasuredPoints = nullptr;
+    GetGrayValueFn m_getGrayValue = nullptr;
+    SetScaleParaFn m_setScalePara = nullptr;
     bool m_initialized = false;
     int m_imageWidth = 0;
     int m_imageHeight = 0;
+    bool m_scaleInitialized = false;
 };
 
 ZcEdgeAlgorithm::ZcEdgeAlgorithm(Options options)

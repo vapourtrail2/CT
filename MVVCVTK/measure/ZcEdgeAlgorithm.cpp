@@ -9,7 +9,12 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <exception>
 #include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
 #include <random>
 #include <sstream>
 #include <utility>
@@ -79,6 +84,147 @@ static_assert(sizeof(TPoint) == 24, "Unexpected TPoint ABI");
 static_assert(sizeof(TMeasureAlgorithmPara) == 64, "Unexpected TMeasureAlgorithmPara ABI");
 static_assert(sizeof(TAlgorithmRectFramePara) == 48, "Unexpected TAlgorithmRectFramePara ABI");
 static_assert(sizeof(TMeasureLine) == 128, "Unexpected TMeasureLine ABI");
+
+using SetFeatureIdFn = int(__cdecl*)(int);
+using InitFn = int(__cdecl*)(TEncryptionData*, TEncryptionData*);
+using InitImageFn = int(__cdecl*)(int, int);
+using MeasureLineByRectFn = int(__cdecl*)(
+    void*,
+    TPoint*,
+    TMeasureAlgorithmPara*,
+    TAlgorithmRectFramePara*,
+    TMeasureLine*);
+
+constexpr int kStructuredExceptionResult =
+    (std::numeric_limits<int>::min)();
+
+std::filesystem::path DiagnosticLogPath()
+{
+    std::wstring buffer(32768, L'\0');
+    const DWORD length = GetTempPathW(
+        static_cast<DWORD>(buffer.size()),
+        buffer.data());
+    if (length == 0 || length >= buffer.size()) {
+        return L"GviewCT_ZCAlgorithm.log";
+    }
+    buffer.resize(length);
+    return std::filesystem::path(buffer) / L"GviewCT_ZCAlgorithm.log";
+}
+
+void Trace(const std::string& message)
+{
+    SYSTEMTIME time{};
+    GetLocalTime(&time);
+    std::ostringstream stream;
+    stream << "[ZC "
+        << std::setfill('0')
+        << std::setw(2) << time.wHour << ':'
+        << std::setw(2) << time.wMinute << ':'
+        << std::setw(2) << time.wSecond << '.'
+        << std::setw(3) << time.wMilliseconds
+        << "] " << message;
+    const std::string line = stream.str();
+
+    std::cerr << line << std::endl;
+    OutputDebugStringA((line + "\n").c_str());
+
+    std::ofstream log(
+        DiagnosticLogPath(),
+        std::ios::out | std::ios::app);
+    if (log) {
+        log << line << '\n';
+    }
+}
+
+std::string ByteArrayText(const TEncryptionData& value)
+{
+    std::ostringstream stream;
+    stream << '[';
+    for (std::size_t i = 0; i < std::size(value.data); ++i) {
+        if (i != 0) {
+            stream << ',';
+        }
+        stream << static_cast<unsigned int>(value.data[i]);
+    }
+    stream << ']';
+    return stream.str();
+}
+
+std::string StructuredExceptionText(DWORD code)
+{
+    std::ostringstream stream;
+    stream << "Windows exception 0x"
+        << std::uppercase << std::hex
+        << std::setw(8) << std::setfill('0') << code;
+    return stream.str();
+}
+
+int ProtectedSetFeatureId(
+    SetFeatureIdFn function,
+    int featureId,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(featureId);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
+int ProtectedInit(
+    InitFn function,
+    TEncryptionData* challenge,
+    TEncryptionData* response,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(challenge, response);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
+int ProtectedInitImage(
+    InitImageFn function,
+    int width,
+    int height,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(width, height);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
+int ProtectedMeasureLineByRect(
+    MeasureLineByRectFn function,
+    void* image,
+    TPoint* cameraPosition,
+    TMeasureAlgorithmPara* algorithmPara,
+    TAlgorithmRectFramePara* framePara,
+    TMeasureLine* measuredLine,
+    DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(
+            image,
+            cameraPosition,
+            algorithmPara,
+            framePara,
+            measuredLine);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
 
 std::string WindowsError(const char* action)
 {
@@ -199,12 +345,30 @@ public:
         framePara.sinAngle = frame.sinAngle;
         TMeasureLine measuredLine{};
 
-        const int result = m_measureLineByRect(
+        std::ostringstream callDetails;
+        callDetails << "ZC_MeasureLineByRect begin image="
+            << image.width << 'x' << image.height
+            << " step=" << image.widthStep
+            << " roi=(" << frame.startX << ',' << frame.startY
+            << ',' << frame.width << ',' << frame.height << ')';
+        Trace(callDetails.str());
+
+        DWORD exceptionCode = 0;
+        const int result = ProtectedMeasureLineByRect(
+            m_measureLineByRect,
             &imageHeader,
             &cameraPosition,
             &algorithmPara,
             &framePara,
-            &measuredLine);
+            &measuredLine,
+            exceptionCode);
+        if (result == kStructuredExceptionResult) {
+            error = "ZC_MeasureLineByRect raised "
+                + StructuredExceptionText(exceptionCode);
+            Trace(error);
+            return false;
+        }
+        Trace("ZC_MeasureLineByRect returned " + std::to_string(result));
         if (result != 0) {
             error = "ZC_MeasureLineByRect returned " + std::to_string(result);
             return false;
@@ -214,28 +378,25 @@ public:
         line.y1 = measuredLine.y1;
         line.x2 = measuredLine.x2;
         line.y2 = measuredLine.y2;
+        std::ostringstream resultDetails;
+        resultDetails << "measured line=("
+            << line.x1 << ',' << line.y1 << ")->("
+            << line.x2 << ',' << line.y2 << ')';
+        Trace(resultDetails.str());
         return true;
     }
 
 private:
-    using SetFeatureIdFn = int(__cdecl*)(int);
-    using InitFn = int(__cdecl*)(TEncryptionData*, TEncryptionData*);
-    using InitImageFn = int(__cdecl*)(int, int);
-    using MeasureLineByRectFn = int(__cdecl*)(
-        void*,
-        TPoint*,
-        TMeasureAlgorithmPara*,
-        TAlgorithmRectFramePara*,
-        TMeasureLine*);
-
     template <typename Function>
     bool Resolve(const char* name, Function& function, std::string& error)
     {
         function = reinterpret_cast<Function>(GetProcAddress(m_module, name));
         if (!function) {
             error = std::string("missing export: ") + name;
+            Trace(error);
             return false;
         }
+        Trace(std::string("resolved export: ") + name);
         return true;
     }
 
@@ -245,14 +406,17 @@ private:
             return true;
         }
         const auto dllPath = ExecutableDirectory() / L"ZCAlgorithm.dll";
+        Trace("loading DLL: " + dllPath.string());
         m_module = LoadLibraryExW(
             dllPath.c_str(),
             nullptr,
             LOAD_WITH_ALTERED_SEARCH_PATH);
         if (!m_module) {
             error = WindowsError("cannot load ZCAlgorithm.dll");
+            Trace(error);
             return false;
         }
+        Trace("ZCAlgorithm.dll loaded successfully");
         return Resolve("ZC_SetFeatureID", m_setFeatureId, error)
             && Resolve("ZC_Init", m_init, error)
             && Resolve("ZC_InitImage", m_initImage, error)
@@ -265,7 +429,20 @@ private:
             return false;
         }
         if (!m_initialized) {
-            const int featureResult = m_setFeatureId(m_options.featureId);
+            Trace("ZC_SetFeatureID begin FeatureID="
+                + std::to_string(m_options.featureId));
+            DWORD exceptionCode = 0;
+            const int featureResult = ProtectedSetFeatureId(
+                m_setFeatureId,
+                m_options.featureId,
+                exceptionCode);
+            if (featureResult == kStructuredExceptionResult) {
+                error = "ZC_SetFeatureID raised "
+                    + StructuredExceptionText(exceptionCode);
+                Trace(error);
+                return false;
+            }
+            Trace("ZC_SetFeatureID returned " + std::to_string(featureResult));
             if (featureResult != 0) {
                 error = "ZC_SetFeatureID returned "
                     + std::to_string(featureResult)
@@ -277,7 +454,20 @@ private:
 
             auto challenge = CreateChallenge();
             auto response = CreateResponse(challenge);
-            const int initResult = m_init(&challenge, &response);
+            Trace("ZC_Init begin challenge=" + ByteArrayText(challenge)
+                + " response=" + ByteArrayText(response));
+            const int initResult = ProtectedInit(
+                m_init,
+                &challenge,
+                &response,
+                exceptionCode);
+            if (initResult == kStructuredExceptionResult) {
+                error = "ZC_Init raised "
+                    + StructuredExceptionText(exceptionCode);
+                Trace(error);
+                return false;
+            }
+            Trace("ZC_Init returned " + std::to_string(initResult));
             if (initResult != 0) {
                 error = "ZC_Init returned " + std::to_string(initResult);
                 return false;
@@ -286,7 +476,21 @@ private:
         }
 
         if (m_imageWidth != width || m_imageHeight != height) {
-            const int imageResult = m_initImage(width, height);
+            Trace("ZC_InitImage begin width=" + std::to_string(width)
+                + " height=" + std::to_string(height));
+            DWORD exceptionCode = 0;
+            const int imageResult = ProtectedInitImage(
+                m_initImage,
+                width,
+                height,
+                exceptionCode);
+            if (imageResult == kStructuredExceptionResult) {
+                error = "ZC_InitImage raised "
+                    + StructuredExceptionText(exceptionCode);
+                Trace(error);
+                return false;
+            }
+            Trace("ZC_InitImage returned " + std::to_string(imageResult));
             if (imageResult != 0) {
                 error = "ZC_InitImage returned " + std::to_string(imageResult);
                 return false;
@@ -321,7 +525,19 @@ bool ZcEdgeAlgorithm::MeasureLineByRect(
     ZcMeasuredLine& line,
     std::string& error)
 {
-    return m_impl->MeasureLineByRect(image, frame, line, error);
+    try {
+        return m_impl->MeasureLineByRect(image, frame, line, error);
+    }
+    catch (const std::exception& exception) {
+        error = std::string("C++ exception: ") + exception.what();
+        Trace(error);
+        return false;
+    }
+    catch (...) {
+        error = "unknown C++ exception";
+        Trace(error);
+        return false;
+    }
 }
 
 } // namespace measure

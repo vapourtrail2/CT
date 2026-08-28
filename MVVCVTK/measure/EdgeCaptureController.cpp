@@ -530,7 +530,8 @@ bool EdgeCaptureController::RunMeasurement()
     std::string error;
     if (!m_algorithm.MeasureLineByRect(gray, frame, line, error)) {
         state.result.reset();
-        Report("抓边失败：" + error);
+        Report("抓边失败：" + error
+            + "；详细日志：%TEMP%\\GviewCT_ZCAlgorithm.log");
         Refresh();
         return false;
     }

@@ -120,6 +120,19 @@ std::filesystem::path DiagnosticLogPath()
     return std::filesystem::path(buffer) / L"GviewCT_ZCAlgorithm.log";
 }
 
+std::filesystem::path DiagnosticImagePath()
+{
+    std::wstring buffer(32768, L'\0');
+    const DWORD length = GetTempPathW(
+        static_cast<DWORD>(buffer.size()),
+        buffer.data());
+    if (length == 0 || length >= buffer.size()) {
+        return L"GviewCT_ZCInput.pgm";
+    }
+    buffer.resize(length);
+    return std::filesystem::path(buffer) / L"GviewCT_ZCInput.pgm";
+}
+
 void Trace(const std::string& message)
 {
     SYSTEMTIME time{};
@@ -143,6 +156,95 @@ void Trace(const std::string& message)
     if (log) {
         log << line << '\n';
     }
+}
+
+void TraceAndDumpInputImage(
+    const ZcGrayImage& image,
+    const ZcRectFrame& frame)
+{
+    std::uint8_t imageMinimum = 255;
+    std::uint8_t imageMaximum = 0;
+    std::uint64_t imageSum = 0;
+    std::uint64_t imageNonzero = 0;
+    for (int row = 0; row < image.height; ++row) {
+        const auto* source = image.pixels.data()
+            + static_cast<std::size_t>(row) * image.widthStep;
+        for (int column = 0; column < image.width; ++column) {
+            const std::uint8_t value = source[column];
+            imageMinimum = std::min(imageMinimum, value);
+            imageMaximum = std::max(imageMaximum, value);
+            imageSum += value;
+            imageNonzero += value != 0;
+        }
+    }
+
+    const int roiLeft = std::max(
+        0,
+        static_cast<int>(std::floor(frame.startX)));
+    const int roiTop = std::max(
+        0,
+        static_cast<int>(std::floor(frame.startY)));
+    const int roiRight = std::min(
+        image.width,
+        static_cast<int>(std::ceil(frame.startX + frame.width)));
+    const int roiBottom = std::min(
+        image.height,
+        static_cast<int>(std::ceil(frame.startY + frame.height)));
+    std::uint8_t roiMinimum = 255;
+    std::uint8_t roiMaximum = 0;
+    std::uint64_t roiSum = 0;
+    std::uint64_t roiNonzero = 0;
+    std::uint64_t roiCount = 0;
+    for (int row = roiTop; row < roiBottom; ++row) {
+        const auto* source = image.pixels.data()
+            + static_cast<std::size_t>(row) * image.widthStep;
+        for (int column = roiLeft; column < roiRight; ++column) {
+            const std::uint8_t value = source[column];
+            roiMinimum = std::min(roiMinimum, value);
+            roiMaximum = std::max(roiMaximum, value);
+            roiSum += value;
+            roiNonzero += value != 0;
+            ++roiCount;
+        }
+    }
+
+    const auto imageCount = static_cast<std::uint64_t>(image.width)
+        * static_cast<std::uint64_t>(image.height);
+    std::ostringstream statistics;
+    statistics << "input gray stats image[min="
+        << static_cast<unsigned int>(imageMinimum)
+        << " max=" << static_cast<unsigned int>(imageMaximum)
+        << " mean="
+        << (imageCount == 0
+            ? 0.0
+            : static_cast<double>(imageSum) / imageCount)
+        << " nonzero=" << imageNonzero << '/' << imageCount
+        << "] roi[min="
+        << (roiCount == 0 ? 0U : static_cast<unsigned int>(roiMinimum))
+        << " max="
+        << (roiCount == 0 ? 0U : static_cast<unsigned int>(roiMaximum))
+        << " mean="
+        << (roiCount == 0
+            ? 0.0
+            : static_cast<double>(roiSum) / roiCount)
+        << " nonzero=" << roiNonzero << '/' << roiCount << ']';
+    Trace(statistics.str());
+
+    const auto path = DiagnosticImagePath();
+    std::ofstream output(path, std::ios::out | std::ios::binary | std::ios::trunc);
+    if (!output) {
+        Trace("cannot write diagnostic input image: " + path.string());
+        return;
+    }
+    output << "P5\n" << image.width << ' ' << image.height << "\n255\n";
+    for (int row = 0; row < image.height; ++row) {
+        const auto* source = image.pixels.data()
+            + static_cast<std::size_t>(row) * image.widthStep;
+        output.write(
+            reinterpret_cast<const char*>(source),
+            image.width);
+    }
+    Trace("diagnostic input image written: " + path.string());
 }
 
 std::string ByteArrayText(const TEncryptionData& value)
@@ -355,6 +457,8 @@ public:
         if (!EnsureReady(image.width, image.height, error)) {
             return false;
         }
+
+        TraceAndDumpInputImage(image, frame);
 
         IplImage imageHeader = MakeImageHeader(image);
         TPoint cameraPosition{};

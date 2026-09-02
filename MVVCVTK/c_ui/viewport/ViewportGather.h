@@ -1,7 +1,6 @@
 #pragma once
 
-#include "App/AppTypes.h"
-#include "Host/Types/HostSessionTypes.h"
+#include "MVVCVTK/API/Host/Types/HostSessionTypes.h"
 
 #include <QPointer>
 #include <QVTKOpenGLNativeWidget.h>
@@ -81,7 +80,7 @@ private:
     QPointer<QWidget> viewSagittalContainer_;
     QPointer<QWidget> viewCoronalContainer_;
     QPointer<QWidget> view3DContainer_;
-    VizMode m_current3DMode = VizMode::CompositeIsoSurface;
+    HostRenderMode m_current3DMode = HostRenderMode::CompositeIsoSurface;
     ViewportId m_maximizedViewport = ViewportId::None;
     QTimer* m_refreshTimer = nullptr;
     int m_refresher = 0;

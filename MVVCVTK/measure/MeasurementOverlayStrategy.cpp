@@ -3,6 +3,7 @@
 #include "measure/MeasurementSession.h"
 #include "measure/MeasurementToolDefinition.h"
 #include "measure/MeasurementView.h"
+#include "measure/MeasureViewAdapter.h"
 
 #include <vtkActor.h>
 #include <vtkBillboardTextActor3D.h>
@@ -21,56 +22,35 @@ namespace measure {
 
 MeasurementOverlayStrategy::MeasurementOverlayStrategy(
     const std::shared_ptr<MeasurementSession>& session,
-    InteractiveService* service,
+    MeasureViewAdapter* adapter,
     MeasureView view)
     : m_session(session)
-    , m_service(service)
+    , m_adapter(adapter)
     , m_view(view)
 {
 }
 
-void MeasurementOverlayStrategy::SetInputData(vtkSmartPointer<vtkDataObject> data)
-{
-    (void)data;
-}
-
 void MeasurementOverlayStrategy::AttachRenderer(
-    vtkSmartPointer<vtkRenderer> renderer)
+    vtkRenderer* renderer)
 {
     if (!renderer) {
         return;
     }
 
     if (m_renderer == renderer) {
-        BaseVisualStrategy::AttachRenderer(renderer);
         Refresh();
         return;
     }
 
     RemoveProps();
-    BaseVisualStrategy::AttachRenderer(renderer);
     m_renderer = renderer;
     Refresh();
 }
 
-void MeasurementOverlayStrategy::DetachRenderer(
-    vtkSmartPointer<vtkRenderer> renderer)
+void MeasurementOverlayStrategy::DetachRenderer()
 {
-    if (m_renderer == renderer) {
-        RemoveProps();
-        m_renderer = nullptr;
-    }
-
-    BaseVisualStrategy::DetachRenderer(renderer);
-}
-
-void MeasurementOverlayStrategy::SetVisualState(
-    const RenderParams& params,
-    UpdateFlags flags)
-{
-    (void)params;
-    (void)flags;
-    Refresh();
+    RemoveProps();
+    m_renderer = nullptr;
 }
 
 void MeasurementOverlayStrategy::SetView(MeasureView view)
@@ -88,7 +68,7 @@ void MeasurementOverlayStrategy::Refresh()
         return;
     }
     RemoveProps();
-    if (!m_session || !m_service) {
+    if (!m_session || !m_adapter) {
         return;
     }
 
@@ -139,8 +119,9 @@ std::vector<Point3> MeasurementOverlayStrategy::ProjectToCurrentView(
 {
     std::vector<Point3> projected;
     projected.reserve(physicalPath.size());
-    const Point3 normal = GetSliceViewDescriptor(m_view).normal;
-    const auto cursor = m_service->GetCursorWorld();
+    const Point3 normal = m_adapter->GetWorldVector(
+        GetSliceViewDescriptor(m_view).normal);
+    const auto cursor = m_adapter->GetCursorWorld();
     const Point3 origin{ cursor[0], cursor[1], cursor[2] };
     constexpr double safeOffset = 0.01;
     for (const auto& physical : physicalPath) {
@@ -155,19 +136,15 @@ std::vector<Point3> MeasurementOverlayStrategy::ProjectToCurrentView(
 
 Point3 MeasurementOverlayStrategy::PhysicalToWorld(const Point3& physical) const
 {
-    double source[3] = { physical[0], physical[1], physical[2] };
-    double target[3] = { 0.0, 0.0, 0.0 };
-    m_service->GetWorldPositionFromModel(source, target);
-    return { target[0], target[1], target[2] };
+    return m_adapter->GetWorldPoint(physical);
 }
 
 bool MeasurementOverlayStrategy::SourcePlaneMatches(const MeasurementEntity& entity) const
 {
-    const auto cursor = m_service->GetCursorWorld();
-    double world[3] = { cursor[0], cursor[1], cursor[2] };
-    double physical[3] = { 0.0, 0.0, 0.0 };
-    m_service->GetModelPositionFromWorld(world, physical);
-    const Point3 currentPhysical{ physical[0], physical[1], physical[2] };
+    const auto cursor = m_adapter->GetCursorWorld();
+    const Point3 currentPhysical = m_adapter->GetModelPoint({
+        cursor[0], cursor[1], cursor[2]
+    });
     return std::abs(geometry::Dot(
         entity.plane.normal,
         geometry::Subtract(currentPhysical, entity.plane.origin))) <= entity.plane.sliceTolerance;

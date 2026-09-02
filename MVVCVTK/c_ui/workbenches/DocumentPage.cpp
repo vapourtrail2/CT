@@ -308,7 +308,7 @@ void DocumentPage::showOpenDialog()
             btnBack_->setVisible(true);
 			btnNext_->setVisible(false);
             btnLoad_->setVisible(true);
-            updateStatusLabel(QStringLiteral("请填写分辨率和原点。"), false);
+            updateStatusLabel(QStringLiteral("请填写尺寸，体素间隔和原点"), false);
             });
 
         connect(btnBack_, &QPushButton::clicked, this, [this]() {

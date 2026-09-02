@@ -1,38 +1,35 @@
 #pragma once
 
-#include "Interaction/IInteractionHandler.h"
+#include "MVVCVTK/SPI/Interaction/InteractionTypes.h"
 #include "measure/MeasurementTypes.h"
 
 #include <memory>
 #include <optional>
 
-class AbstractDataManager;
-class InteractiveService;
 class vtkRenderer;
 
 namespace measure {
 
 class MeasurementSession;
+class MeasureViewAdapter;
 
-class MeasurementInteractionHandler : public IInteractionHandler {
+class MeasurementInteractionHandler final {
 public:
     MeasurementInteractionHandler(  
         const std::shared_ptr<MeasurementSession>& session,
-        const std::shared_ptr<AbstractDataManager>& dataManager,
-        InteractiveService* service,
+        MeasureViewAdapter* adapter,
         vtkRenderer* renderer,
         MeasureView view);
 
-    InteractionResult Send(const InteractionEvent& event) override;
+    InteractionResult Send(const InteractionEvent& event);
 
 private:
-    std::optional<Point3> DisplayToPhysical(int x, int y) const;
-    MeasurementPlane SnapshotPhysicalPlane() const;
-    bool IsInsideImage(const Point3& physicalPoint) const;
+    std::optional<Point3> GetDisplayPoint(int x, int y) const;
+    MeasurementPlane GetMeasurePlane() const;
+    bool GetIsInsideImage(const Point3& physicalPoint) const;
 
     std::shared_ptr<MeasurementSession> m_session;
-    std::shared_ptr<AbstractDataManager> m_dataManager;
-    InteractiveService* m_service = nullptr;
+    MeasureViewAdapter* m_adapter = nullptr;
     vtkRenderer* m_renderer = nullptr;
     MeasureView m_view = MeasureView::Axial;
     bool m_consumingLeftButton = false;

@@ -1,15 +1,7 @@
 #include "c_ui/context/SessionManager.h"
-#include "Host/Types/HostRequest.h"
-
-#include "Host/HostFeature.h"
 #include <QByteArray>
 #include <QMetaObject>
 #include <QPointer>
-
-#include <vtkImageSlice.h>
-#include <vtkMatrix4x4.h>
-#include <vtkPropCollection.h>
-#include <vtkRenderer.h>
 
 #include <array>
 #include <cmath>
@@ -42,44 +34,6 @@ bool isVoxelCountRight(std::array<int, 3> dimensions, std::size_t& voxelcount) {
     return true;
 }
 
-class ImageSnapshotReader final : public HostFeature
-{
-public:
-    std::string_view GetFeatureId() const noexcept override
-    {
-        return "ui.image-snapshot-reader";
-    }
-
-    bool AttachHost(
-        const HostFeatureContext& context) override
-    {
-        if (!context.getImageSnapshot) {
-            return false;
-        }
-
-        snapshot_ = context.getImageSnapshot();
-        return static_cast<bool>(snapshot_);
-    }
-
-    bool DetachHost() override
-    {
-        return true;
-    }
-
-    bool OnHostTick() override
-    {
-        return true;
-    }
-
-    const ImageSnapshot& getSnapshot() const noexcept
-    {
-        return snapshot_;
-    }
-
-private:
-    ImageSnapshot snapshot_;
-};
-
 SessionManager::SessionManager(QObject* parent)
     : QObject(parent)
 {
@@ -93,7 +47,8 @@ SessionManager::SessionManager(QObject* parent)
 
 SessionManager::~SessionManager()
 {
-    clearCropFeature();
+    ++requestGeneration_;
+    (void)StopHost();
 }
 
 bool SessionManager::initHost(HostSessionConfig config, QString* err)
@@ -103,6 +58,24 @@ bool SessionManager::initHost(HostSessionConfig config, QString* err)
             err,
             QStringLiteral("Host render view configuration is empty."));
         return false;
+    }
+
+    if (!config.sendOwnerTask) {
+        const QPointer<SessionManager> guard(this);
+        config.sendOwnerTask =
+            [guard](std::function<void()> task) {
+                if (!guard || !task) {
+                    return false;
+                }
+                return QMetaObject::invokeMethod(
+                    guard.data(),
+                    [guard, task = std::move(task)]() mutable {
+                        if (guard) {
+                            task();
+                        }
+                    },
+                    Qt::QueuedConnection);
+            };
     }
 
     config_ = std::move(config);
@@ -123,8 +96,9 @@ bool SessionManager::initHost(HostSessionConfig config, QString* err)
 bool SessionManager::resetHost(QString* errorOut)
 {
     ++requestGeneration_;
-    clearCropFeature();
-    hostSession_.reset();
+    if (!StopHost(errorOut)) {
+        return false;
+    }
 
     if (!hasConfig_ || config_.renderViews.empty()) {
         setError(
@@ -136,6 +110,7 @@ bool SessionManager::resetHost(QString* errorOut)
     auto newHost = std::make_unique<VtkAppHostSession>(config_);
 
     if (!newHost->BuildSession()) {
+        (void)newHost->Stop();
         setError(
             errorOut,
             QStringLiteral("Failed to build VTK host session."));
@@ -144,10 +119,27 @@ bool SessionManager::resetHost(QString* errorOut)
 
     hostSession_ = std::move(newHost);
     if (!resetCropFeature(errorOut)) {
+        (void)hostSession_->Stop();
         hostSession_.reset();
         return false;
     }
 
+    return true;
+}
+
+bool SessionManager::StopHost(QString* errorOut)
+{
+    clearCropFeature();
+    if (!hostSession_) {
+        return true;
+    }
+    if (!hostSession_->Stop()) {
+        setError(
+            errorOut,
+            QStringLiteral("Failed to stop VTK host session."));
+        return false;
+    }
+    hostSession_.reset();
     return true;
 }
 
@@ -309,9 +301,13 @@ bool SessionManager::sendRequest(HostRequest&& request, HostCompleteCallback onC
         return false;
     }
 
-    return hostSession_->SendRequest(
+    return hostSession_->SendRequestResult(
         std::move(request),
-        std::move(onComplete));
+        [onComplete = std::move(onComplete)](HostResult result) {
+            if (onComplete) {
+                onComplete(result.isSucceeded);
+            }
+        });
 }
 
 bool SessionManager::sendCropAction(CropHostRequest request)
@@ -577,67 +573,32 @@ void SessionManager::syncCropHistory()
     }
 }
 
-ImageSnapshot SessionManager::getImageSnapshot()
+std::optional<measure::MeasureHostData>
+SessionManager::GetMeasureHostData(const HostViewTarget& sourceView)
 {
     if (!hostSession_ || state_ != State::Ready) {
-        return {};
+        return std::nullopt;
     }
 
-    auto reader = std::make_shared<ImageSnapshotReader>();
-        
-    if (!hostSession_->AttachFeature(reader)) {
-        return {};
+    auto bridge =
+        std::make_shared<measure::MeasureHostBridge>(sourceView);
+    if (!hostSession_->AttachFeature(bridge)) {
+        return std::nullopt;
     }
 
-    const ImageSnapshot snapshot = reader->getSnapshot();
-
-    if (!hostSession_->DetachFeature(*reader)) {
-        return {};
+    const auto hostData = bridge->GetHostData();
+    if (!hostSession_->DetachFeature(*bridge)) {
+        return std::nullopt;
     }
-
-    return snapshot;
+    return hostData;
 }
 
 std::optional<HostRenderViewState>SessionManager::getRenderViewState(
     const HostViewTarget& target)
 {
-    return hostSession_->GetRenderViewState(target);
-}
-
-std::optional<std::array<double, 16>>
-SessionManager::getRenderViewModelMatrix(
-    const std::string& viewId)
-{
-    if (!hostSession_ || state_ != State::Ready) {
-        return std::nullopt;
-    }
-
-    const auto* endpoint = hostSession_->GetRenderViewEndpoint(viewId);
-
-    if (!endpoint || !endpoint->renderer) {
-        return std::nullopt;
-    }
-
-    auto* props = endpoint->renderer->GetViewProps();
-    if (!props) {
-        return std::nullopt;
-    }
-
-    props->InitTraversal();
-    while (auto* prop = props->GetNextProp()) {
-        auto* imageSlice = vtkImageSlice::SafeDownCast(prop);
-        if (!imageSlice || !imageSlice->GetMatrix()) {
-            continue;
-        }
-
-        std::array<double, 16> matrix{};
-        vtkMatrix4x4::DeepCopy(
-            matrix.data(),
-            imageSlice->GetMatrix());
-        return matrix;
-    }
-
-    return std::nullopt;
+    return hostSession_
+        ? hostSession_->GetRenderViewState(target)
+        : std::nullopt;
 }
 
 bool SessionManager::sendLoadRequest(
@@ -671,12 +632,14 @@ bool SessionManager::sendLoadRequest(
 	emit isoStateCleared();//清除 isoStateChanged 信号 加载第二个文件第一个文件的iosvalue就不会显示
 
     QPointer<SessionManager> ptr(this);
-    const bool started = hostSession_->SendRequest(
+    const bool started = hostSession_->SendRequestResult(
         std::move(request),
-        [ptr, generation](bool isSuccess) {
+        [ptr, generation](HostResult result) {
             if (!ptr) {
                 return;
             }
+
+            const bool isSuccess = result.isSucceeded;
 
             QMetaObject::invokeMethod(//回到qt线程
                 ptr.data(),

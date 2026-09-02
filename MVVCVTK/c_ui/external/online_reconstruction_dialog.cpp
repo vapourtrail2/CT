@@ -94,16 +94,16 @@ void OnlineReconstructionDialog::setInitialConfigPath(const QString& path) {
 void OnlineReconstructionDialog::buildUi() {
     setObjectName(QStringLiteral("onlineReconstructionDialog"));
     setWindowTitle(tr("在线 FDK 重建"));
-    setMinimumSize(760, 690);
-    resize(820, 740);
+    setMinimumSize(760, 650);
+    resize(820, 700);
 
     auto* root = new QVBoxLayout(this);
     // Keep the explicit dialog minimum size authoritative. Otherwise Qt's
     // default top-level layout constraint can retain the expanded size hint
     // after the advanced panel is hidden and prevent restoring the old height.
     root->setSizeConstraint(QLayout::SetNoConstraint);
-    root->setContentsMargins(24, 22, 24, 22);
-    root->setSpacing(16);
+    root->setContentsMargins(10, 10, 10, 10);
+    root->setSpacing(8);
 
     auto* title = new QLabel(tr("在线 FDK 重建"), this);
     title->setObjectName(QStringLiteral("dialogTitle"));
@@ -118,8 +118,8 @@ void OnlineReconstructionDialog::buildUi() {
     auto* configCard = new QFrame(this);
     configCard->setObjectName(QStringLiteral("card"));
     auto* configLayout = new QVBoxLayout(configCard);
-    configLayout->setContentsMargins(18, 16, 18, 16);
-    configLayout->setSpacing(10);
+    configLayout->setContentsMargins(10, 8, 10, 10);
+    configLayout->setSpacing(6);
     configLayout->addWidget(makeSectionTitle(tr("扫描配置"), configCard));
 
     auto* pathRow = new QHBoxLayout;
@@ -136,13 +136,13 @@ void OnlineReconstructionDialog::buildUi() {
     auto* parameterCard = new QFrame(this);
     parameterCard->setObjectName(QStringLiteral("card"));
     auto* parameterLayout = new QVBoxLayout(parameterCard);
-    parameterLayout->setContentsMargins(18, 16, 18, 16);
-    parameterLayout->setSpacing(12);
+    parameterLayout->setContentsMargins(10, 8, 10, 10);
+    parameterLayout->setSpacing(7);
     parameterLayout->addWidget(makeSectionTitle(tr("重建空间"), parameterCard));
 
     auto* grid = new QGridLayout;
-    grid->setHorizontalSpacing(12);
-    grid->setVerticalSpacing(10);
+    grid->setHorizontalSpacing(8);
+    grid->setVerticalSpacing(6);
     grid->addWidget(new QLabel(tr("参数"), parameterCard), 0, 0);
     grid->addWidget(new QLabel(tr("X"), parameterCard), 0, 1);
     grid->addWidget(new QLabel(tr("Y"), parameterCard), 0, 2);
@@ -195,9 +195,9 @@ void OnlineReconstructionDialog::buildUi() {
 
     advancedPanel_ = new QWidget(parameterCard);
     auto* advancedForm = new QFormLayout(advancedPanel_);
-    advancedForm->setContentsMargins(18, 2, 0, 2);
-    advancedForm->setHorizontalSpacing(18);
-    advancedForm->setVerticalSpacing(8);
+    advancedForm->setContentsMargins(10, 2, 0, 2);
+    advancedForm->setHorizontalSpacing(10);
+    advancedForm->setVerticalSpacing(6);
     binningSpin_ = new QSpinBox(advancedPanel_);
     binningSpin_->setRange(1, 16);
     binningSpin_->setValue(1);
@@ -218,8 +218,8 @@ void OnlineReconstructionDialog::buildUi() {
     auto* statusCard = new QFrame(this);
     statusCard->setObjectName(QStringLiteral("card"));
     auto* statusLayout = new QVBoxLayout(statusCard);
-    statusLayout->setContentsMargins(18, 16, 18, 16);
-    statusLayout->setSpacing(9);
+    statusLayout->setContentsMargins(10, 8, 10, 10);
+    statusLayout->setSpacing(6);
     auto* statusHeader = new QHBoxLayout;
     statusHeader->addWidget(makeSectionTitle(tr("重建状态"), statusCard));
     statusHeader->addStretch();
@@ -246,7 +246,7 @@ void OnlineReconstructionDialog::buildUi() {
     logEdit_ = new QTextEdit(statusCard);
     logEdit_->setObjectName(QStringLiteral("reconstructionLog"));
     logEdit_->setReadOnly(true);
-    logEdit_->setMinimumHeight(95);
+    logEdit_->setMinimumHeight(82);
     logEdit_->setPlaceholderText(tr("算法运行日志将显示在这里。"));
     statusLayout->addWidget(logEdit_);
     root->addWidget(statusCard, 1);
@@ -280,26 +280,49 @@ void OnlineReconstructionDialog::buildUi() {
     }
 
     setStyleSheet(QStringLiteral(R"(
-        QDialog { background: #f3f6fa; color: #172033; }
-        QLabel#dialogTitle { font-size: 24px; font-weight: 700; color: #13213c; }
-        QLabel#dialogSubtitle { color: #64748b; font-size: 13px; }
-        QFrame#card { background: white; border: 1px solid #dce3ec; border-radius: 9px; }
-        QLabel#sectionTitle { font-size: 14px; font-weight: 600; color: #1e293b; }
-        QLabel#estimateLabel { color: #64748b; }
-        QLabel#stateBadge { background: #e8eef7; color: #475569; border-radius: 9px; padding: 3px 10px; font-weight: 600; }
-        QLineEdit, QSpinBox, QDoubleSpinBox, QTextEdit {
-            background: #fbfcfe; border: 1px solid #cdd7e4; border-radius: 5px; padding: 6px;
-            selection-background-color: #2563eb;
+        QDialog {
+            background: #191919;
+            color: #f0f0f0;
+            font-family: "Microsoft YaHei UI";
+            font-size: 12px;
         }
-        QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QTextEdit:focus { border: 1px solid #2563eb; }
-        QPushButton { min-height: 30px; padding: 2px 16px; border: 1px solid #c8d2df; border-radius: 5px; background: white; }
-        QPushButton:hover { background: #f1f5f9; }
-        QPushButton#startButton { background: #2563eb; color: white; border-color: #2563eb; font-weight: 600; }
-        QPushButton#startButton:hover { background: #1d4ed8; }
-        QPushButton#cancelButton { color: #b42318; }
-        QToolButton#advancedToggle { color: #315a9a; border: none; padding: 4px 0; font-weight: 600; }
-        QProgressBar { border: none; border-radius: 4px; background: #e7edf5; height: 12px; text-align: center; }
-        QProgressBar::chunk { border-radius: 4px; background: #2563eb; }
+        QLabel#dialogTitle { font-size: 16px; font-weight: 600; color: #f5f5f5; }
+        QLabel#dialogSubtitle, QLabel#estimateLabel { color: #b8b8b8; font-size: 12px; }
+        QFrame#card { background: #202020; border: 1px solid #383838; border-radius: 0px; }
+        QLabel#sectionTitle { font-size: 13px; font-weight: 600; color: #f0f0f0; }
+        QLabel#stateBadge {
+            background: #343434; color: #f0f0f0; border: 1px solid #505050;
+            border-radius: 2px; padding: 2px 8px; font-weight: 600;
+        }
+        QLineEdit, QSpinBox, QDoubleSpinBox, QTextEdit {
+            min-height: 24px;
+            background: #191919; color: #f0f0f0;
+            border: 1px solid #414141; border-radius: 0px; padding: 2px 6px;
+            selection-background-color: #00a99d; selection-color: #ffffff;
+        }
+        QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QTextEdit:focus { border-color: #00a99d; }
+        QSpinBox::up-button, QDoubleSpinBox::up-button, QSpinBox::down-button, QDoubleSpinBox::down-button {
+            width: 16px; background: #303030; border-left: 1px solid #414141;
+        }
+        QPushButton {
+            min-height: 26px; padding: 1px 14px;
+            color: #f0f0f0; background: #343434;
+            border: 1px solid #4a4a4a; border-radius: 0px;
+        }
+        QPushButton:hover { background: #454545; border-color: #646464; }
+        QPushButton:pressed { background: #191919; }
+        QPushButton:disabled { color: #777777; background: #262626; border-color: #363636; }
+        QPushButton#startButton { background: #008f86; color: white; border-color: #00a99d; font-weight: 600; }
+        QPushButton#startButton:hover { background: #00a99d; }
+        QPushButton#cancelButton { color: #f1a4a4; }
+        QToolButton#advancedToggle { color: #e0e0e0; border: none; padding: 3px 0; font-weight: 600; }
+        QToolButton#advancedToggle:hover { color: #00c7ba; }
+        QProgressBar {
+            min-height: 14px; border: 1px solid #414141; border-radius: 0px;
+            background: #191919; color: #f0f0f0; text-align: center;
+        }
+        QProgressBar::chunk { background: #008f86; }
+        QTextEdit#reconstructionLog { font-family: Consolas, "Microsoft YaHei UI"; font-size: 11px; }
     )"));
 }
 

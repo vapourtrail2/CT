@@ -1,6 +1,5 @@
 #pragma once
-#include "Host/Types/HostSessionTypes.h"
-#include "App/AppTypes.h"
+#include "MVVCVTK/API/Host/Types/HostSessionTypes.h"
 #include <functional>
 #include <memory>
 #include <QPointer>

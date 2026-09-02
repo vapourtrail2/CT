@@ -1,54 +1,55 @@
 #include "measure/MeasurementZoomHandler.h"
-#include "measure/MeasurementView.h"
+#include "measure/MeasureViewAdapter.h"
 
-#include "Interaction/Viewer2DHandler.h"
 #include <vtkCamera.h>
-#include <vtkCommand.h>
 #include <vtkRenderer.h>
 
-#include <memory>
+#include <algorithm>
+#include <cmath>
 
 namespace measure {
 
     MeasurementZoomHandler::MeasurementZoomHandler(
-        InteractiveService* service,
+        MeasureViewAdapter* adapter,
         vtkRenderer* renderer)
-        : m_viewer2D(std::make_unique<Viewer2DHandler>(service, nullptr, renderer))
+        : m_adapter(adapter)
+        , m_renderer(renderer)
     {
     }
-
-    MeasurementZoomHandler::~MeasurementZoomHandler() = default;
 
     InteractionResult MeasurementZoomHandler::Send(
         const InteractionEvent& event)
     {
-        if (!m_viewer2D
-            || !IsSliceVizMode(event.vizMode)) {
+        if (!m_adapter || !m_renderer) {
             return {};
         }
 
         if (event.eventKind
             == InteractionEventKind::SecondaryPress) {
             m_zooming = true;
-            return m_viewer2D->Send(event);
+            m_lastY = event.y;
+            return { true, true };
         }
 
         if (event.eventKind
             == InteractionEventKind::SecondaryRelease) {
-            const auto result =
-                m_viewer2D->Send(event);
-
             m_zooming = false;
-
-            return result.isHandled
-                ? result
-                : InteractionResult{ true, true };
+            return { true, true };
         }
 
         if (event.eventKind
             == InteractionEventKind::PointerMove
             && m_zooming) {
-            return m_viewer2D->Send(event);
+            const int deltaY = event.y - m_lastY;
+            m_lastY = event.y;
+            const double factor = std::clamp(
+                std::pow(1.01, static_cast<double>(deltaY)),
+                0.2,
+                5.0);
+            m_renderer->GetActiveCamera()->Zoom(factor);
+            m_renderer->ResetCameraClippingRange();
+            m_adapter->SendRender();
+            return { true, true };
         }
 
         if (event.eventKind

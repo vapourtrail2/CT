@@ -1,6 +1,6 @@
 #include "measure/EdgeCaptureController.h"
 
-#include "App/AppInterfaces.h"
+#include "measure/MeasureViewAdapter.h"
 #include "measure/MeasurementGeometry.h"
 #include "measure/MeasurementView.h"
 
@@ -56,12 +56,10 @@ double Clamp(double value, double minimum, double maximum)
 } 
 
 EdgeCaptureController::EdgeCaptureController(
-    std::shared_ptr<AbstractDataManager> dataManager,
-    InteractiveService* service,
+    MeasureViewAdapter* adapter,
     vtkRenderer* renderer,
     MeasureView view)
-    : m_dataManager(std::move(dataManager))
-    , m_service(service)
+    : m_adapter(adapter)
     , m_renderer(renderer)
     , m_view(view)
 {
@@ -74,7 +72,7 @@ EdgeCaptureController::~EdgeCaptureController()
 
 InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
 {
-    if (!m_enabled || !m_renderer || !m_service || !m_dataManager) {
+    if (!m_enabled || !m_renderer || !m_adapter) {
         return {};
     }
 
@@ -238,7 +236,7 @@ void EdgeCaptureController::Refresh()
 {
     RemoveProps();
     const auto& state = CurrentState();
-    if (!state.initialized || !m_renderer || !m_service) {
+    if (!state.initialized || !m_renderer || !m_adapter) {
         RequestRender();
         return;
     }
@@ -291,10 +289,10 @@ const EdgeCaptureController::ViewState& EdgeCaptureController::CurrentState() co
 
 bool EdgeCaptureController::GetImageGeometry(ImageGeometry& geometry) const
 {
-    if (!m_dataManager || !m_service) {
+    if (!m_adapter) {
         return false;
     }
-    const auto snapshot = m_dataManager->GetImageSnapshot();
+    const auto snapshot = m_adapter->GetImageSnapshot();
     if (!snapshot || !snapshot->image) {
         return false;
     }
@@ -305,12 +303,13 @@ bool EdgeCaptureController::GetImageGeometry(ImageGeometry& geometry) const
     geometry.height = geometry.extent[2 * geometry.vAxis + 1]
         - geometry.extent[2 * geometry.vAxis] + 1;
 
-    const auto cursor = m_service->GetCursorWorld();
-    double world[3] = { cursor[0], cursor[1], cursor[2] };
-    double physical[3] = { 0.0, 0.0, 0.0 };
+    const auto cursor = m_adapter->GetCursorWorld();
+    const auto physical = m_adapter->GetModelPoint({
+        cursor[0], cursor[1], cursor[2]
+    });
     double index[3] = { 0.0, 0.0, 0.0 };
-    m_service->GetModelPositionFromWorld(world, physical);
-    snapshot->image->TransformPhysicalPointToContinuousIndex(physical, index);
+    snapshot->image->TransformPhysicalPointToContinuousIndex(
+        physical.data(), index);
     geometry.fixedIndex = static_cast<int>(std::lround(index[geometry.fixedAxis]));
     geometry.fixedIndex = std::max(
         geometry.extent[2 * geometry.fixedAxis],
@@ -349,56 +348,20 @@ bool EdgeCaptureController::EnsureDefaultRoi()//计算矩形位置
 std::optional<std::array<double, 3>>
 EdgeCaptureController::DisplayToContinuousIndex(int x, int y) const
 {
-    if (!m_renderer || !m_service || !m_dataManager) {
+    if (!m_renderer || !m_adapter) {
         return std::nullopt;
     }
-    const auto displayToWorld = [this, x, y](double z)
-        -> std::optional<Point3> {
-        m_renderer->SetDisplayPoint(
-            static_cast<double>(x),
-            static_cast<double>(y),
-            z);
-        m_renderer->DisplayToWorld();
-        double* value = m_renderer->GetWorldPoint();
-        if (!value || std::abs(value[3]) <= 1e-12) {
-            return std::nullopt;
-        }
-        return Point3{
-            value[0] / value[3],
-            value[1] / value[3],
-            value[2] / value[3]
-        };
-    };
-
-    const auto nearPoint = displayToWorld(0.0);
-    const auto farPoint = displayToWorld(1.0);
-    if (!nearPoint || !farPoint) {
+    const auto physical = m_adapter->GetDisplayModel(x, y);
+    if (!physical) {
         return std::nullopt;
     }
-    const Point3 direction = geometry::Subtract(*farPoint, *nearPoint);
-    const Point3 normal = GetSliceViewDescriptor(m_view).normal;
-    const double denominator = geometry::Dot(normal, direction);
-    if (std::abs(denominator) <= 1e-12) {
-        return std::nullopt;
-    }
-    const auto cursor = m_service->GetCursorWorld();
-    const Point3 planeOrigin{ cursor[0], cursor[1], cursor[2] };
-    const double distance = geometry::Dot(
-        normal,
-        geometry::Subtract(planeOrigin, *nearPoint)) / denominator;
-    const Point3 worldPoint = geometry::Add(
-        *nearPoint,
-        geometry::Scale(direction, distance));
-
-    double world[3] = { worldPoint[0], worldPoint[1], worldPoint[2] };
-    double physical[3] = { 0.0, 0.0, 0.0 };
     double index[3] = { 0.0, 0.0, 0.0 };
-    m_service->GetModelPositionFromWorld(world, physical);
-    const auto snapshot = m_dataManager->GetImageSnapshot();
+    const auto snapshot = m_adapter->GetImageSnapshot();
     if (!snapshot || !snapshot->image) {
         return std::nullopt;
     }
-    snapshot->image->TransformPhysicalPointToContinuousIndex(physical, index);
+    snapshot->image->TransformPhysicalPointToContinuousIndex(
+        physical->data(), index);
 
     int extent[6];
     snapshot->image->GetExtent(extent);
@@ -426,17 +389,16 @@ Point3 EdgeCaptureController::IndexToPhysical(
     index[geometry.uAxis] = u;
     index[geometry.vAxis] = v;
     double physical[3] = { 0.0, 0.0, 0.0 };
-    const auto snapshot = m_dataManager->GetImageSnapshot();
+    const auto snapshot = m_adapter->GetImageSnapshot();
     snapshot->image->TransformContinuousIndexToPhysicalPoint(index, physical);
     return { physical[0], physical[1], physical[2] };
 }
 
 Point3 EdgeCaptureController::PhysicalToWorld(const Point3& physical) const
 {
-    double source[3] = { physical[0], physical[1], physical[2] };
-    double target[3] = { 0.0, 0.0, 0.0 };
-    m_service->GetWorldPositionFromModel(source, target);
-    const Point3 normal = GetSliceViewDescriptor(m_view).normal;
+    const Point3 target = m_adapter->GetWorldPoint(physical);
+    const Point3 normal = m_adapter->GetWorldVector(
+        GetSliceViewDescriptor(m_view).normal);
     constexpr double safeOffset = 0.02;
     return {
         target[0] + normal[0] * safeOffset,
@@ -461,7 +423,7 @@ bool EdgeCaptureController::BuildGraySlice(
     const ImageGeometry& geometry,
     ZcGrayImage& gray) const
 {
-    const auto snapshot = m_dataManager->GetImageSnapshot();
+    const auto snapshot = m_adapter->GetImageSnapshot();
     if (!snapshot || !snapshot->image) {
         return false;
     }
@@ -472,7 +434,7 @@ bool EdgeCaptureController::BuildGraySlice(
         static_cast<std::size_t>(gray.widthStep) * gray.height,
         0);
 
-    const auto windowLevel = m_service->GetWindowLevel();
+    const auto windowLevel = m_adapter->GetWindowLevel();
     const double safeWindow = std::max(windowLevel.windowWidth, 1e-6);
     const double windowMinimum = windowLevel.windowCenter - safeWindow * 0.5;
     for (int row = 0; row < gray.height; ++row) {
@@ -632,8 +594,8 @@ void EdgeCaptureController::RemoveProps()
 
 void EdgeCaptureController::RequestRender()
 {
-    if (m_service) {
-        m_service->SetDirty();
+    if (m_adapter) {
+        m_adapter->SendRender();
     }
     if (m_renderer && m_renderer->GetRenderWindow()) {
         m_renderer->GetRenderWindow()->Render();
@@ -642,7 +604,9 @@ void EdgeCaptureController::RequestRender()
 
 void EdgeCaptureController::Report(const std::string& message) const
 {
-      m_statusCallback(message);
+    if (m_statusCallback) {
+        m_statusCallback(message);
+    }
 }
 
 } 

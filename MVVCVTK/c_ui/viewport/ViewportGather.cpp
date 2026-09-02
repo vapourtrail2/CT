@@ -99,7 +99,7 @@ HostSessionConfig ViewportGather::getHostConfig() const
     HostSessionConfig config;
 
     const HostRenderMode primaryMode =
-        m_current3DMode == VizMode::CompositeVolume
+        m_current3DMode == HostRenderMode::CompositeVolume
         ? HostRenderMode::CompositeVolume
         : HostRenderMode::CompositeIsoSurface;
 

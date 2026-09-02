@@ -8,7 +8,7 @@
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
 #include "measure/MeasureToolDialog.h"
-#include "Host/Types/HostRequestTypes.h"
+#include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
 #include "c_ui/external/online_reconstruction_dialog.h"
 #include "uireconstruct3d.h"
 
@@ -300,24 +300,37 @@ void CTViewer::showMeasureToolsDialog()
         return;
     }
 
-    const ImageSnapshot imageSnapshot = context_.getSessionManager().getImageSnapshot();
-
-    if (!imageSnapshot || !imageSnapshot->image) {
-        QMessageBox::warning(
-            this,
-            QStringLiteral("二维测量"),
-            QStringLiteral("无法取得当前图像数据。"));
-        return;
-    }
-
-    measure::MeasurementViewInitState initialState;
-
     HostViewTarget sourceTarget;
     sourceTarget.isViewRoleUsed = true;
     sourceTarget.viewRole = HostRenderViewRole::TopDownSlice;
 
     auto& sessionManager = context_.getSessionManager();
-    const auto sourceState = sessionManager.getRenderViewState(sourceTarget);
+    std::optional<measure::MeasureHostData> hostData;
+    std::optional<HostRenderViewState> sourceState;
+    for (int attempt = 0; attempt < 2; ++attempt) {
+        hostData = sessionManager.GetMeasureHostData(sourceTarget);
+        sourceState = sessionManager.getRenderViewState(sourceTarget);
+        if (hostData
+            && hostData->image
+            && sourceState
+            && hostData->image->version == sourceState->dataVersion) {
+            break;
+        }
+        hostData.reset();
+        sourceState.reset();
+    }
+    if (!hostData
+        || !hostData->image
+        || !hostData->image->image
+        || !sourceState) {
+        QMessageBox::warning(
+            this,
+            QStringLiteral("二维测量"),
+            QStringLiteral("无法取得当前图像或视图状态。"));
+        return;
+    }
+
+    measure::MeasurementViewInitState initialState;
 
     initialState.cursorWorld = sourceState->cursorWorld;
     initialState.windowLevel = std::array<double, 2>{
@@ -330,11 +343,10 @@ void CTViewer::showMeasureToolsDialog()
             sourceState->background.b
     };
     initialState.visibilityMask = sourceState->visibilityMask;
-    initialState.modelMatrix =sessionManager.getRenderViewModelMatrix(sourceState->id);
-   
+    initialState.modelMatrix = hostData->modelToWorld;
 
     measure::MeasureToolDialog dialog(
-        imageSnapshot,
+        hostData->image,
         initialState,
         this);
 
@@ -998,10 +1010,6 @@ void CTViewer::set3DMode(
     request.mode = mode;
 	request.visibility = std::move(visibility);
 
-    if (mode == HostRenderMode::CompositeVolume) {
-        request.transferPreset = HostTransferPreset::Percentile;
-    }
-
     context_.getSessionManager().sendRequest(std::move(request));
 
     auto* ptr = workspacePage_->getViewportGather();
@@ -1015,22 +1023,50 @@ void CTViewer::setVisibility(
         return;
     }
 
-    HostViewSetRequest request;
+    auto& sessionManager = context_.getSessionManager();
+    bool isAccepted = true;
 
-    request.targetView.isViewRoleUsed = true;
-    request.targetView.viewRole =
-        HostRenderViewRole::Primary3D;
+    HostVisibilityParams primaryVisibility;
+    primaryVisibility.isPlanes3DVisible =
+        visibility.isPlanes3DVisible;
+    primaryVisibility.isRulerVisible =
+        visibility.isRulerVisible;
+    if (primaryVisibility.isPlanes3DVisible.has_value()
+        || primaryVisibility.isRulerVisible.has_value()) {
+        HostViewSetRequest request;
+        request.targetView = {
+            "", true, HostRenderViewRole::Primary3D };
+        request.visibility = std::move(primaryVisibility);
+        const bool isViewAccepted =
+            sessionManager.sendRequest(std::move(request));
+        isAccepted = isViewAccepted && isAccepted;
+    }
 
-    request.visibility =
-        std::move(visibility);
+    if (visibility.isCrosshairVisible.has_value()) {
+        constexpr std::array<HostRenderViewRole, 3> sliceRoles{
+            HostRenderViewRole::TopDownSlice,
+            HostRenderViewRole::FrontBackSlice,
+            HostRenderViewRole::LeftRightSlice
+        };
+        for (const auto role : sliceRoles) {
+            HostVisibilityParams sliceVisibility;
+            sliceVisibility.isCrosshairVisible =
+                visibility.isCrosshairVisible;
+            HostViewSetRequest request;
+            request.targetView = { "", true, role };
+            request.visibility = std::move(sliceVisibility);
+            const bool isViewAccepted =
+                sessionManager.sendRequest(std::move(request));
+            isAccepted = isViewAccepted && isAccepted;
+        }
+    }
 
-    context_.getSessionManager().sendRequest(
-            std::move(request));
-
-    auto* ptr = workspacePage_->getViewportGather();
-
-    ptr->requestRefresh();
-
+    if (!isAccepted) {
+        statusBar()->showMessage(
+            QStringLiteral("显示状态更新失败。"),
+            3000);
+    }
+    workspacePage_->getViewportGather()->requestRefresh();
 }
 
 void CTViewer::setIsoValue(double isoValue)//ui的value ->core

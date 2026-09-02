@@ -100,7 +100,7 @@ private:
     QPointer<DocumentPage> pageDocument_;
     QPointer<QStackedWidget> stack_;
     QPointer<QStackedWidget> secondstack_;
-    UIReconstruct3D* uiRecon3d_ = nullptr;  
+    UIReconstruct3D* uiRecon3d_ = nullptr;
     QPointer<QProgressDialog> ProgressDialog_;
     QPointer<WorkspacePage> workspacePage_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;

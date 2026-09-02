@@ -1,31 +1,28 @@
 #pragma once
 
-#include "Render/Strategies/BaseVisualStrategy.h"
 #include "measure/MeasurementTypes.h"
 
 #include <memory>
 #include <vector>
+#include <vtkSmartPointer.h>
 
-class InteractiveService;
 class vtkProp;
+class vtkRenderer;
 
 namespace measure {
 
 class MeasurementSession;
+class MeasureViewAdapter;
 
-class MeasurementOverlayStrategy : public BaseVisualStrategy {
+class MeasurementOverlayStrategy final {
 public:
     MeasurementOverlayStrategy(
         const std::shared_ptr<MeasurementSession>& session,
-        InteractiveService* service,
+        MeasureViewAdapter* adapter,
         MeasureView view);
 
-    void SetInputData(vtkSmartPointer<vtkDataObject> data) override;
-    void AttachRenderer(vtkSmartPointer<vtkRenderer> renderer) override;
-    void DetachRenderer(vtkSmartPointer<vtkRenderer> renderer) override;
-    void SetVisualState(
-        const RenderParams& params,
-        UpdateFlags flags = UpdateFlags::All) override;
+    void AttachRenderer(vtkRenderer* renderer);
+    void DetachRenderer();
 
     void SetView(MeasureView view);
     void Refresh();
@@ -40,7 +37,7 @@ private:
     void RemoveProps();
         
     std::shared_ptr<MeasurementSession> m_session;
-    InteractiveService* m_service = nullptr;
+    MeasureViewAdapter* m_adapter = nullptr;
     MeasureView m_view = MeasureView::Axial;
     vtkSmartPointer<vtkRenderer> m_renderer;
     std::vector<vtkSmartPointer<vtkProp>> m_props;

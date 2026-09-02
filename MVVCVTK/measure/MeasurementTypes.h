@@ -8,7 +8,7 @@
 
 namespace measure {
 
-using Point3 = std::array<double, 3>; //ÀıÈçPoint p1{ 1.1 ,2.2 , 3.2}
+using Point3 = std::array<double, 3>; //ä¾‹å¦‚Point p1{ 1.1 ,2.2 , 3.2}
 
 enum class MeasureTool {
     None,
@@ -26,17 +26,17 @@ enum class MeasureView {
 struct MeasureRequest {
     MeasureTool tool = MeasureTool::Line;
     MeasureView view = MeasureView::Axial;
-};//±íÊ¾Ò»´Î²âÁ¿ÇëÇó
+};//è¡¨ç¤ºä¸€æ¬¡æµ‹é‡è¯·æ±‚
 
-struct MeasurementPlane {//ËäÈ»ÊÇÔÚ¶şÎ¬ÊÓÍ¼Àï²âÁ¿£¬µ«³ÌĞòÄÚ²¿ÈÔÈ»Ê¹ÓÃÈıÎ¬×ø±ê£¬ËùÒÔ±ØĞë¼ÇÂ¼ÕâÕÅ¶şÎ¬Æ½ÃæÔÚÈıÎ¬¿Õ¼äÖĞµÄÎ»ÖÃºÍ·½Ïò¡£
-    Point3 origin{ 0.0, 0.0, 0.0 };//ZÇĞÆ¬µÄÒ»¸öµã
-	Point3 normal{ 0.0, 0.0, 1.0 };//·¨ÏòÁ¿
-	Point3 u{ 1.0, 0.0, 0.0 };//Æ½ÃæÉÏµÄµÚÒ»¸ö·½Ïò
-	Point3 v{ 0.0, 1.0, 0.0 };//Æ½ÃæÉÏµÄµÚ¶ş¸ö·½Ïò
+struct MeasurementPlane {//è™½ç„¶æ˜¯åœ¨äºŒç»´è§†å›¾é‡Œæµ‹é‡ï¼Œä½†ç¨‹åºå†…éƒ¨ä»ç„¶ä½¿ç”¨ä¸‰ç»´åæ ‡ï¼Œæ‰€ä»¥å¿…é¡»è®°å½•è¿™å¼ äºŒç»´å¹³é¢åœ¨ä¸‰ç»´ç©ºé—´ä¸­çš„ä½ç½®å’Œæ–¹å‘ã€‚
+    Point3 origin{ 0.0, 0.0, 0.0 };//Zåˆ‡ç‰‡çš„ä¸€ä¸ªç‚¹
+	Point3 normal{ 0.0, 0.0, 1.0 };//æ³•å‘é‡
+	Point3 u{ 1.0, 0.0, 0.0 };//å¹³é¢ä¸Šçš„ç¬¬ä¸€ä¸ªæ–¹å‘
+	Point3 v{ 0.0, 1.0, 0.0 };//å¹³é¢ä¸Šçš„ç¬¬äºŒä¸ªæ–¹å‘
 	double tolerance = 1e-6;
     double sliceTolerance = 0.5;
 };  
-//Á½¸ö×÷ÓÃ Êó±êÉäÏßºÍ¶şÎ¬ÇĞÆ¬Çó½»£¬µÃµ½µã»÷µã ¶şÊÇ°ÑÈıÎ¬ÎïÀíµãÍ¶Ó°µ½Æ½ÃæµÄ u/v ¶şÎ¬×ø±êÖĞ£¬ÓÃÓÚ¼ÆËãÔ²ºÍÔ²»¡¡£
+//ä¸¤ä¸ªä½œç”¨ é¼ æ ‡å°„çº¿å’ŒäºŒç»´åˆ‡ç‰‡æ±‚äº¤ï¼Œå¾—åˆ°ç‚¹å‡»ç‚¹ äºŒæ˜¯æŠŠä¸‰ç»´ç‰©ç†ç‚¹æŠ•å½±åˆ°å¹³é¢çš„ u/v äºŒç»´åæ ‡ä¸­ï¼Œç”¨äºè®¡ç®—åœ†å’Œåœ†å¼§ã€‚
 
 struct LineResult {
     double length = 0.0;
@@ -44,9 +44,9 @@ struct LineResult {
 
 struct CircleResult {
     Point3 center{ 0.0, 0.0, 0.0 };
-	double radius = 0.0;//°ë¾¶
-	double diameter = 0.0;//Ö±¾¶
-	double circumference = 0.0;//ÖÜ³¤
+	double radius = 0.0;//åŠå¾„
+	double diameter = 0.0;//ç›´å¾„
+	double circumference = 0.0;//å‘¨é•¿
 };
 
 struct ArcResult {
@@ -56,10 +56,10 @@ struct ArcResult {
     double length = 0.0;
 };
 
-using MeasurementResult = std::variant<LineResult, CircleResult, ArcResult>;//±£´æÈı¸ö²âÁ¿½á¹ûÆäÖĞÒ»ÖÖ
+using MeasurementResult = std::variant<LineResult, CircleResult, ArcResult>;//ä¿å­˜ä¸‰ä¸ªæµ‹é‡ç»“æœå…¶ä¸­ä¸€ç§
 
 struct MeasurementEntity {
-    std::uint64_t id = 0;//²âÁ¿±àºÅ
+    std::uint64_t id = 0;//æµ‹é‡ç¼–å·
     MeasureTool type = MeasureTool::None;
     MeasureView where2DViewer = MeasureView::Axial;
     MeasurementPlane plane; 
@@ -68,10 +68,10 @@ struct MeasurementEntity {
 };
 
 struct MeasurementDraft {
-    MeasureRequest request;// µ±Ç°Òª»­Ê²Ã´£ºÏß/Ô²/Ô²»¡£¬ÒÔ¼°ÔÚÄÄ¸ö2DÊÓÍ¼
-    std::optional<MeasurementPlane> plane;// µÚÒ»´Îµã»÷ºó¼ÇÂ¼µÄÇĞÆ¬Æ½Ãæ£»»¹Ã»µã»÷Ê±Îª¿Õ
-    std::vector<Point3> physicalPoints;// ÕıÊ½µã»÷µÄµã  p1 p2
-	std::optional<Point3> previewPoint;// Êó±êÕıÔÚÒÆ¶¯µÄÎ»ÖÃ £¬½öÔ¤ÀÀ
+    MeasureRequest request;// å½“å‰è¦ç”»ä»€ä¹ˆï¼šçº¿/åœ†/åœ†å¼§ï¼Œä»¥åŠåœ¨å“ªä¸ª2Dè§†å›¾
+    std::optional<MeasurementPlane> plane;// ç¬¬ä¸€æ¬¡ç‚¹å‡»åè®°å½•çš„åˆ‡ç‰‡å¹³é¢ï¼›è¿˜æ²¡ç‚¹å‡»æ—¶ä¸ºç©º
+    std::vector<Point3> physicalPoints;// æ­£å¼ç‚¹å‡»çš„ç‚¹  p1 p2
+	std::optional<Point3> previewPoint;// é¼ æ ‡æ­£åœ¨ç§»åŠ¨çš„ä½ç½® ï¼Œä»…é¢„è§ˆ
 };
 
 }

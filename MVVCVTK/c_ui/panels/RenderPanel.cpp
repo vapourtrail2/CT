@@ -87,10 +87,10 @@ RenderPanel::RenderPanel(QWidget* parent)
     renderMode_ = new QComboBox(wlGroup);
     renderMode_->addItem(
         QStringLiteral("等值面渲染"),
-        static_cast<int>(VizMode::CompositeIsoSurface));
+        static_cast<int>(HostRenderMode::CompositeIsoSurface));
     renderMode_->addItem(
         QStringLiteral("体渲染"),
-        static_cast<int>(VizMode::CompositeVolume));
+        static_cast<int>(HostRenderMode::CompositeVolume));
 
     auto* renderModeRow = new QHBoxLayout();
     renderModeRow->addWidget(new QLabel(QStringLiteral("3D 模型"), wlGroup));
@@ -295,16 +295,14 @@ void RenderPanel::setConnect() {
                 return;
             }
 
-            const auto mode = static_cast<VizMode>(renderMode_->itemData(index).toInt());
-            const HostRenderMode requestedMode =
-                mode == VizMode::CompositeVolume
-                ? HostRenderMode::CompositeVolume
-                : HostRenderMode::CompositeIsoSurface;
+            const auto requestedMode = static_cast<HostRenderMode>(
+                renderMode_->itemData(index).toInt());
 
-            HostVisibilityParams visibility;    
-            visibility.isPlanes3DVisible = mprPlanesToggle_->isChecked();
-            visibility.isCrosshairVisible =crosshairToggle_->isChecked();
-            visibility.isRulerVisible =rulerAxesToggle_->isChecked();
+            HostVisibilityParams visibility;
+            visibility.isPlanes3DVisible =
+                mprPlanesToggle_->isChecked();
+            visibility.isRulerVisible =
+                rulerAxesToggle_->isChecked();
 
             emit primary3DModeRequested(
                 requestedMode,

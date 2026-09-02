@@ -13,16 +13,18 @@
 #include <QVBoxLayout>
 #include <QVTKOpenGLNativeWidget.h>
 
+#include <utility>
+
 namespace measure {
     MeasureToolDialog::MeasureToolDialog(
-        const ImageSnapshot& imageSnapshot,
+        TrustedImageSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState,
         QWidget* parent)
         : QDialog(parent)
     {
         BuildUi();
         BuildMeasurementViewport(
-            imageSnapshot,
+            std::move(imageSnapshot),
             initialState);
     }
 
@@ -156,7 +158,7 @@ void MeasureToolDialog::BuildUi()
 }
 
 void MeasureToolDialog::BuildMeasurementViewport(
-    const ImageSnapshot& imageSnapshot,
+    TrustedImageSnapshot imageSnapshot,
     const MeasurementViewInitState& initialState)
 {
     if (!m_vtkWidget
@@ -169,7 +171,7 @@ void MeasureToolDialog::BuildMeasurementViewport(
 
     if (!m_viewport.Build(
         m_vtkWidget,
-        imageSnapshot,
+        std::move(imageSnapshot),
         m_session,
         m_currentView,
         initialState)) {

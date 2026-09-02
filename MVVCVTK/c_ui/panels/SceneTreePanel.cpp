@@ -28,7 +28,7 @@ SceneTreePanel::SceneTreePanel(QWidget* parent)
 
     layout->addWidget(tree_);
 
-    auto* cropControls = new QHBoxLayout();
+    auto* cropControls = new QVBoxLayout();
     cropControls->setContentsMargins(0, 0, 0, 0);
     cropControls->setSpacing(4);
 
@@ -38,16 +38,21 @@ SceneTreePanel::SceneTreePanel(QWidget* parent)
     restoreButton_ = new QPushButton(QStringLiteral("恢复原始"), this);
     exitButton_ = new QPushButton(QStringLiteral("退出"), this);
 
-    for (auto* button : {
-            keepInsideButton_,
-            removeInsideButton_,
-            applyButton_,
-            restoreButton_,
-            exitButton_ }) 
-    {
-        button->setAutoDefault(false);
-        cropControls->addWidget(button);
-    }
+	auto* firstraw = new QHBoxLayout();
+	firstraw->setContentsMargins(0, 0, 0, 0);
+	firstraw->setSpacing(4);
+	firstraw->addWidget(keepInsideButton_); 
+    firstraw->addWidget(removeInsideButton_);
+    firstraw->addWidget(exitButton_);
+
+    auto* secondraw = new QHBoxLayout();
+    secondraw->setContentsMargins(0, 0, 0, 0);
+    secondraw->setSpacing(4);
+    secondraw->addWidget(applyButton_);
+    secondraw->addWidget(restoreButton_);
+
+    cropControls->addLayout(firstraw);
+    cropControls->addLayout(secondraw);
     layout->addLayout(cropControls);
 
     connect(

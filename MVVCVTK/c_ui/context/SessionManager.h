@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Host/Types/HostRequestTypes.h"
-#include "Host/VtkAppHostSession.h"
-#include "App/AppInterfaces.h"
-#include "Host/CropHostFeature.h"
+#include "MVVCVTK/API/Features/OrthogonalCrop/Host/CropHostFeature.h"
+#include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
+#include "MVVCVTK/API/Host/VtkAppHostSession.h"
+#include "measure/MeasureHostBridge.h"
 #include <array>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 #include <QObject>
 #include <QString>
 #include <QTimer>
@@ -62,13 +63,11 @@ public:
         return sourcePath_;
     }
 
-    ImageSnapshot getImageSnapshot();
+    std::optional<measure::MeasureHostData> GetMeasureHostData(
+        const HostViewTarget& sourceView);
 
     std::optional<HostRenderViewState> getRenderViewState(
         const HostViewTarget& target);
-
-    std::optional<std::array<double, 16>> getRenderViewModelMatrix(
-        const std::string& viewId);
 
     bool initHost(HostSessionConfig config, QString* err = nullptr);
 
@@ -114,6 +113,7 @@ signals:
 
 private:
     bool resetHost(QString* errorOut);
+    bool StopHost(QString* errorOut = nullptr);
     bool resetCropFeature(QString* errorOut = nullptr);
     void clearCropFeature();
     CropHostTarget getCropTarget() const;

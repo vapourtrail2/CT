@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Interaction/IInteractionHandler.h"
+#include "MVVCVTK/SPI/Interaction/InteractionTypes.h"
 #include "measure/MeasurementTypes.h"
 #include "measure/ZcEdgeAlgorithm.h"
 
@@ -12,25 +12,24 @@
 #include <vector>
 #include <vtkSmartPointer.h>
 
-class AbstractDataManager;
-class InteractiveService;
 class vtkProp;
 class vtkRenderer;
 
 namespace measure {
 
-class EdgeCaptureController final : public IInteractionHandler {
+class MeasureViewAdapter;
+
+class EdgeCaptureController final {
 public:
     using StatusCallback = std::function<void(const std::string&)>;
 
     EdgeCaptureController(
-        std::shared_ptr<AbstractDataManager> dataManager,
-        InteractiveService* service,
+        MeasureViewAdapter* adapter,
         vtkRenderer* renderer,
         MeasureView view);
-    ~EdgeCaptureController() override;
+    ~EdgeCaptureController();
 
-    InteractionResult Send(const InteractionEvent& event) override;
+    InteractionResult Send(const InteractionEvent& event);
 
     void SetEnabled(bool enabled);
     bool IsEnabled() const;
@@ -86,8 +85,7 @@ private:
     void RequestRender();
     void Report(const std::string& message) const;
 
-    std::shared_ptr<AbstractDataManager> m_dataManager;
-    InteractiveService* m_service = nullptr;
+    MeasureViewAdapter* m_adapter = nullptr;
     vtkRenderer* m_renderer = nullptr;
     MeasureView m_view = MeasureView::Axial;
     bool m_enabled = false;

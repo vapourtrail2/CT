@@ -6,8 +6,7 @@
 #include <QSlider>
 #include <QWidget>
 
-#include "Host/Types/HostValueTypes.h"
-#include "App/AppTypes.h"
+#include "MVVCVTK/API/Host/Types/HostValueTypes.h"
 
 class RenderPanel : public QWidget
 {

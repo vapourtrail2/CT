@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <MVVCVTKSdkRoot Condition="'$(MVVCVTKSdkRoot)'=='' And '$(MVVCVTK_SDK_ROOT)'!=''">$(MVVCVTK_SDK_ROOT)</MVVCVTKSdkRoot>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64' And '$(MVVCVTKSdkRoot)'!=''">
+    <MVVCVTKSdkDir>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath('$(MVVCVTKSdkRoot)'))))</MVVCVTKSdkDir>
+    <MVVCVTKIncludeDir>$(MVVCVTKSdkDir)include</MVVCVTKIncludeDir>
+    <MVVCVTKLibDir>$(MVVCVTKSdkDir)lib\$(Configuration)</MVVCVTKLibDir>
+    <MVVCVTKVtkRoot>$(MVVCVTKSdkDir)deps\official\vtk</MVVCVTKVtkRoot>
+    <MVVCVTKOpenCVRoot>$(MVVCVTKSdkDir)deps\official\opencv</MVVCVTKOpenCVRoot>
+    <MVVCVTKVtkLibDir>$(MVVCVTKVtkRoot)\lib</MVVCVTKVtkLibDir>
+    <MVVCVTKVtkBinDir>$(MVVCVTKVtkRoot)\bin</MVVCVTKVtkBinDir>
+    <MVVCVTKOpenCVIncludeDir>$(MVVCVTKOpenCVRoot)\include</MVVCVTKOpenCVIncludeDir>
+    <MVVCVTKOpenCVLibDir>$(MVVCVTKOpenCVRoot)\x64\vc16\lib</MVVCVTKOpenCVLibDir>
+    <MVVCVTKOpenCVBinDir>$(MVVCVTKOpenCVRoot)\x64\vc16\bin</MVVCVTKOpenCVBinDir>
+    <MVVCVTKSdkResolved>true</MVVCVTKSdkResolved>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And Exists('$(MVVCVTKVtkRoot)\include')">
+    <MVVCVTKVtkIncludeDirs>$([System.IO.Directory]::GetDirectories('$(MVVCVTKVtkRoot)\include', 'vtk-*'))</MVVCVTKVtkIncludeDirs>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Debug'">
+    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib" />
+    <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
+    <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Release'">
+    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib" />
+    <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*.lib" Exclude="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
+    <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*.lib" Exclude="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
+  </ItemGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>MVVCVTK_SDK_CONSUMER;VTK_DEPRECATION_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MVVCVTKIncludeDir);$(MVVCVTKVtkIncludeDirs);$(MVVCVTKOpenCVIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(MVVCVTKLibDir);$(MVVCVTKVtkLibDir);$(MVVCVTKOpenCVLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Target Name="MVVCVTKAddLinkInputs" BeforeTargets="Link" Condition="'$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
+    <ItemGroup>
+      <Link Update="@(Link)">
+        <AdditionalDependencies>@(MVVCVTKProductLibrary->'%(FullPath)');@(MVVCVTKVtkLibrary->'%(FullPath)');@(MVVCVTKOpenCVLibrary->'%(FullPath)');%(Link.AdditionalDependencies)</AdditionalDependencies>
+      </Link>
+    </ItemGroup>
+  </Target>
+  <Target Name="MVVCVTKValidateSdk" BeforeTargets="PrepareForBuild" Condition="'$(Platform)'=='x64'">
+    <Error Condition="'$(MVVCVTKSdkRoot)'==''" Text="MVVCVTK SDK root is missing. Set MVVCVTK_SDK_ROOT or pass MVVCVTKSdkRoot." />
+    <Error Condition="'$(Configuration)'!='Debug' And '$(Configuration)'!='Release'" Text="MVVCVTK SDK supports Debug and Release only." />
+    <Error Condition="'$(PlatformToolset)'!='v145'" Text="MVVCVTK SDK requires MSVC v145." />
+    <Error Condition="'$(MVVCVTKSdkResolved)'!='true'" Text="MVVCVTK SDK properties were not resolved." />
+    <Error Condition="!Exists('$(MVVCVTKIncludeDir)\MVVCVTK\API')" Text="MVVCVTK SDK API include directory is missing." />
+    <Error Condition="'$(MVVCVTKVtkIncludeDirs)'==''" Text="MVVCVTK SDK VTK include directory was not discovered." />
+    <Error Condition="!Exists('$(MVVCVTKOpenCVIncludeDir)')" Text="MVVCVTK SDK OpenCV include directory is missing." />
+    <Error Condition="'@(MVVCVTKProductLibrary)'==''" Text="MVVCVTK SDK product libraries were not discovered." />
+    <Error Condition="'@(MVVCVTKVtkLibrary)'==''" Text="MVVCVTK SDK VTK libraries were not discovered for $(Configuration)." />
+    <Error Condition="'@(MVVCVTKOpenCVLibrary)'==''" Text="MVVCVTK SDK OpenCV libraries were not discovered for $(Configuration)." />
+  </Target>
+  <Target Name="MVVCVTKCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
+    <ItemGroup>
+      <MVVCVTKRuntime Include="$(MVVCVTKVtkBinDir)\vtk*d.dll" Condition="'$(Configuration)'=='Debug'" />
+      <MVVCVTKRuntime Include="$(MVVCVTKVtkBinDir)\vtk*.dll" Exclude="$(MVVCVTKVtkBinDir)\vtk*d.dll" Condition="'$(Configuration)'=='Release'" />
+      <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Debug'" />
+      <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*.dll" Exclude="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Release'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MVVCVTKRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(MVVCVTKRuntime)'!=''" />
+  </Target>
+</Project>

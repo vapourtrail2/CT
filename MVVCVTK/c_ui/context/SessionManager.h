@@ -72,6 +72,7 @@ public:
     bool initHost(HostSessionConfig config, QString* err = nullptr);
 
     bool openFile(const QString& path,
+        const std::array<int,3>& dims,
         const std::array<float, 3>& spacing,
         const std::array<float,3>& origin,
         QString* errorOut = nullptr

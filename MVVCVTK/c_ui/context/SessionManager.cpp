@@ -224,6 +224,7 @@ bool SessionManager::resetCropFeature(QString* errorOut)
 
 
 bool SessionManager::openFile(const QString& path,
+	const std::array<int, 3>& dims,
     const std::array<float, 3>& spacing,
     const std::array<float, 3>& origin,
     QString* errorOut
@@ -240,7 +241,7 @@ bool SessionManager::openFile(const QString& path,
     HostLoadRequest request;
     const QByteArray utf8Path = p.toUtf8();
     request.filePath = utf8Path.toStdString();
-    request.geometry.dimensions = { 0,0,0 };
+    request.geometry.dimensions = dims ;
     request.geometry.spacing = spacing;
     request.geometry.origin = origin;
 

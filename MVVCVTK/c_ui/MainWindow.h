@@ -69,7 +69,8 @@ private:
         QString message);
     void setCommands();
     void onTabChanged(int index);
-    void onOpenRequested(const QString& path, 
+    void onOpenRequested(const QString& path,
+        const std::array<int,3>& dims,
         const std::array<float,3> & spacing,
         const std::array<float,3>& origin);
     void showSaveSliceStackDialog();
@@ -104,6 +105,9 @@ private:
     QPointer<QProgressDialog> ProgressDialog_;
     QPointer<WorkspacePage> workspacePage_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
-    int iconHeight_ = 100;
     AppContext context_;
+
+private:
+    int iconHeight_ = 100;
+    bool fileHasData_ = false;
 };

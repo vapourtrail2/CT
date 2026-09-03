@@ -543,37 +543,32 @@ void CTViewer::applyUiState(const UiState& state) {
     }
 }
 
-
 void CTViewer::onTabChanged(int index) {
     const UiState state = buildUiState(index);
     applyUiState(state);
 }
 
-void CTViewer::onOpenRequested(const QString& path, const std::array<float,3>& spacing, const std::array<float, 3>& origin) 
+void CTViewer::onOpenRequested(const QString& path, const std::array<int, 3>& dims, const std::array<float,3>& spacing, const std::array<float, 3>& origin)
 {
     setCloseProgressDialog();
-
     setOpenProgressDialog(QStringLiteral("loading"), QStringLiteral("loading"));
 
+    fileHasData_ = true;
+
     QString err;
-    const bool ok =context_.getSessionManager().openFile(path,spacing,origin, &err);
+    const bool ok =context_.getSessionManager().openFile(path,dims,spacing,origin, &err);
 
     if (!ok) {
-        if (ProgressDialog_) {
-            setCloseProgressDialog();
-        }
-
-        const QString msg = err.isEmpty() ? QStringLiteral("打开失败") : err;
-        statusBar()->showMessage(msg, 3000);
-        if (pageDocument_) {
-            pageDocument_->notifyFail(msg);
-        }
-        return;
+       
+       setCloseProgressDialog();
+       fileHasData_ = false;
+       const QString msg = err.isEmpty()
+           ? QStringLiteral("无法开始加载，请检查文件路径和参数。")
+           : err;
+       pageDocument_->notifyFail(msg);
+       return;
     }
 
-    if (pageDocument_) {
-        pageDocument_->closeOpenDialog();
-    }
 }
 
 //保存切片
@@ -1230,10 +1225,19 @@ void CTViewer::handleLoadFinished(
     QString message)
 {
     setCloseProgressDialog();
+    bool isDocuOpen = fileHasData_;
 
     if (!issucc) {
+        if (isDocuOpen) {
+			pageDocument_->notifyFail(QStringLiteral("尺寸输入无效，请重新输入"));
+        }
         return;
     }
+
+    if (isDocuOpen) {
+        pageDocument_->closeOpenDialog();
+    }
+
 
     auto* viewport = workspacePage_->getViewportGather();
     viewport->requestRefresh();

@@ -28,6 +28,7 @@ signals:
     void moduleClicked(const QString& info);
     void recentOpenRequested(const QString& projectName);
 	void openRequested(const QString& path
+                       ,const std::array<int,3>& dims
                        ,const std::array<float,3>& spacing
                        ,const std::array<float,3>& origin);
     
@@ -59,6 +60,11 @@ private:
 
 	QPointer<QPushButton> btnNext_;
 	QPointer<QPushButton> btnBack_;
+
+    //尺寸
+    QPointer<QDoubleSpinBox> dimsX_;
+    QPointer<QDoubleSpinBox> dimsY_;
+    QPointer<QDoubleSpinBox> dimsZ_;
 
 	//间距输入
     QPointer<QDoubleSpinBox> spacingX_;

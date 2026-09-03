@@ -175,7 +175,7 @@ void DocumentPage::showOpenDialog()
 {
     if (!docDialog_) {
         docDialog_ = new QDialog(this);
-		docDialog_->setFixedSize(460, 260);
+		docDialog_->setFixedSize(400, 350);
         docDialog_->setModal(true);
         docDialog_->setWindowTitle(QStringLiteral("打开"));
        
@@ -239,6 +239,17 @@ void DocumentPage::showOpenDialog()
             return box;
             };
 
+        auto makeNum_3 = [this]() {
+            auto* box = new QDoubleSpinBox(docDialog_);
+            box->setRange(1, 10000);
+            box->setSingleStep(1);
+            return box;
+            };
+
+		dimsX_ = makeNum_3();
+		dimsY_ = makeNum_3();
+		dimsZ_ = makeNum_3();
+
 		spacingX_ = makeNum_1();
 		spacingY_ = makeNum_1();
 		spacingZ_ = makeNum_1();
@@ -255,16 +266,17 @@ void DocumentPage::showOpenDialog()
         originY_->setValue(0.0);
         originZ_->setValue(0.0);
 
-		infoLayout->addRow(QStringLiteral("像素间距X:"), spacingX_);
-		infoLayout->addRow(QStringLiteral("像素间距Y:"), spacingY_);
-		infoLayout->addRow(QStringLiteral("像素间距Z:"), spacingZ_);
+		infoLayout->addRow(QStringLiteral("尺寸X:"), dimsX_);
+		infoLayout->addRow(QStringLiteral("尺寸Y:"), dimsY_);
+        infoLayout->addRow(QStringLiteral("尺寸Z:"), dimsZ_);
+		infoLayout->addRow(QStringLiteral("体素间距X:"), spacingX_);
+		infoLayout->addRow(QStringLiteral("体素间距Y:"), spacingY_);
+		infoLayout->addRow(QStringLiteral("体素间距Z:"), spacingZ_);
 		infoLayout->addRow(QStringLiteral("原点X:"), originX_);
 		infoLayout->addRow(QStringLiteral("原点Y:"), originY_);
 		infoLayout->addRow(QStringLiteral("原点Z:"), originZ_);
-
         importStack_->addWidget(infoPage);
 
-        
 		// 底部状态与操作按钮
         auto* actionRow = new QHBoxLayout();
         actionRow->setSpacing(8);
@@ -321,7 +333,7 @@ void DocumentPage::showOpenDialog()
 
 
         // 加载按钮连接
-        connect(btnLoad_, &QPushButton::clicked, this, [this]() {//connect该怎么传
+        connect(btnLoad_, &QPushButton::clicked, this, [this]() {
             loadFilePath(inputPath_->text().trimmed());
             });
     }
@@ -331,7 +343,7 @@ void DocumentPage::showOpenDialog()
     btnNext_->setVisible(true);
     btnLoad_->setVisible(false);
     
-    // 每次展示前重置状态文案
+    // 每次展示前重置状态
     updateStatusLabel(QStringLiteral("尚未加载数据"), false);
     docDialog_->show();
     docDialog_->raise();
@@ -345,6 +357,12 @@ void DocumentPage::loadFilePath(const QString& path)
         updateStatusLabel(QStringLiteral("路径为空，请选择文件。"), true);
         return;
     }
+
+    std::array<int, 3> dims{
+        static_cast<int>(dimsX_->value()),
+        static_cast<int>(dimsY_->value()),
+        static_cast<int>(dimsZ_->value())
+    };
 
     std::array<float, 3> spacing{
         static_cast<float>(spacingX_->value()),
@@ -360,7 +378,7 @@ void DocumentPage::loadFilePath(const QString& path)
 
 
     updateStatusLabel(QStringLiteral("正在加载..."), false);
-    emit openRequested(p,spacing,origin);   
+    emit openRequested(p, dims,spacing,origin);
 }
 
 void DocumentPage::closeOpenDialog()

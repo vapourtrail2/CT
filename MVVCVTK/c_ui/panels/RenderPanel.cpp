@@ -93,7 +93,7 @@ RenderPanel::RenderPanel(QWidget* parent)
         static_cast<int>(HostRenderMode::CompositeVolume));
 
     auto* renderModeRow = new QHBoxLayout();
-    renderModeRow->addWidget(new QLabel(QStringLiteral("3D 模型"), wlGroup));
+    renderModeRow->addWidget(new QLabel(QStringLiteral("3D模型"), wlGroup));
     renderModeRow->addWidget(renderMode_, 1);
     wv->addLayout(renderModeRow);
 
@@ -113,7 +113,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     crosshairToggle_->setChecked(true);
     rulerAxesToggle_->setChecked(false);
 
-  /*  windowWidthLabel_ = new QLabel(
+    /*  windowWidthLabel_ = new QLabel(
         QStringLiteral("窗宽: "), wlGroup);
     windowWidthSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     windowWidthSlider_->setRange(
@@ -132,12 +132,24 @@ RenderPanel::RenderPanel(QWidget* parent)
     windowCenterSlider_->setEnabled(false);
     wv->addWidget(windowCenterLabel_);
     wv->addWidget(windowCenterSlider_);*/
-    isoValueLabel_ = new QLabel(QStringLiteral("阈值: "), wlGroup);
+    isoValueLabel_ = new QLabel(QStringLiteral("等值面阈值: "), wlGroup);
     isoSlider_ = new QSlider(Qt::Horizontal, wlGroup);
     isoSlider_->setRange(0, allLength);
     isoSlider_->setEnabled(false);
+
     wv->addWidget(isoValueLabel_);
     wv->addWidget(isoSlider_);
+
+	volumeQuality_ = new QComboBox(wlGroup);
+    volumeQuality_->addItem(QStringLiteral("低"), static_cast<int>(HostVolumeQuality::Low));
+    volumeQuality_->addItem(QStringLiteral("中"), static_cast<int>(HostVolumeQuality::High));
+    volumeQuality_->addItem(QStringLiteral("高"), static_cast<int>(HostVolumeQuality::XHigh));
+    volumeQuality_->addItem(QStringLiteral("最高"), static_cast<int>(HostVolumeQuality::Ultra));
+
+    auto* volumeQualityRow = new QHBoxLayout();
+    volumeQualityRow->addWidget(new QLabel(QStringLiteral("体渲染质量"), wlGroup));
+    volumeQualityRow->addWidget(volumeQuality_, 1);
+    wv->addLayout(volumeQualityRow);
 
     v->addWidget(wlGroup);
 
@@ -291,10 +303,7 @@ void RenderPanel::setConnect() {
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
         [this](int index) {
-            if (index < 0) {
-                return;
-            }
-
+            
             const auto requestedMode = static_cast<HostRenderMode>(
                 renderMode_->itemData(index).toInt());
 
@@ -307,6 +316,17 @@ void RenderPanel::setConnect() {
             emit primary3DModeRequested(
                 requestedMode,
                 std::move(visibility));
+        });
+
+    connect(
+        volumeQuality_,
+        qOverload<int>(&QComboBox::currentIndexChanged),
+        this,
+        [this](int index) {
+            const auto requestedQuality = static_cast<HostVolumeQuality>(
+                volumeQuality_->itemData(index).toInt());
+
+            emit volumeQualityRequested(requestedQuality);
         });
 
     connect(

@@ -14,18 +14,19 @@
     <MVVCVTKOpenCVIncludeDir>$(MVVCVTKOpenCVRoot)\include</MVVCVTKOpenCVIncludeDir>
     <MVVCVTKOpenCVLibDir>$(MVVCVTKOpenCVRoot)\x64\vc16\lib</MVVCVTKOpenCVLibDir>
     <MVVCVTKOpenCVBinDir>$(MVVCVTKOpenCVRoot)\x64\vc16\bin</MVVCVTKOpenCVBinDir>
+    <MVVCVTKGapRuntimeDir>$(MVVCVTKSdkDir)deps\third_party\defx\bin\$(Configuration)</MVVCVTKGapRuntimeDir>
     <MVVCVTKSdkResolved>true</MVVCVTKSdkResolved>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And Exists('$(MVVCVTKVtkRoot)\include')">
     <MVVCVTKVtkIncludeDirs>$([System.IO.Directory]::GetDirectories('$(MVVCVTKVtkRoot)\include', 'vtk-*'))</MVVCVTKVtkIncludeDirs>
   </PropertyGroup>
   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Debug'">
-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib" />
+    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
   </ItemGroup>
   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Release'">
-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib" />
+    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*.lib" Exclude="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*.lib" Exclude="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
   </ItemGroup>
@@ -56,6 +57,8 @@
     <Error Condition="'@(MVVCVTKProductLibrary)'==''" Text="MVVCVTK SDK product libraries were not discovered." />
     <Error Condition="'@(MVVCVTKVtkLibrary)'==''" Text="MVVCVTK SDK VTK libraries were not discovered for $(Configuration)." />
     <Error Condition="'@(MVVCVTKOpenCVLibrary)'==''" Text="MVVCVTK SDK OpenCV libraries were not discovered for $(Configuration)." />
+    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll')" Text="MVVCVTK Gap kernel runtime is missing for $(Configuration)." />
+    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll')" Text="DefX Gap runtime is missing for $(Configuration)." />
   </Target>
   <Target Name="MVVCVTKCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
     <ItemGroup>
@@ -63,6 +66,7 @@
       <MVVCVTKRuntime Include="$(MVVCVTKVtkBinDir)\vtk*.dll" Exclude="$(MVVCVTKVtkBinDir)\vtk*d.dll" Condition="'$(Configuration)'=='Release'" />
       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Debug'" />
       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*.dll" Exclude="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Release'" />
+      <MVVCVTKRuntime Include="$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll;$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(MVVCVTKRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(MVVCVTKRuntime)'!=''" />
   </Target>

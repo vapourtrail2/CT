@@ -31,6 +31,8 @@ signals:
     void visibilityRequested(HostVisibilityParams visibility);
 
     void isoValueRequested(double value);
+
+	void volumeQualityRequested(HostVolumeQuality quality);
    /* void windowLevelRequested(HostWindowLevelParams windowLevel);*/
 
 private:
@@ -46,6 +48,7 @@ private:
     QSlider* windowCenterSlider_ = nullptr;
 
     QComboBox* renderMode_ = nullptr;
+    QComboBox* volumeQuality_ = nullptr;
 
     QCheckBox* mprPlanesToggle_ = nullptr;
     QCheckBox* crosshairToggle_ = nullptr;

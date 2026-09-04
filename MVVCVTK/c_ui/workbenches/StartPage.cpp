@@ -39,7 +39,7 @@ const char* kMenuStyle =
 
 const char* kRibbonStyle =
 "QFrame#startRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-"QToolButton{color:#e0e0e0; font-weight:600;}";
+"QToolButton{color:#e0e0e0; font-weight:400;}";
 
 const char* kPageStyle =
 "QWidget#pageStart{background-color:#2b2b2b;}"

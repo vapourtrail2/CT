@@ -76,21 +76,22 @@ inline std::string last_error(const ct_fdk_handle* handle) {
 class incrementalFDK {
 public:
     incrementalFDK(std::string ini_path, ReconConfig config) {
-        ct_fdk_recon_config native{};
-        native.struct_size = sizeof(ct_fdk_recon_config);
-        native.volume_size_x = config.volume_size_x;
-        native.volume_size_y = config.volume_size_y;
-        native.volume_size_z = config.volume_size_z;
-        native.fov_x_mm = config.fov_x_mm;
-        native.fov_y_mm = config.fov_y_mm;
-        native.fov_z_mm = config.fov_z_mm;
-        native.volume_center_x_mm = config.volume_center_x_mm;
-        native.volume_center_y_mm = config.volume_center_y_mm;
-        native.volume_center_z_mm = config.volume_center_z_mm;
-        native.detector_binning = config.detector_binning;
-        native.maximum_batch_views = config.maximum_batch_views;
-        native.maximum_batch_latency_ms = config.maximum_batch_latency_ms;
-        native.gpu_index = config.gpu_index;
+        const ct_fdk_recon_config native{
+            .struct_size = sizeof(ct_fdk_recon_config),
+            .volume_size_x = config.volume_size_x,
+            .volume_size_y = config.volume_size_y,
+            .volume_size_z = config.volume_size_z,
+            .fov_x_mm = config.fov_x_mm,
+            .fov_y_mm = config.fov_y_mm,
+            .fov_z_mm = config.fov_z_mm,
+            .volume_center_x_mm = config.volume_center_x_mm,
+            .volume_center_y_mm = config.volume_center_y_mm,
+            .volume_center_z_mm = config.volume_center_z_mm,
+            .detector_binning = config.detector_binning,
+            .maximum_batch_views = config.maximum_batch_views,
+            .maximum_batch_latency_ms = config.maximum_batch_latency_ms,
+            .gpu_index = config.gpu_index,
+        };
         const auto result = ct_fdk_create(ini_path.c_str(), &native, &handle_);
         if (result != CT_FDK_OK) detail::throw_result(result, nullptr);
     }
@@ -127,16 +128,15 @@ public:
     }
 
     [[nodiscard]] ReconstructionProgress progress() const {
-        ct_fdk_progress native{};
-        native.struct_size = sizeof(ct_fdk_progress);
+        ct_fdk_progress native{.struct_size = sizeof(ct_fdk_progress)};
         const auto result = ct_fdk_get_progress(handle_, &native);
         if (result != CT_FDK_OK) detail::throw_result(result, handle_);
-        ReconstructionProgress progress;
-        progress.state = static_cast<ReconstructionState>(native.state);
-        progress.expected_frames = native.expected_frames;
-        progress.received_frames = native.received_frames;
-        progress.processed_frames = native.processed_frames;
-        return progress;
+        return {
+            .state = static_cast<ReconstructionState>(native.state),
+            .expected_frames = native.expected_frames,
+            .received_frames = native.received_frames,
+            .processed_frames = native.processed_frames,
+        };
     }
 
     [[nodiscard]] std::string last_error() const {
@@ -144,8 +144,7 @@ public:
     }
 
     [[nodiscard]] std::vector<float> download() const {
-        ct_fdk_volume_info info{};
-        info.struct_size = sizeof(ct_fdk_volume_info);
+        ct_fdk_volume_info info{.struct_size = sizeof(ct_fdk_volume_info)};
         auto result = ct_fdk_get_volume_info(handle_, &info);
         if (result != CT_FDK_OK) detail::throw_result(result, handle_);
         if (info.voxel_count > std::numeric_limits<std::size_t>::max()) {

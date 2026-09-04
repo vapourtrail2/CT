@@ -224,7 +224,7 @@ void DocumentPage::showOpenDialog()
         auto makeNum_1 = [this]() {
             auto* box = new QDoubleSpinBox(docDialog_);
             box->setDecimals(3);
-            box->setRange(0.000001, 100000.0);
+            box->setRange(0.000001, 100.0);
             box->setSingleStep(0.1);
             box->setSuffix(QStringLiteral("mm"));   
             return box;
@@ -233,7 +233,7 @@ void DocumentPage::showOpenDialog()
         auto makeNum_2 = [this]() {
             auto* box = new QDoubleSpinBox(docDialog_);
             box->setDecimals(2);
-            box->setRange(-100000.0, 100000.0);
+            box->setRange(-10000.0, 10000.0);
             box->setSingleStep(0.1);
             /*box->setSuffix(QStringLiteral("mm"));*/
             return box;

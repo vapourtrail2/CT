@@ -123,14 +123,14 @@ bool SessionManager::resetHost(QString* errorOut)
         hostSession_.reset();
         return false;
     }
-
     return true;
 }
 
 bool SessionManager::StopHost(QString* errorOut)
 {
-    clearCropFeature();
     if (!hostSession_) {
+        gapFeature_.reset();
+        clearCropFeature();
         return true;
     }
     if (!hostSession_->Stop()) {
@@ -139,7 +139,12 @@ bool SessionManager::StopHost(QString* errorOut)
             QStringLiteral("Failed to stop VTK host session."));
         return false;
     }
+
+    cropStateTimer_.stop();
+    gapFeature_.reset();
+    cropFeature_.reset();
     hostSession_.reset();
+    clearCropHistory();
     return true;
 }
 
@@ -150,9 +155,6 @@ CropHostTarget SessionManager::getCropTarget() const
         "", true, HostRenderViewRole::Primary3D };
     target.targetViews.viewRoles = {
         HostRenderViewRole::Primary3D,
-    /*    HostRenderViewRole::TopDownSlice,
-        HostRenderViewRole::FrontBackSlice,
-        HostRenderViewRole::LeftRightSlice*/
     };
     target.isTargetViewsUsed = true;
     target.source = CropHostSource::CurrentImage;
@@ -218,6 +220,52 @@ bool SessionManager::resetCropFeature(QString* errorOut)
 
     cropFeature_ = std::move(feature);
     cropStateTimer_.start();
+    return true;
+}
+
+HostViewTargets SessionManager::getGapTargets()
+{
+    HostViewTargets targets;
+    targets.viewRoles = {
+        HostRenderViewRole::Primary3D,
+        HostRenderViewRole::TopDownSlice,
+        HostRenderViewRole::FrontBackSlice,
+        HostRenderViewRole::LeftRightSlice
+    };
+    return targets;
+}
+
+bool SessionManager::resetGapFeature(QString* errorOut)
+{
+    gapFeature_.reset();
+
+    if (!hostSession_) {
+        setError(
+            errorOut,
+            QStringLiteral("Host session has not been initialized."));
+        return false;
+    }
+
+    GapHostStartParams defaultStart;
+    defaultStart.targetViews = getGapTargets();
+    defaultStart.surface.isoMode = GapIsoMode::DataRangeRatio;
+    defaultStart.surface.dataRangeRatio = 0.5;
+
+    GapHostConfig config;
+    config.defaultStart = defaultStart;
+    config.inputViews = getGapTargets();
+    config.keys.switchOverlay.keyCode = 'j';
+    config.keys.exit.keySym = "Escape";
+
+    auto feature = std::make_shared<GapHostFeature>(std::move(config));
+    if (!hostSession_->AttachFeature(feature)) {
+        setError(
+            errorOut,
+            QStringLiteral("Failed to attach Core gap analysis feature."));
+        return false;
+    }
+
+    gapFeature_ = std::move(feature);
     return true;
 }
 
@@ -528,6 +576,79 @@ CropTreeState SessionManager::getCropTreeState() const
     }
 
     return treeState;
+}
+
+bool SessionManager::startGap(
+    GapHostStartParams params,
+    GapHostCallback onComplete,
+    QString* errorOut)
+{
+    if (!hostSession_ || state_ != State::Ready) {
+        setError(
+            errorOut,
+            QStringLiteral("请先加载 RAW 数据或重建结果。"));
+        return false;
+    }
+
+    if (!gapFeature_ && !resetGapFeature(errorOut)) {
+        return false;
+    }
+
+    params.targetViews = getGapTargets();
+
+    GapHostRequest request;
+    request.action = GapHostAction::Start;
+    request.start = std::move(params);
+
+    if (!gapFeature_->SendRequest(
+        std::move(request),
+        std::move(onComplete))) {
+        setError(
+            errorOut,
+            QStringLiteral("孔隙分析请求未被 SDK 接纳，请检查参数或先退出当前孔隙会话。"));
+        return false;
+    }
+
+    return true;
+}
+
+bool SessionManager::toggleGapOverlay(QString* errorOut)
+{
+    if (!gapFeature_) {
+        setError(errorOut, QStringLiteral("孔隙分析功能尚未初始化。"));
+        return false;
+    }
+
+    GapHostRequest request;
+    request.action = GapHostAction::Overlay;
+    if (!gapFeature_->SendRequest(std::move(request))) {
+        setError(errorOut, QStringLiteral("当前没有可切换的孔隙分析结果。"));
+        return false;
+    }
+    return true;
+}
+
+bool SessionManager::exitGap(QString* errorOut)
+{
+    if (!gapFeature_) {
+        setError(errorOut, QStringLiteral("孔隙分析功能尚未初始化。"));
+        return false;
+    }
+
+    GapHostRequest request;
+    request.action = GapHostAction::Exit;
+    if (!gapFeature_->SendRequest(std::move(request))) {
+        setError(errorOut, QStringLiteral("当前没有可退出的孔隙分析会话。"));
+        return false;
+    }
+    return true;
+}
+
+GapHostState SessionManager::getGapState() const
+{
+    return gapFeature_
+        ? gapFeature_->GetState()
+        : GapHostState{};
 }
 
 void SessionManager::syncCropHistory()

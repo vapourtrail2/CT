@@ -56,7 +56,7 @@ QWidget* GeometryPage::buildRibbon05(QWidget* parent)
     ribbon05->setObjectName(QStringLiteral("geometryRibbon"));
     ribbon05->setStyleSheet(QStringLiteral(
         "QFrame#geometryRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-        "QToolButton{color:#e0e0e0; font-weight:600;}"));
+        "QToolButton{color:#e0e0e0; font-weight:400;}"));
 
     auto* layout05 = new QHBoxLayout(ribbon05);
     layout05->setContentsMargins(4, 4, 4, 4);

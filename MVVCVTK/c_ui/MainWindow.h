@@ -38,6 +38,7 @@ class RibbonPageRegister;
 class RibbonPage;
 class UIReconstruct3D;
 class QProgressDialog;
+class GapAnalysisDialog;
 
 class CTViewer : public QMainWindow
 {
@@ -76,12 +77,14 @@ private:
     void showSaveSliceStackDialog();
     void showSaveTransformedDataDialog();
     void showMeasureToolsDialog();
+    void showGapAnalysisDialog();
     void setOpenProgressDialog(const QString& text, const QString& title);
     void setCloseProgressDialog();
     void setRibbonPage(RibbonPage* page);
     void openCtReconUi();
     void openCtReconUi2();
     void set3DMode(HostRenderMode mode,HostVisibilityParams visibility);
+	void setvolumeQuality(HostVolumeQuality quality);
     void setVisibility(HostVisibilityParams visibility);
     void setIsoValue(double isoValue);
     void startBoxCrop();
@@ -104,6 +107,7 @@ private:
     UIReconstruct3D* uiRecon3d_ = nullptr;
     QPointer<QProgressDialog> ProgressDialog_;
     QPointer<WorkspacePage> workspacePage_;
+    QPointer<GapAnalysisDialog> gapAnalysisDialog_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
 

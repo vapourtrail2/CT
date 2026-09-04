@@ -35,7 +35,7 @@ const char* kMenuStyle =
 
 const char* kRibbonStyle =
 "QFrame#analysisRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-"QToolButton{color:#e0e0e0; font-weight:600;}";
+"QToolButton{color:#e0e0e0; font-weight:400;}";
 }
 
 QList<RibbonDef::RibbonButtonDef> AnalysisPage::createAnalysisButtons()
@@ -43,14 +43,7 @@ QList<RibbonDef::RibbonButtonDef> AnalysisPage::createAnalysisButtons()
     return {
         { QStringLiteral("注解"), {} },
         { QStringLiteral("实时值"), {} },
-        {
-            QStringLiteral("孔隙/夹杂物"),
-            {
-                { QStringLiteral("EASYPORE算法"), QStringLiteral(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/EasyPore.PNG"), QString() },
-                { QStringLiteral("来自缺陷的ROI"), QStringLiteral(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/defeat_ROI.PNG"), QString() },
-                { QStringLiteral("DefX/仅阈值算法"), QStringLiteral(":/analysis_icons02/icons_other/analysis_icons/Pores_and_inclusions_pull_down_menu/DefX_threshold.PNG"), QString() }
-            }
-        },
+        { QStringLiteral("孔隙分析"),{} },
         { QStringLiteral("P203"), {} },
         { QStringLiteral("P202/P201"), {} },
         { QStringLiteral("设计件/实物对比"), {} },
@@ -166,7 +159,7 @@ QMenu* AnalysisPage::createMenu(QWidget* parent, const QList<RibbonDef::RibbonMe
 
 QToolButton* AnalysisPage::createButton(QWidget* parent, const RibbonDef::RibbonButtonDef& buttonDef)
 {
-    return RibbonCommon::createRibbonButton(
+    auto* button = RibbonCommon::createRibbonButton(
         parent,
         buttonDef,
         loadIconFor,
@@ -177,4 +170,12 @@ QToolButton* AnalysisPage::createButton(QWidget* parent, const RibbonDef::Ribbon
         kButtonIconSize,
         kButtonMinWidth,
         kButtonMinHeight);
+
+    if (buttonDef.text == QStringLiteral("孔隙分析")) {
+        connect(button, &QToolButton::clicked, this, [this]() {
+            emit commandRequested(QStringLiteral("gap.analysis.open"));
+            });
+    }
+
+    return button;
 }

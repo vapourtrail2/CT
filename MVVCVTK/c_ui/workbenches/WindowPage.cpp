@@ -58,7 +58,7 @@ QWidget* WindowPage::buildRibbon12(QWidget* parent)
     ribbon12->setObjectName(QStringLiteral("measureRibbon"));
     ribbon12->setStyleSheet(QStringLiteral(
         "QFrame#measureRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-        "QToolButton{color:#e0e0e0; font-weight:600;}"));
+        "QToolButton{color:#e0e0e0; font-weight:400;}"));
 
     auto* layout12 = new QHBoxLayout(ribbon12);
     layout12->setContentsMargins(4, 4, 4, 4);

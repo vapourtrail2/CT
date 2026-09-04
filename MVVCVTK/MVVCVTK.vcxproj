@@ -192,7 +192,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForceSynchronousPDBWrites>true</ForceSynchronousPDBWrites>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CTIncludeDir)</AdditionalIncludeDirectories>
@@ -211,6 +211,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\QtStlCompat.h" />
+    <ClInclude Include="c_ui\GapAnalysisDialog.h" />
     <QtMoc Include="c_ui\context\SessionManager.h" />
     <QtMoc Include="c_ui\contextarea\WorkspacePage.h" />
     <QtMoc Include="c_ui\ribbon\RibbonPage.h" />
@@ -285,6 +286,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\context\SessionManager.cpp" />
+    <ClCompile Include="c_ui\GapAnalysisDialog.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

@@ -1,4 +1,5 @@
 #include "c_ui/context/SessionManager.h"
+#include "c_ui/GapAnalysisDialog.h"
 #include "c_ui/contextarea/WorkspacePage.h"
 #include "c_ui/MainWindow.h"
 #include "c_ui/panels/RenderPanel.h"
@@ -282,12 +283,38 @@ void CTViewer::setCommands()
     context_.getCommands().add(QStringLiteral("measure.tools.open"), [this]() {
         showMeasureToolsDialog();
         });
+    context_.getCommands().add(QStringLiteral("gap.analysis.open"), [this]() {
+        showGapAnalysisDialog();
+        });
     context_.getCommands().add(QStringLiteral("crop.box"), [this]() {
         startBoxCrop();
         });
     context_.getCommands().add(QStringLiteral("crop.plane"), [this]() {
         startPlaneCrop();
         });
+}
+
+void CTViewer::showGapAnalysisDialog()
+{
+    if (!context_.hasData()) {
+        QMessageBox::warning(
+            this,
+            QStringLiteral("孔隙分析"),
+            QStringLiteral("请先加载 RAW 数据或重建结果。"));
+        return;
+    }
+
+    if (gapAnalysisDialog_) {
+        gapAnalysisDialog_->show();
+        gapAnalysisDialog_->raise();
+        gapAnalysisDialog_->activateWindow();
+        return;
+    }
+
+    gapAnalysisDialog_ = new GapAnalysisDialog(
+        context_.getSessionManager(),
+        this);
+    gapAnalysisDialog_->show();
 }
 
 void CTViewer::showMeasureToolsDialog()
@@ -452,6 +479,12 @@ void CTViewer::connectRenderPanel()
         &RenderPanel::primary3DModeRequested,
         this,
         &CTViewer::set3DMode);
+
+    connect(
+        renderPanel,
+        &RenderPanel::volumeQualityRequested,
+        this,
+        &CTViewer::setvolumeQuality);
 
     connect(
         renderPanel,
@@ -1007,6 +1040,20 @@ void CTViewer::set3DMode(
 
     context_.getSessionManager().sendRequest(std::move(request));
 
+    auto* ptr = workspacePage_->getViewportGather();
+    ptr->requestRefresh();
+}
+
+void CTViewer::setvolumeQuality(HostVolumeQuality quality)
+{
+    if (!context_.hasData()) {
+        return;
+    }
+	HostViewSetRequest request;
+    request.targetView.isViewRoleUsed = true;
+    request.targetView.viewRole = HostRenderViewRole::Primary3D;
+    request.volumeQuality = quality;
+    context_.getSessionManager().sendRequest(std::move(request));
     auto* ptr = workspacePage_->getViewportGather();
     ptr->requestRefresh();
 }

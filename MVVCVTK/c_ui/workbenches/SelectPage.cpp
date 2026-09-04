@@ -57,7 +57,7 @@ QWidget* SelectPage::buildRibbon03(QWidget* parent)
     ribbon03->setObjectName(QStringLiteral("selectRibbon"));
     ribbon03->setStyleSheet(QStringLiteral(
         "QFrame#selectRibbon{background-color:#322F30; border-radius:8px; border:1px solid #2b2b2b;}"
-        "QToolButton{color:#e0e0e0; font-weight:600;}"));
+        "QToolButton{color:#e0e0e0; font-weight:400;}"));
 
     auto* layout03 = new QHBoxLayout(ribbon03);
     layout03->setContentsMargins(4, 4, 4, 4);

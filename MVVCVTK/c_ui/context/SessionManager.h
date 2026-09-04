@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MVVCVTK/API/Features/GapAnalysis/Host/GapHostFeature.h"
 #include "MVVCVTK/API/Features/OrthogonalCrop/Host/CropHostFeature.h"
 #include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
 #include "MVVCVTK/API/Host/VtkAppHostSession.h"
@@ -99,6 +100,13 @@ public:
     bool restoreOriginalCrop();
     bool exitCrop();
     CropTreeState getCropTreeState() const;
+    bool startGap(
+        GapHostStartParams params,
+        GapHostCallback onComplete = nullptr,
+        QString* errorOut = nullptr);
+    bool toggleGapOverlay(QString* errorOut = nullptr);
+    bool exitGap(QString* errorOut = nullptr);
+    GapHostState getGapState() const;
     void clearSession();
 
 signals:
@@ -116,8 +124,10 @@ private:
     bool resetHost(QString* errorOut);
     bool StopHost(QString* errorOut = nullptr);
     bool resetCropFeature(QString* errorOut = nullptr);
+    bool resetGapFeature(QString* errorOut = nullptr);
     void clearCropFeature();
     CropHostTarget getCropTarget() const;
+    static HostViewTargets getGapTargets();
     bool sendCropAction(CropHostRequest request);
     void syncCropHistory();
     void clearCropHistory();
@@ -134,6 +144,7 @@ private:
     bool hasConfig_ = false;
     std::unique_ptr<VtkAppHostSession> hostSession_;
     std::shared_ptr<CropHostFeature> cropFeature_;
+    std::shared_ptr<GapHostFeature> gapFeature_;
     State state_ = State::Empty;
     std::uint64_t requestGeneration_ = 0;
     QString sourcePath_;

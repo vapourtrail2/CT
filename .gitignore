@@ -411,3 +411,6 @@ Microsoft.Windows.CppWinRT.*/
 idontknowwhatitis/Microsoft.Windows.CppWinRT.*/
 
 *.dll
+
+
+/*-git.*-win-x64/

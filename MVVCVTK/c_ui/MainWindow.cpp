@@ -30,6 +30,7 @@
 #include <QFormLayout>
 #include <QGuiApplication>
 #include <QHBoxLayout>  
+#include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMetaObject>
@@ -743,6 +744,31 @@ void CTViewer::showSaveTransformedDataDialog()
         return;
     }
 
+    const QStringList formatNames{
+        QStringLiteral("RAW 体数据 (*.raw)"),
+        QStringLiteral("PLY 表面模型 (*.ply)"),
+        QStringLiteral("STL 表面模型 (*.stl)"),
+        QStringLiteral("OBJ 表面模型 (*.obj)")
+    };
+    constexpr std::array<HostDataExportFormat, 4> exportFormats{
+        HostDataExportFormat::Raw,
+        HostDataExportFormat::Ply,
+        HostDataExportFormat::Stl,
+        HostDataExportFormat::Obj
+    };
+
+    bool formatAccepted = false;
+    const QString selectedFormat = QInputDialog::getItem(
+        this,
+        QStringLiteral("选择导出格式"),
+        QStringLiteral("文件格式："),
+        formatNames,
+        0,
+        false,
+        &formatAccepted);
+   
+    const int i = formatNames.indexOf(selectedFormat);
+
     const QString dir =
         QFileDialog::getExistingDirectory(
             this,
@@ -759,7 +785,7 @@ void CTViewer::showSaveTransformedDataDialog()
     HostDataExportRequest request;
 
     request.outputPath = dir.toUtf8().toStdString();
-    request.format = HostDataExportFormat::Raw;
+    request.format = exportFormats[i];
     request.sourceView.isViewRoleUsed = true;
     request.sourceView.viewRole = HostRenderViewRole::Primary3D;
     QPointer<CTViewer> self(this);
@@ -1083,20 +1109,17 @@ void CTViewer::setVisibility(
     bool isAccepted = true;
 
     HostVisibilityParams primaryVisibility;
-    primaryVisibility.isPlanes3DVisible =
-        visibility.isPlanes3DVisible;
-    primaryVisibility.isRulerVisible =
-        visibility.isRulerVisible;
-    if (primaryVisibility.isPlanes3DVisible.has_value()
-        || primaryVisibility.isRulerVisible.has_value()) {
-        HostViewSetRequest request;
+    primaryVisibility.isPlanes3DVisible =visibility.isPlanes3DVisible;
+    primaryVisibility.isRulerVisible =visibility.isRulerVisible;
+
+    HostViewSetRequest request;
         request.targetView = {
             "", true, HostRenderViewRole::Primary3D };
         request.visibility = std::move(primaryVisibility);
         const bool isViewAccepted =
             sessionManager.sendRequest(std::move(request));
         isAccepted = isViewAccepted && isAccepted;
-    }
+ 
 
     if (visibility.isCrosshairVisible.has_value()) {
         constexpr std::array<HostRenderViewRole, 3> sliceRoles{
@@ -1214,7 +1237,6 @@ void CTViewer::handleCropBuildFinished(
 		HostViewResetRequest req;
         req.targetView.isViewRoleUsed = true;
         req.targetView.viewRole = role;
-
         sessionManager.sendRequest(std::move(req));     
 
         HostViewSetRequest setRequest;
@@ -1313,6 +1335,10 @@ void CTViewer::handleLoadFinished(
         pageDocument_->closeOpenDialog();
     }
 
+    HostVisibilityParams p;
+    p.isCrosshairVisible = false;
+    setVisibility(std::move(p));
+    
 
     auto* viewport = workspacePage_->getViewportGather();
     viewport->requestRefresh();

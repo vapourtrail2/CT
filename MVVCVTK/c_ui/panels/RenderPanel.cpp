@@ -110,7 +110,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     wv->addWidget(rulerAxesToggle_);
 
     mprPlanesToggle_->setChecked(false);
-    crosshairToggle_->setChecked(true);
+    crosshairToggle_->setChecked(false);
     rulerAxesToggle_->setChecked(false);
 
     /*  windowWidthLabel_ = new QLabel(

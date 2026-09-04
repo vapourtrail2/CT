@@ -65,6 +65,12 @@
 
 VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
 
+std::array<HostRenderViewRole, 3> SliceRoles{
+            HostRenderViewRole::TopDownSlice,
+            HostRenderViewRole::FrontBackSlice,
+            HostRenderViewRole::LeftRightSlice
+};
+
 CTViewer::CTViewer(QWidget* parent)
     : QMainWindow(parent)
 {
@@ -443,7 +449,19 @@ void CTViewer::connectAppSignals()
         &SceneTreePanel::cropApplyRequested,
         this,
         [this]() {
+			auto& sessionManager = context_.getSessionManager();
+            cropWindowLevels_ = {};
+
+            for (int i = 0;i < 3;++i) {
+                HostViewTarget target;
+                target.isViewRoleUsed = true;
+                target.viewRole = SliceRoles[i];
+                const auto state = sessionManager.getRenderViewState(target);
+                cropWindowLevels_[i] =state->windowLevel;
+              
+            }
             if (!context_.getSessionManager().applyCrop()) {
+                cropWindowLevels_ = {};
                 statusBar()->showMessage(
                     QStringLiteral("裁切应用未启动。"),
                     3000);
@@ -749,11 +767,7 @@ void CTViewer::showSaveTransformedDataDialog()
     const bool started =
         context_.getSessionManager().sendRequest(
             std::move(request),
-            [self](bool ok) {
-                if (!self) {
-                    return;
-                }
-
+            [self](bool ok) {   
                 QMetaObject::invokeMethod(
                     self.data(),
                     [self, ok]() {
@@ -1183,22 +1197,36 @@ void CTViewer::handleCropBuildFinished(
     bool isSuccess,
     QString message)
 {
-    if (isSuccess) {
-        auto resetSliceCamera = [this](
-            HostRenderViewRole viewRole) {
-            HostViewResetRequest request;
-            request.targetView.isViewRoleUsed = true;
-            request.targetView.viewRole = viewRole;
-            context_.getSessionManager().sendRequest(std::move(request));
-                
-            };
+    if (!isSuccess) {
+        cropWindowLevels_ = {};
 
-        resetSliceCamera(HostRenderViewRole::TopDownSlice);
-        resetSliceCamera(HostRenderViewRole::FrontBackSlice);
-        resetSliceCamera(HostRenderViewRole::LeftRightSlice);
-
-        workspacePage_->getViewportGather()->requestRefresh();
+        if (!message.isEmpty()) {
+            statusBar()->showMessage(message, 3000);
+        }
+        return;
     }
+
+	auto& sessionManager = context_.getSessionManager();
+
+    for (int i = 0; i < 3; ++i)
+    {
+		const auto role = SliceRoles[i];
+		HostViewResetRequest req;
+        req.targetView.isViewRoleUsed = true;
+        req.targetView.viewRole = role;
+
+        sessionManager.sendRequest(std::move(req));     
+
+        HostViewSetRequest setRequest;
+        setRequest.targetView.isViewRoleUsed = true;
+        setRequest.targetView.viewRole = role;
+        setRequest.windowLevel = cropWindowLevels_[i];
+        sessionManager.sendRequest(std::move(setRequest));
+    }
+
+    cropWindowLevels_ = {};
+
+    workspacePage_->getViewportGather()->requestRefresh();
 }
 
 //void CTViewer::setWindowLevel(

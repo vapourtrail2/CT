@@ -10,6 +10,7 @@
 #include <array>
 #include <memory>
 #include <QDoubleSpinBox>
+#include <optional>
 
 #include "c_ui/command/commands.h"
 #include "c_ui/context/AppContext.h"
@@ -111,7 +112,9 @@ private:
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
 
+
 private:
     int iconHeight_ = 100;
     bool fileHasData_ = false;
+    std::array<std::optional<HostWindowLevelParams>,3> cropWindowLevels_{}; 
 };

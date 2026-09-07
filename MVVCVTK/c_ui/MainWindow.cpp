@@ -1158,7 +1158,6 @@ void CTViewer::setIsoValue(double isoValue)//ui的value ->core
 
     request.targetView.isViewRoleUsed = true;
     request.targetView.viewRole = HostRenderViewRole::Primary3D;
-	request.volumeQuality = HostVolumeQuality::Low;
     request.iso = isoValue;
     const bool started = context_.getSessionManager().sendRequest(std::move(request));
 
@@ -1339,11 +1338,11 @@ void CTViewer::handleLoadFinished(
     HostVisibilityParams p;
     p.isCrosshairVisible = false;
     setVisibility(std::move(p));
-	setvolumeQuality(HostVolumeQuality::Low);
-
+    setvolumeQuality(HostVolumeQuality::High);
+    
     auto* viewport = workspacePage_->getViewportGather();
     viewport->requestRefresh();
-        
+
     if (tabBar_->currentIndex() == TabIndex::File)
     {
         tabBar_->setCurrentIndex(TabIndex::Start);

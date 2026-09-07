@@ -4,7 +4,6 @@
 
 #include <cmath>
 #include <utility>
-
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -19,6 +18,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QFileDialog>
 
 namespace
 {
@@ -149,7 +149,7 @@ void GapAnalysisDialog::buildUi()
 
     filterResultsGroup_ = createSection(QStringLiteral("过滤结果"), rightPanel);
     filterResultsGroup_->setCheckable(true);
-    filterResultsGroup_->setChecked(true);
+    filterResultsGroup_->setChecked(false);
     auto* filterForm = new QFormLayout(filterResultsGroup_);
     filterForm->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
     minVolumeSpin_ = createDoubleSpin(
@@ -185,10 +185,11 @@ void GapAnalysisDialog::buildUi()
     actionLayout->setSpacing(8);
     startButton_ = new QPushButton(QStringLiteral("开始分析"), rightPanel);
     overlayButton_ = new QPushButton(QStringLiteral("显示/隐藏"), rightPanel);
+    exportCSVButton_ = new QPushButton(QStringLiteral("导出csv"), rightPanel);
     exitButton_ = new QPushButton(QStringLiteral("退出孔隙"), rightPanel);
     auto* closeButton = new QPushButton(QStringLiteral("关闭"), rightPanel);
     for (auto* button : {
-        startButton_, overlayButton_, exitButton_, closeButton }) {
+        startButton_, overlayButton_, exportCSVButton_,exitButton_, closeButton }) {
         button->setAutoDefault(false);
         actionLayout->addWidget(button);
     }
@@ -217,6 +218,9 @@ void GapAnalysisDialog::buildUi()
         });
     connect(overlayButton_, &QPushButton::clicked, this, [this]() {
         toggleOverlay();
+        });
+    connect(exportCSVButton_, &QPushButton::clicked, this, [this]() {
+        exportCSV();
         });
     connect(exitButton_, &QPushButton::clicked, this, [this]() {
         exitAnalysis();
@@ -250,20 +254,12 @@ void GapAnalysisDialog::initializeFromCurrentView()
     target.viewRole = HostRenderViewRole::Primary3D;
 
     const auto state = sessionManager_.getRenderViewState(target);
-    if (!state) {
-        backgroundMeanSpin_->setValue(0.0);
-        materialMeanSpin_->setValue(1.0);
-        absoluteIsoSpin_->setValue(0.0);
-        return;
-    }
-
-    const double scalarMin = state->scalarRange[0];
-    const double scalarMax = state->scalarRange[1];
-    if (std::isfinite(scalarMin)
-        && std::isfinite(scalarMax)
-        && scalarMin <= scalarMax) {
-        backgroundMeanSpin_->setValue(scalarMin);
-        materialMeanSpin_->setValue(scalarMax);
+    const auto background = (state->background.r + state->background.g + state->background.b) / 3.0;
+    const auto material = state->material.ambient;
+    if (std::isfinite(background)&& std::isfinite(material))
+    {
+        backgroundMeanSpin_->setValue(background);
+        materialMeanSpin_->setValue(material);
     }
     if (std::isfinite(state->isoThreshold)) {
         absoluteIsoSpin_->setValue(state->isoThreshold);
@@ -335,6 +331,27 @@ void GapAnalysisDialog::toggleOverlay()
     setStatus(QStringLiteral("已切换孔隙结果的显示状态。"));
 }
 
+void GapAnalysisDialog::exportCSV()
+{
+    QString path = QFileDialog::getSaveFileName(
+        this,
+        QStringLiteral("导出孔隙分析结果"),
+        QStringLiteral("gap_results.csv"),
+        QStringLiteral("CSV 文件 (*.csv)"));
+
+    if (path.isEmpty()) {
+        return;
+    }
+
+    QString error;
+    if (!sessionManager_.exportGapCsv(path, &error)) {
+        setStatus(error, true);
+        return;
+    }
+
+    setStatus(QStringLiteral("CSV 导出成功：%1").arg(path));
+}
+
 void GapAnalysisDialog::exitAnalysis()
 {
     QString error;
@@ -377,10 +394,9 @@ void GapAnalysisDialog::refreshState()
         && state.analysisState != GapAnalysisState::Running
         && !state.isViewActive
         && !state.isExitPending);
-    overlayButton_->setEnabled(
-        state.isViewActive && !state.isExitPending);
-    exitButton_->setEnabled(
-        state.isViewActive && !state.isExitPending);
+    overlayButton_->setEnabled(state.isViewActive && !state.isExitPending);
+    exportCSVButton_->setEnabled(state.analysisState == GapAnalysisState::Succeeded && !state.isExitPending);
+    exitButton_->setEnabled(state.isViewActive && !state.isExitPending);
 }
 
 void GapAnalysisDialog::setStatus(

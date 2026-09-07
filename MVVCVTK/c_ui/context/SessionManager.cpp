@@ -628,6 +628,47 @@ bool SessionManager::toggleGapOverlay(QString* errorOut)
     return true;
 }
 
+bool SessionManager::exportGapCsv(
+    const QString& outputPath,
+    QString* errorOut)
+{
+    if (!gapFeature_) {
+        setError(
+            errorOut,
+            QStringLiteral("孔隙分析功能尚未初始化。"));
+        return false;
+    }
+
+    const GapHostState state = gapFeature_->GetState();
+    if (state.analysisState != GapAnalysisState::Succeeded) {
+        setError(
+            errorOut,
+            QStringLiteral("请等待孔隙分析成功后再导出。"));
+        return false;
+    }
+
+    const QString path = outputPath.trimmed();
+    if (path.isEmpty()) {
+        setError(
+            errorOut,
+            QStringLiteral("CSV 保存路径为空。"));
+        return false;
+    }
+
+    GapHostRequest request;
+    request.action = GapHostAction::Export;
+    request.outputPath = path.toUtf8().toStdString();
+
+    if (!gapFeature_->SendRequest(std::move(request))) {
+        setError(
+            errorOut,
+            QStringLiteral("CSV 导出失败，请检查分析状态和保存路径。"));
+        return false;
+    }
+
+    return true;
+}
+
 bool SessionManager::exitGap(QString* errorOut)
 {
     if (!gapFeature_) {

@@ -105,6 +105,9 @@ public:
         GapHostCallback onComplete = nullptr,
         QString* errorOut = nullptr);
     bool toggleGapOverlay(QString* errorOut = nullptr);
+    bool exportGapCsv(
+        const QString& outputPath,
+        QString* errorOut = nullptr);
     bool exitGap(QString* errorOut = nullptr);
     GapHostState getGapState() const;
     void clearSession();

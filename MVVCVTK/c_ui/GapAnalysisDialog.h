@@ -27,6 +27,7 @@ private:
     void updateEdgeDistanceFilterVisibility();
     void startAnalysis();
     void toggleOverlay();
+	void exportCSV();
     void exitAnalysis();
     void refreshState();
     void setStatus(const QString& message, bool isError = false);
@@ -47,6 +48,7 @@ private:
     QLabel* statusLabel_ = nullptr;
     QPushButton* startButton_ = nullptr;
     QPushButton* overlayButton_ = nullptr;
+    QPushButton* exportCSVButton_ = nullptr;
     QPushButton* exitButton_ = nullptr;
     QTimer* stateTimer_ = nullptr;
     int lastAnalysisState_ = -1;

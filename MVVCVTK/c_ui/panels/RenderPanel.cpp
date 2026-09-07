@@ -145,6 +145,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     volumeQuality_->addItem(QStringLiteral("中"), static_cast<int>(HostVolumeQuality::High));
     volumeQuality_->addItem(QStringLiteral("高"), static_cast<int>(HostVolumeQuality::XHigh));
     volumeQuality_->addItem(QStringLiteral("最高"), static_cast<int>(HostVolumeQuality::Ultra));
+    volumeQuality_->setCurrentIndex(1);
 
     auto* volumeQualityRow = new QHBoxLayout();
     volumeQualityRow->addWidget(new QLabel(QStringLiteral("体渲染质量"), wlGroup));
@@ -304,8 +305,7 @@ void RenderPanel::setConnect() {
         this,
         [this](int index) {
             
-            const auto requestedMode = static_cast<HostRenderMode>(
-                renderMode_->itemData(index).toInt());
+            const auto requestedMode = static_cast<HostRenderMode>(renderMode_->itemData(index).toInt());
 
             HostVisibilityParams visibility;
             visibility.isPlanes3DVisible =
@@ -323,9 +323,7 @@ void RenderPanel::setConnect() {
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
         [this](int index) {
-            const auto requestedQuality = static_cast<HostVolumeQuality>(
-                volumeQuality_->itemData(index).toInt());
-
+            const auto requestedQuality = static_cast<HostVolumeQuality>(volumeQuality_->itemData(index).toInt());
             emit volumeQualityRequested(requestedQuality);
         });
 

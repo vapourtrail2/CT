@@ -11,8 +11,6 @@ namespace measure {
 
 class MeasurementSession {
 public:
-    
-
     void SetChangedCallback(std::function<void()> callback);
 
     void Begin(const MeasureRequest& request);

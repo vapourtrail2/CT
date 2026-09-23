@@ -497,6 +497,7 @@ public:
             error = "the edge ROI is too small";
             return false;
         }
+        //加载 DLL，并完成加密、图像和比例初始化
         if (!EnsureReady(image.width, image.height, error)) {
             return false;
         }
@@ -536,6 +537,7 @@ public:
         }
         Trace(probeDetails.str());
 
+        // 准备与 DLL 对应的结构体
         TPoint cameraPosition{};
         TMeasureAlgorithmPara algorithmPara{};
         TAlgorithmRectFramePara framePara;
@@ -556,6 +558,7 @@ public:
         Trace(callDetails.str());
 
         DWORD exceptionCode = 0;
+        //调用 DLL 抓直线
         const int result = ProtectedMeasureLineByRect(
             m_measureLineByRect,
             &imageHeader,
@@ -597,11 +600,11 @@ public:
             Trace(error);
             return false;
         }
-
-        // C# 端为该接口准备的是最多 4096 个、每个 16 字节的二维点缓冲区。
-        std::array<TMeasuredPoint2D, kMaximumMeasuredPoints> measuredPoints{};
+        
+        std::vector<TMeasuredPoint2D> measuredPoints(4096);//放在堆上 C#端为该接口准备的是最多 4096 个、每个 16 字节的二维点缓冲区。
         Trace("ZC_GetMeasuredPoints begin capacity=4096 stride=16");
         exceptionCode = 0;
+        // 根据pointsCount获取 DLL的采样点
         const int pointsResult = ProtectedGetMeasuredPoints(
             m_getMeasuredPoints,
             measuredPoints.data(),
@@ -654,7 +657,8 @@ public:
             << ")->(" << maximumX << ',' << maximumY << ')';
         Trace(pointsDetails.str());
 
-        // 用全部测量点做二维正交最小二乘拟合，并用投影范围确定线段端点。
+        //  用采样点重新拟合直线
+        //  将结果转换为图像像素端点，填入 line
         double covarianceXX = 0.0;
         double covarianceXY = 0.0;
         double covarianceYY = 0.0;
@@ -681,8 +685,7 @@ public:
         double maximumProjection = (std::numeric_limits<double>::lowest)();
         for (int i = 0; i < measuredLine.pointsCount; ++i) {
             const auto& point = measuredPoints[static_cast<std::size_t>(i)];
-            const double projection = (point.x - meanX) * directionX
-                + (point.y - meanY) * directionY;
+            const double projection = (point.x - meanX) * directionX+ (point.y - meanY) * directionY;
             minimumProjection = std::min(minimumProjection, projection);
             maximumProjection = std::max(maximumProjection, projection);
         }

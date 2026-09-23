@@ -121,6 +121,7 @@ InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
             m_dragMode = DragMode::Move;
         }
 
+        // 记录按下时的位置和矩形状态
         if (m_dragMode != DragMode::None) {
             m_pressU = u;
             m_pressV = v;
@@ -131,6 +132,7 @@ InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
         return { true, true };
     }
 
+    //拖动
     if (event.eventKind == InteractionEventKind::PointerMove
         && m_consumingLeftButton
         && m_dragMode != DragMode::None) {
@@ -184,6 +186,7 @@ InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
         return { true, true };
     }
 
+    //松开
     if (event.eventKind == InteractionEventKind::PrimaryRelease
         && m_consumingLeftButton) {
         const bool shouldMeasure = m_dragMode != DragMode::None;
@@ -203,10 +206,8 @@ void EdgeCaptureController::SetEnabled(bool enabled)
     m_enabled = enabled;
     m_consumingLeftButton = false;
     m_dragMode = DragMode::None;
-    if (enabled) {
-        if (EnsureDefaultRoi()) {
-            Report("拖动矩形或四角控制点，松开鼠标后执行抓边。");
-        }
+    if (EnsureDefaultRoi()) {
+        Report("拖动矩形或四角控制点，松开鼠标后执行抓边。");
     }
     Refresh();
 }
@@ -232,7 +233,7 @@ void EdgeCaptureController::SetStatusCallback(StatusCallback callback)
     m_statusCallback = std::move(callback);
 }
 
-void EdgeCaptureController::Refresh()
+void EdgeCaptureController::Refresh()//根据数据画矩形
 {
     RemoveProps();
     const auto& state = CurrentState();
@@ -253,12 +254,12 @@ void EdgeCaptureController::Refresh()
         worldCorners.push_back(PhysicalToWorld(point));
     }
     worldCorners.push_back(worldCorners.front());
-    AddPath(worldCorners, 1.0, 0.75, 0.05, 2.0);
+    AddPath(worldCorners, 1.0, 0.75, 0.05, 2.0);//画黄色矩形
 
     std::vector<Point3> handlePoints(worldCorners.begin(), worldCorners.end() - 1);
-    AddHandles(handlePoints);
+    AddHandles(handlePoints);//画四个角的控制点
 
-    if (state.result) {
+    if (state.result) {//有结果了就画绿线
         ImageGeometry geometry;
         if (GetImageGeometry(geometry)) {
             const auto toIndex = [&geometry](double x, double y) {
@@ -319,9 +320,9 @@ bool EdgeCaptureController::GetImageGeometry(ImageGeometry& geometry) const
     return geometry.width > 1 && geometry.height > 1;
 }
 
-bool EdgeCaptureController::EnsureDefaultRoi()//计算矩形位置
+bool EdgeCaptureController::EnsureDefaultRoi()//准备矩形数据
 {
-    auto& state = CurrentState();
+    auto& state = CurrentState();//矩形数据存在控制器自己的ViewState里面
     if (state.initialized) {
         return true;
     }
@@ -466,6 +467,7 @@ bool EdgeCaptureController::BuildGraySlice(
 
 bool EdgeCaptureController::RunMeasurement()
 {
+    //当前图像
     ImageGeometry geometry;
     auto& state = CurrentState();
     if (!state.initialized || !GetImageGeometry(geometry)) {
@@ -474,12 +476,13 @@ bool EdgeCaptureController::RunMeasurement()
     }
     geometry.fixedIndex = state.fixedIndex;
 
+    // 将当前VTK切片转换成8位灰度图
     ZcGrayImage gray;
     if (!BuildGraySlice(geometry, gray)) {
         Report("抓边失败：无法生成 8 位灰度切片。");
         return false;
     }
-
+    // 将矩形转换为DLL使用的图像像素坐标
     ZcRectFrame frame;
     frame.startX = state.minU - geometry.extent[2 * geometry.uAxis];
     frame.startY = geometry.extent[2 * geometry.vAxis + 1] - state.maxV;
@@ -488,6 +491,7 @@ bool EdgeCaptureController::RunMeasurement()
     frame.cosAngle = 1.0;
     frame.sinAngle = 0.0;
 
+    //  调用自己的 DLL 封装类
     ZcMeasuredLine line;
     std::string error;
     if (!m_algorithm.MeasureLineByRect(gray, frame, line, error)) {

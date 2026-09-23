@@ -38,23 +38,23 @@ public:
     void Refresh();
 
 private:
-    struct ViewState {
+    struct ViewState { // 记录这张二维切片上的抓边框(矩形)
         bool initialized = false;
         int fixedIndex = 0;
         double minU = 0.0;
         double maxU = 0.0;
         double minV = 0.0;
-        double maxV = 0.0;
-        std::optional<ZcMeasuredLine> result;
+        double maxV = 0.0;//Z这一层，初始化 true x最大最小和y最小最大
+        std::optional<ZcMeasuredLine> result;//抓到的直线 没有为空
     };
 
-    struct ImageGeometry {
-        int extent[6]{};
-        int fixedAxis = 2;
-        int uAxis = 0;
-        int vAxis = 1;
-        int fixedIndex = 0;
-        int width = 0;
+    struct ImageGeometry {//在三维体中，取哪个二维切片
+        int extent[6]{};// 三维图像的索引范围 [0][1] X最小最大索引 .. etc
+        int fixedAxis = 2;//固定Z轴
+        int fixedIndex = 0;//Z轴索引
+        int uAxis = 0;//x,y平面 如固定住 ，就是只移动这个两个轴 框只改变这俩值
+        int vAxis = 1;//
+        int width = 0;// 二维切片宽度，单位：像素
         int height = 0;
     };
 
@@ -96,7 +96,7 @@ private:
     double m_pressU = 0.0;
     double m_pressV = 0.0;
     ViewState m_dragStart;
-    std::array<ViewState, 3> m_viewStates;
+    std::array<ViewState, 3> m_viewStates;//每个视图各保留一份矩形状态 CurrentState根据当前视图取一个状态
     std::vector<vtkSmartPointer<vtkProp>> m_props;
     StatusCallback m_statusCallback;
     ZcEdgeAlgorithm m_algorithm;

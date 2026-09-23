@@ -40,6 +40,9 @@
     <Filter Include="c_ui\external">
       <UniqueIdentifier>{f97aca83-1e53-4784-ba72-73966a9c1736}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c_ui\main">
+      <UniqueIdentifier>{703100b3-d4eb-4d1f-8ea5-f3af8474abb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="measure\MeasureToolDialog.h">
@@ -93,14 +96,14 @@
     <ClInclude Include="measure\MeasureViewAdapter.h">
       <Filter>measure</Filter>
     </ClInclude>
-    <ClInclude Include="c_ui\QtStlCompat.h">
-      <Filter>c_ui</Filter>
-    </ClInclude>
     <ClInclude Include="c_ui\external\reconstruction_result.h">
       <Filter>c_ui\external</Filter>
     </ClInclude>
     <ClInclude Include="c_ui\GapAnalysisDialog.h">
-      <Filter>c_ui</Filter>
+      <Filter>c_ui\external</Filter>
+    </ClInclude>
+    <ClInclude Include="c_ui\QtStlCompat.h">
+      <Filter>c_ui\main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +155,15 @@
     <ClCompile Include="c_ui\external\reconstruction_worker.cpp">
       <Filter>c_ui\external</Filter>
     </ClCompile>
+    <ClCompile Include="c_ui\GapAnalysisDialog.cpp">
+      <Filter>c_ui\external</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\main.cpp">
+      <Filter>c_ui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\MainWindow.cpp">
+      <Filter>c_ui\main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\workbenches\common\RibbonCommon.h">
@@ -168,12 +180,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="c_ui\main.cpp">
-      <Filter>c_ui</Filter>
-    </ClCompile>
-    <ClCompile Include="c_ui\MainWindow.cpp">
-      <Filter>c_ui</Filter>
-    </ClCompile>
     <ClCompile Include="c_ui\workbenches\AlignmentPage.cpp">
       <Filter>c_ui\workbenches</Filter>
     </ClCompile>
@@ -237,14 +243,8 @@
     <ClCompile Include="c_ui\ribbon\RibbonPage.cpp">
       <Filter>c_ui\ribbon</Filter>
     </ClCompile>
-    <ClCompile Include="c_ui\GapAnalysisDialog.cpp">
-      <Filter>c_ui</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="c_ui\MainWindow.h">
-      <Filter>c_ui</Filter>
-    </QtMoc>
     <QtMoc Include="c_ui\workbenches\DocumentPage.h">
       <Filter>c_ui\workbenches</Filter>
     </QtMoc>
@@ -307,6 +307,9 @@
     </QtMoc>
     <QtMoc Include="c_ui\external\reconstruction_worker.h">
       <Filter>c_ui\external</Filter>
+    </QtMoc>
+    <QtMoc Include="c_ui\MainWindow.h">
+      <Filter>c_ui\main</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

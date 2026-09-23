@@ -255,7 +255,7 @@ void MeasureToolDialog::BeginEdgeCapture()
         ClearCheckedTool();
         return;
     }
-    m_session->CancelDraft();
+    m_session->CancelDraft();//取消尚未完成的线等等测量
     if (m_edgeButton) {
         m_edgeButton->setChecked(true);
     }

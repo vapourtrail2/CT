@@ -159,7 +159,7 @@ void MeasurementViewport::SetEdgeCaptureEnabled(bool isEnabled)
     if (!m_edgeCapture) {
         return;
     }
-    m_edgeCapture->SetEnabled(isEnabled);
+    m_edgeCapture->SetEnabled(isEnabled);//抓边控制器
     if (m_widget) {
         m_widget->setFocus(Qt::MouseFocusReason);
     }

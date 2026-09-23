@@ -269,8 +269,6 @@ bool SessionManager::resetGapFeature(QString* errorOut)
     return true;
 }
 
-
-
 bool SessionManager::openFile(const QString& path,
 	const std::array<int, 3>& dims,
     const std::array<float, 3>& spacing,
@@ -803,7 +801,6 @@ bool SessionManager::sendLoadRequest(
             }
 
             const bool isSuccess = result.isSucceeded;
-
             QMetaObject::invokeMethod(//回到qt线程
                 ptr.data(),
                 [ptr, generation, isSuccess]() {

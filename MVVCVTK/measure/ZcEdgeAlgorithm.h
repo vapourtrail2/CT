@@ -14,7 +14,7 @@ struct ZcGrayImage {
     std::vector<std::uint8_t> pixels;
 };
 
-struct ZcRectFrame {
+struct ZcRectFrame {//在图像的哪个矩形区域抓边
     double startX = 0.0;
     double startY = 0.0;
     double width = 0.0;

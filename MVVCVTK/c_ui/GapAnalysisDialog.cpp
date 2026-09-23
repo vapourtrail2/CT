@@ -369,7 +369,7 @@ void GapAnalysisDialog::refreshState()
     const int currentState = static_cast<int>(state.analysisState);
 
     if (currentState != lastAnalysisState_) {
-        if (state.analysisState == GapAnalysisState::Running) {
+        if (state.analysisState == GapAnalysisState::Running) { 
             setStatus(QStringLiteral("孔隙分析正在运行……"));
         }
         else if (state.analysisState == GapAnalysisState::Failed) {

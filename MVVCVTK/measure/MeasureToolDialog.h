@@ -51,6 +51,7 @@ private:
     QPushButton* m_arcButton = nullptr;
     QPushButton* m_lineEdgeButton = nullptr;
     QPushButton* m_circleEdgeButton = nullptr;
+    QPushButton* m_arcEdgeButton = nullptr;
     QPushButton* m_undoButton = nullptr;
     QPushButton* m_redoButton = nullptr;
     MeasureView m_currentView = MeasureView::Axial;

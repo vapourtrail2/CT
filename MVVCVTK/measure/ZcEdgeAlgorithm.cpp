@@ -106,7 +106,20 @@ struct TMeasuredCircle {
     TMeasuredPoint2D* points = nullptr;
     double standartDistance = 0;
 };
+struct TAlgorithmArcRingFramePara { double x, y, r1, r2, r, angle1, angle2; };
+struct TMeasuredArc {
+    double x, y, z, r, d, angle1, angle2, angleLength;
+    double minR, maxR, pTolerance, nTolerance, circularity, positional;
+    std::int32_t pointsCount;
+    double x1, y1, x2, y2, length;
+    TMeasuredPoint2D* points;
+};
 #pragma pack(pop)
+static_assert(sizeof(TAlgorithmArcRingFramePara) == 56, "Arc frame ABI");
+static_assert(sizeof(TMeasuredArc) == 168 && offsetof(TMeasuredArc, x1) == 120
+    && offsetof(TMeasuredArc, points) == 160, "Measured arc x64 ABI");
+using MeasureArcFn = int(__cdecl*)(void*, TPoint*, TMeasureAlgorithmPara*,
+    TAlgorithmArcRingFramePara*, TMeasuredArc*);
 
 static_assert(sizeof(TAlgorithmCircleRingFramePara) == 32, "Circle ring ABI");
 static_assert(sizeof(TImageCircle) == 24, "Image circle ABI");
@@ -389,6 +402,17 @@ int ProtectedMeasureCircle(MeasureCircleFn function, void* image, TPoint* camera
     }
 }
 
+int ProtectedMeasureArc(MeasureArcFn function, void* image, TPoint* camera,
+    TMeasureAlgorithmPara* algorithm, TAlgorithmArcRingFramePara* frame,
+    TMeasuredArc* arc, DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try { return function(image, camera, algorithm, frame, arc); }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
 int ProtectedGetMeasuredPoints(
     GetMeasuredPointsFn function,
     void* measuredPoints,
@@ -517,6 +541,103 @@ public:
         if (m_module) {
             FreeLibrary(m_module);
         }
+    }
+
+    bool MeasureArcByArcRing(const ZcGrayImage& image, const ZcArcRingFrame& frame,
+        ZcMeasuredArc& arc, std::string& error)
+    {
+        arc = {}; error.clear();
+        constexpr double tau = 6.283185307179586;
+        const double sweep = frame.endAngle - frame.startAngle;
+        if (image.width <= 0 || image.height <= 0 || image.widthStep < image.width
+            || image.pixels.size() < static_cast<size_t>(image.widthStep) * image.height
+            || !std::isfinite(frame.x) || !std::isfinite(frame.y)
+            || !std::isfinite(frame.innerRadius) || !std::isfinite(frame.outerRadius)
+            || !std::isfinite(frame.startAngle) || !std::isfinite(frame.endAngle)
+            || sweep <= 0 || sweep >= tau || frame.innerRadius <= 0
+            || frame.outerRadius <= frame.innerRadius
+            || frame.x - frame.outerRadius < 0 || frame.y - frame.outerRadius < 0
+            || frame.x + frame.outerRadius > image.width - 1
+            || frame.y + frame.outerRadius > image.height - 1) {
+            error = "invalid arc image or ring"; return false;
+        }
+        if (!EnsureReady(image.width, image.height, error)) return false;
+        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error)) return false;
+        IplImage header = MakeImageHeader(image);
+        TPoint camera{};
+        TMeasureAlgorithmPara algorithm{};
+        // UI and validation remain in radians; convert only at the DLL boundary.
+        constexpr double radiansToDegrees = 360.0 / tau;
+        TAlgorithmArcRingFramePara ring{frame.x, frame.y, frame.innerRadius,
+            frame.outerRadius, 0, frame.startAngle * radiansToDegrees,
+            frame.endAngle * radiansToDegrees};
+        TMeasuredArc measured{};
+        DWORD code = 0;
+        std::ostringstream begin;
+        begin << "ZC_MeasureArcByArcRing begin center=(" << ring.x << ',' << ring.y
+            << ") radii=" << ring.r1 << ',' << ring.r2 << " angles(deg)=" << ring.angle1 << ',' << ring.angle2;
+        Trace(begin.str());
+        const int result = ProtectedMeasureArc(m_measureArc, &header, &camera, &algorithm, &ring, &measured, code);
+        std::ostringstream output;
+        output << "ZC_MeasureArcByArcRing returned " << result << " center=(" << measured.x
+            << ',' << measured.y << ") r=" << measured.r << " points=" << measured.pointsCount;
+        Trace(output.str());
+        if (result != 0) {
+            error = result == kStructuredExceptionResult ? StructuredExceptionText(code)
+                : "ZC_MeasureArcByArcRing returned " + std::to_string(result);
+            return false;
+        }
+        if (measured.pointsCount < 3 || measured.pointsCount > 4096
+            || !std::isfinite(measured.x) || !std::isfinite(measured.y)
+            || !std::isfinite(measured.r) || measured.r <= 0) {
+            error = "invalid measured arc or point count"; return false;
+        }
+        std::vector<TMeasuredPoint2D> points(4096);
+        const int pointsResult = ProtectedGetMeasuredPoints(m_getMeasuredPoints, points.data(), code);
+        if (pointsResult != 0) {
+            error = "arc ZC_GetMeasuredPoints failed: " + std::to_string(pointsResult); return false;
+        }
+        points.resize(measured.pointsCount);
+        const auto map = [&](TMeasuredPoint2D p, bool centered) {
+            return centered ? TMeasuredPoint2D{p.x + image.width * 0.5, image.height * 0.5 - p.y} : p;
+        };
+        const auto phase = [&](double angle) {
+            double a = std::fmod(angle - frame.startAngle, tau);
+            if (a < 0) a += tau;
+            return a > tau - 1e-8 ? 0.0 : a;
+        };
+        const auto inside = [&](TMeasuredPoint2D p) {
+            const double radius = std::hypot(p.x - frame.x, p.y - frame.y);
+            return std::isfinite(radius) && radius >= frame.innerRadius - 2
+                && radius <= frame.outerRadius + 2
+                && phase(std::atan2(p.y - frame.y, p.x - frame.x)) <= sweep + 0.02;
+        };
+        int raw = 0, centered = 0;
+        for (auto p : points) { raw += inside(p); centered += inside(map(p, true)); }
+        const bool useCentered = centered > raw;
+        if (std::max(raw, centered) < measured.pointsCount * 0.9) {
+            error = "arc points outside requested sector; verify angular direction and coordinates"; return false;
+        }
+        const auto center = map({measured.x, measured.y}, useCentered);
+        double first = tau, last = 0;
+        for (auto p : points) {
+            p = map(p, useCentered);
+            if (!inside(p)) continue;
+            const double a = phase(std::atan2(p.y - center.y, p.x - center.x));
+            first = std::min(first, a); last = std::max(last, a);
+        }
+        if (last - first < 1e-4 || last - first > sweep + 0.1) {
+            error = "degenerate or inconsistent measured arc"; return false;
+        }
+        for (int i = 0; i <= 180; ++i) {
+            const double a = frame.startAngle + first + (last - first) * i / 180.0;
+            TMeasuredPoint2D p{center.x + measured.r * std::cos(a), center.y + measured.r * std::sin(a)};
+            if (!inside(p)) { error = "fitted arc outside requested sector"; return false; }
+            arc.path.push_back({p.x, p.y});
+        }
+        arc.measuredPointsCount = measured.pointsCount;
+        Trace(useCentered ? "arc coordinates: centered unit scale" : "arc coordinates: image pixels");
+        return true;
     }
 
     bool MeasureCircleByCircleRing(
@@ -1031,6 +1152,7 @@ private:
     InitImageFn m_initImage = nullptr;
     MeasureLineByRectFn m_measureLineByRect = nullptr;
     MeasureCircleFn m_measureCircle = nullptr;
+    MeasureArcFn m_measureArc = nullptr;
     GetMeasuredPointsFn m_getMeasuredPoints = nullptr;
     GetGrayValueFn m_getGrayValue = nullptr;
     SetScaleParaFn m_setScalePara = nullptr;
@@ -1046,6 +1168,15 @@ ZcEdgeAlgorithm::ZcEdgeAlgorithm(Options options)
 }
 
 ZcEdgeAlgorithm::~ZcEdgeAlgorithm() = default;
+
+bool ZcEdgeAlgorithm::MeasureArcByArcRing(const ZcGrayImage& image, const ZcArcRingFrame& frame,
+    ZcMeasuredArc& arc, std::string& error)
+{
+    try { return m_impl->MeasureArcByArcRing(image, frame, arc, error); }
+    catch (const std::exception& e) { error = e.what(); }
+    catch (...) { error = "unknown arc measurement exception"; }
+    Trace(error); return false;
+}
 
 bool ZcEdgeAlgorithm::MeasureCircleByCircleRing(const ZcGrayImage& image,
     const ZcCircleRingFrame& frame, ZcMeasuredCircle& circle, std::string& error)

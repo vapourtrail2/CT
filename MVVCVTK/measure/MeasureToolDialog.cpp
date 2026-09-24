@@ -73,6 +73,7 @@ void MeasureToolDialog::BuildUi()
     m_arcButton = new QPushButton(QStringLiteral("圆弧"), this);
     m_lineEdgeButton = new QPushButton(QStringLiteral("抓边"), this);
     m_circleEdgeButton = new QPushButton(QStringLiteral("抓圆"), this);
+    m_arcEdgeButton = new QPushButton(QStringLiteral("抓弧"), this);
     m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
     m_redoButton = new QPushButton(QStringLiteral("重做"), this);
 
@@ -106,6 +107,7 @@ void MeasureToolDialog::BuildUi()
     m_toolGroup->addButton(m_arcButton, static_cast<int>(MeasureTool::Arc3Point));
     m_toolGroup->addButton(m_lineEdgeButton, 100);
     m_toolGroup->addButton(m_circleEdgeButton, 101);
+    m_toolGroup->addButton(m_arcEdgeButton, 102);
 
     controls->addWidget(viewLabel);
     controls->addWidget(m_viewCombo);
@@ -118,6 +120,13 @@ void MeasureToolDialog::BuildUi()
     controls->addWidget(m_arcButton);
     controls->addWidget(m_lineEdgeButton);
     controls->addWidget(m_circleEdgeButton);
+    controls->addWidget(m_arcEdgeButton);
+    connect(m_arcEdgeButton, &QPushButton::clicked, this, [this]() {
+        if (!m_session || !m_viewport.IsReady()) { ClearCheckedTool(); return; }
+        m_session->CancelDraft();
+        m_viewport.SetEdgeCaptureShape(EdgeCaptureShape::Arc);
+        m_viewport.SetEdgeCaptureEnabled(true);
+    });
     root->addLayout(controls);
 
     connect(m_viewCombo, qOverload<int>(&QComboBox::currentIndexChanged), this,

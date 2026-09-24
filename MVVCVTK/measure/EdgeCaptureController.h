@@ -21,7 +21,8 @@ class MeasureViewAdapter;
 
 enum class EdgeCaptureShape {
     Line,
-    Circle
+    Circle,
+    Arc
 };
 
 class EdgeCaptureController final {
@@ -53,9 +54,12 @@ private:
         double innerRadius = 0.0;
         double outerRadius = 0.0;
         std::optional<ZcMeasuredCircle> result;
+        double startAngle = 0, endAngle = 1.5707963267948966;
+        std::optional<ZcMeasuredArc> arcResult;
     };
 
-    enum class CircleDragMode { None, Move, InnerRadius, OuterRadius };
+    enum class CircleDragMode { None, Move, InnerRadius, OuterRadius, StartAngle, EndAngle };
+    CircleState& CurrentCircleState();
     bool EnsureDefaultCircle();
     InteractionResult SendCircle(const InteractionEvent& event);
     void RefreshCircle();
@@ -116,6 +120,7 @@ private:
     CircleDragMode m_circleDragMode = CircleDragMode::None;
     CircleState m_circleDragStart;
     std::array<CircleState, 3> m_circleStates;
+    std::array<CircleState, 3> m_arcStates;
     bool m_consumingLeftButton = false;
     DragMode m_dragMode = DragMode::None;
     bool m_resizeUHigh = false;

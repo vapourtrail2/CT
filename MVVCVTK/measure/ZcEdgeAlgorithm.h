@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,6 +41,14 @@ struct ZcMeasuredCircle {
     int measuredPointsCount = 0;
 };
 
+struct ZcArcRingFrame : ZcCircleRingFrame {
+    double startAngle = 0, endAngle = 0; // radians in image coordinates
+};
+struct ZcMeasuredArc {
+    std::vector<std::array<double, 2>> path;
+    int measuredPointsCount = 0;
+};
+
 class ZcEdgeAlgorithm final {
 public:
     struct Options {
@@ -61,6 +70,8 @@ public:
     bool MeasureCircleByCircleRing(const ZcGrayImage& image,
         const ZcCircleRingFrame& frame, ZcMeasuredCircle& circle, std::string& error);
 
+    bool MeasureArcByArcRing(const ZcGrayImage& image, const ZcArcRingFrame& frame,
+        ZcMeasuredArc& arc, std::string& error);
 private:
     class Impl;
     std::unique_ptr<Impl> m_impl;

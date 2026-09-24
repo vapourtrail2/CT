@@ -31,6 +31,15 @@ struct ZcMeasuredLine {
     int measuredPointsCount = 0;
 };
 
+struct ZcCircleRingFrame {
+    double x = 0, y = 0, innerRadius = 0, outerRadius = 0;
+};
+
+struct ZcMeasuredCircle {
+    double x = 0, y = 0, radius = 0;
+    int measuredPointsCount = 0;
+};
+
 class ZcEdgeAlgorithm final {
 public:
     struct Options {
@@ -48,6 +57,9 @@ public:
         const ZcRectFrame& frame,
         ZcMeasuredLine& line,
         std::string& error);
+
+    bool MeasureCircleByCircleRing(const ZcGrayImage& image,
+        const ZcCircleRingFrame& frame, ZcMeasuredCircle& circle, std::string& error);
 
 private:
     class Impl;

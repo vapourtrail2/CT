@@ -33,6 +33,7 @@ private:
     void SetView(MeasureView view);
     void BeginTool(MeasureTool tool);
     void BeginEdgeCapture();
+    void BeginCircleCapture();
     void UndoMeasurement();
     void RedoMeasurement();
     void UpdateHistoryButtons();
@@ -48,7 +49,8 @@ private:
     QPushButton* m_lineButton = nullptr;
     QPushButton* m_circleButton = nullptr;
     QPushButton* m_arcButton = nullptr;
-    QPushButton* m_edgeButton = nullptr;
+    QPushButton* m_lineEdgeButton = nullptr;
+    QPushButton* m_circleEdgeButton = nullptr;
     QPushButton* m_undoButton = nullptr;
     QPushButton* m_redoButton = nullptr;
     MeasureView m_currentView = MeasureView::Axial;

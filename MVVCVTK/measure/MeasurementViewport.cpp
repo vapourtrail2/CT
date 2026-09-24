@@ -165,6 +165,11 @@ void MeasurementViewport::SetEdgeCaptureEnabled(bool isEnabled)
     }
 }
 
+void MeasurementViewport::SetEdgeCaptureShape(EdgeCaptureShape shape)
+{
+     m_edgeCapture->SetShape(shape);
+}
+
 bool MeasurementViewport::IsEdgeCaptureEnabled() const
 {
     return m_edgeCapture && m_edgeCapture->IsEnabled();

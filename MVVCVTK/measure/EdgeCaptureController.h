@@ -19,6 +19,11 @@ namespace measure {
 
 class MeasureViewAdapter;
 
+enum class EdgeCaptureShape {
+    Line,
+    Circle
+};
+
 class EdgeCaptureController final {
 public:
     using StatusCallback = std::function<void(const std::string&)>;
@@ -33,11 +38,29 @@ public:
 
     void SetEnabled(bool enabled);
     bool IsEnabled() const;
+    void SetShape(EdgeCaptureShape shape);
     void SetView(MeasureView view);
     void SetStatusCallback(StatusCallback callback);
     void Refresh();
 
 private:
+    // 圆环以图像索引为单位；每个视图独立保存，切换工具不覆盖直线框。
+    struct CircleState {
+        bool initialized = false;
+        int fixedIndex = 0;
+        double centerU = 0.0;
+        double centerV = 0.0;
+        double innerRadius = 0.0;
+        double outerRadius = 0.0;
+        std::optional<ZcMeasuredCircle> result;
+    };
+
+    enum class CircleDragMode { None, Move, InnerRadius, OuterRadius };
+    bool EnsureDefaultCircle();
+    InteractionResult SendCircle(const InteractionEvent& event);
+    void RefreshCircle();
+    bool RunCircleMeasurement();
+
     struct ViewState { // 记录这张二维切片上的抓边框(矩形)
         bool initialized = false;
         int fixedIndex = 0;
@@ -89,6 +112,10 @@ private:
     vtkRenderer* m_renderer = nullptr;
     MeasureView m_view = MeasureView::Axial;
     bool m_enabled = false;
+    EdgeCaptureShape m_shape = EdgeCaptureShape::Line;
+    CircleDragMode m_circleDragMode = CircleDragMode::None;
+    CircleState m_circleDragStart;
+    std::array<CircleState, 3> m_circleStates;
     bool m_consumingLeftButton = false;
     DragMode m_dragMode = DragMode::None;
     bool m_resizeUHigh = false;

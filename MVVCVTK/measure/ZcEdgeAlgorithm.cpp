@@ -10,6 +10,7 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <cstddef>
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -60,7 +61,6 @@ struct TMeasureAlgorithmPara {
     std::int32_t pinkSkipPercent = 0;
     std::int32_t edgeLineType = 0;
     std::int32_t aiIndex = 0;
-    // C# bool 字段默认按 4 字节 BOOL 传递。
     std::int32_t fastMeasure = 1;
     std::int32_t filtering = 1;
 };
@@ -92,7 +92,27 @@ struct TMeasureLine {
     double y2 = 0.0;
     double z2 = 0.0;
 };
+struct TAlgorithmCircleRingFramePara {
+    double x, y, r1, r2;
+};
+struct TImageCircle {
+    double x = 0, y = 0, r = 0;
+};
+struct TMeasuredCircle {
+    double x = 0, y = 0, z = 0;
+    double r = 0, minR = 0, maxR = 0, d = 0, circumference = 0;
+    double pTolerance = 0, nTolerance = 0, circularity = 0, positional = 0;
+    std::int32_t pointsCount = 0;
+    TMeasuredPoint2D* points = nullptr;
+    double standartDistance = 0;
+};
 #pragma pack(pop)
+
+static_assert(sizeof(TAlgorithmCircleRingFramePara) == 32, "Circle ring ABI");
+static_assert(sizeof(TImageCircle) == 24, "Image circle ABI");
+static_assert(sizeof(TMeasuredCircle) == 120, "Measured circle x64 ABI");
+static_assert(offsetof(TMeasuredCircle, points) == 104, "Circle points offset");
+static_assert(offsetof(TMeasuredCircle, standartDistance) == 112, "Circle distance offset");
 
 static_assert(sizeof(TEncryptionData) == 8, "Unexpected TEncryptionData ABI");
 static_assert(sizeof(TPoint) == 24, "Unexpected TPoint ABI");
@@ -112,6 +132,14 @@ using MeasureLineByRectFn = int(__cdecl*)(
     TAlgorithmRectFramePara*,
     TMeasureLine*);
 using GetMeasuredPointsFn = int(__cdecl*)(void*);
+using MeasureCircleFn = int(__cdecl*)(
+    void*,                           // 图像指针
+    TPoint*,                         // 相机位置
+    TMeasureAlgorithmPara*,          // 算法参数
+    TAlgorithmCircleRingFramePara*,  // 圆环框参数
+    TImageCircle*,                    // 图像坐标下的圆结果
+    TMeasuredCircle*                  // 测量坐标下的圆结果
+    );
 using GetGrayValueFn = int(__cdecl*)(void*, int, int, int*);
 using SetScaleParaFn = int(__cdecl*)(int, TScalePara*);
 
@@ -348,6 +376,19 @@ int ProtectedMeasureLineByRect(
     }
 }
 
+int ProtectedMeasureCircle(MeasureCircleFn function, void* image, TPoint* camera,
+    TMeasureAlgorithmPara* algorithm, TAlgorithmCircleRingFramePara* frame,
+    TImageCircle* imageCircle, TMeasuredCircle* machineCircle, DWORD& exceptionCode) noexcept
+{
+    exceptionCode = 0;
+    __try {
+        return function(image, camera, algorithm, frame, imageCircle, machineCircle);
+    }
+    __except ((exceptionCode = GetExceptionCode()), EXCEPTION_EXECUTE_HANDLER) {
+        return kStructuredExceptionResult;
+    }
+}
+
 int ProtectedGetMeasuredPoints(
     GetMeasuredPointsFn function,
     void* measuredPoints,
@@ -476,6 +517,101 @@ public:
         if (m_module) {
             FreeLibrary(m_module);
         }
+    }
+
+    bool MeasureCircleByCircleRing(
+        const ZcGrayImage& image,
+        const ZcCircleRingFrame& frame,
+        ZcMeasuredCircle& circle,
+        std::string& error)
+    {
+        error.clear();
+        circle = {};
+
+        // 1. 检查输入图像
+        if (image.width <= 0 || image.height <= 0
+            || image.widthStep < image.width
+            || image.pixels.size()
+            < static_cast<std::size_t>(image.widthStep) * image.height) {
+            error = "invalid circle input image";
+            return false;
+        }
+
+        // 2. 检查圆环参数及图像边界
+        if (!std::isfinite(frame.x)
+            || !std::isfinite(frame.y)
+            || !std::isfinite(frame.innerRadius)
+            || !std::isfinite(frame.outerRadius)
+            || frame.innerRadius <= 0
+            || frame.outerRadius <= frame.innerRadius
+            || frame.x - frame.outerRadius < 0
+            || frame.y - frame.outerRadius < 0
+            || frame.x + frame.outerRadius > image.width - 1
+            || frame.y + frame.outerRadius > image.height - 1) {
+            error = "invalid circle ring bounds";
+            return false;
+        }
+
+        // 3. 初始化并获取 DLL 函数
+        if (!EnsureReady(image.width, image.height, error)) {
+            return false;
+        }
+
+        if (!m_measureCircle
+            && !Resolve("ZC_MeasureCircleByCircleRing", m_measureCircle, error)) {
+            return false;
+        }
+
+        // 4. 准备 DLL 输入和输出
+        IplImage header = MakeImageHeader(image);
+        TPoint camera{};
+        TMeasureAlgorithmPara algorithm{};
+        TAlgorithmCircleRingFramePara ring{
+            frame.x, frame.y, frame.innerRadius, frame.outerRadius
+        };
+        TImageCircle imageCircle{};
+        TMeasuredCircle machineCircle{};
+
+        // 5. 调用 DLL
+        const int result = m_measureCircle(
+            &header, &camera, &algorithm,
+            &ring, &imageCircle, &machineCircle);
+
+        if (result != 0) {
+            error = "ZC_MeasureCircleByCircleRing returned "
+                + std::to_string(result);
+            return false;
+        }
+
+        // 6. 检查返回圆是否有效
+        if (!std::isfinite(imageCircle.x)
+            || !std::isfinite(imageCircle.y)
+            || !std::isfinite(imageCircle.r)
+            || imageCircle.r <= 0) {
+            error = "invalid DLL image circle";
+            return false;
+        }
+
+        // 保留原来的范围检查：圆周应位于圆环内，允许 2 像素
+        const double offset = std::hypot(
+            imageCircle.x - ring.x,
+            imageCircle.y - ring.y);
+
+        constexpr double tolerance = 2.0;
+        if (imageCircle.r - offset < ring.r1 - tolerance
+            || imageCircle.r + offset > ring.r2 + tolerance) {
+            error = "DLL image circle is outside the pixel ring";
+            return false;
+        }
+
+        // 7. 输出图像坐标下的圆
+        circle = {
+            imageCircle.x,
+            imageCircle.y,
+            imageCircle.r,
+            machineCircle.pointsCount
+        };
+        return true;
     }
 
     bool MeasureLineByRect(
@@ -894,6 +1030,7 @@ private:
     InitFn m_init = nullptr;
     InitImageFn m_initImage = nullptr;
     MeasureLineByRectFn m_measureLineByRect = nullptr;
+    MeasureCircleFn m_measureCircle = nullptr;
     GetMeasuredPointsFn m_getMeasuredPoints = nullptr;
     GetGrayValueFn m_getGrayValue = nullptr;
     SetScaleParaFn m_setScalePara = nullptr;
@@ -909,6 +1046,20 @@ ZcEdgeAlgorithm::ZcEdgeAlgorithm(Options options)
 }
 
 ZcEdgeAlgorithm::~ZcEdgeAlgorithm() = default;
+
+bool ZcEdgeAlgorithm::MeasureCircleByCircleRing(const ZcGrayImage& image,
+    const ZcCircleRingFrame& frame, ZcMeasuredCircle& circle, std::string& error)
+{
+    try {
+        return m_impl->MeasureCircleByCircleRing(image, frame, circle, error);
+    }
+    catch (const std::exception& exception) {
+        error = std::string("C++ exception: ") + exception.what();
+    }
+    catch (...) { error = "unknown C++ exception in circle measurement"; }
+    Trace(error);
+    return false;
+}
 
 bool ZcEdgeAlgorithm::MeasureLineByRect(
     const ZcGrayImage& image,

@@ -76,6 +76,10 @@ InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
         return {};
     }
 
+    if (m_shape == EdgeCaptureShape::Circle) {
+        return SendCircle(event);
+    }
+
     if (event.eventKind == InteractionEventKind::PrimaryPress) {
         m_consumingLeftButton = true;
         m_dragMode = DragMode::None;
@@ -206,7 +210,13 @@ void EdgeCaptureController::SetEnabled(bool enabled)
     m_enabled = enabled;
     m_consumingLeftButton = false;
     m_dragMode = DragMode::None;
-    if (EnsureDefaultRoi()) {
+    m_circleDragMode = CircleDragMode::None;
+    if (enabled && m_shape == EdgeCaptureShape::Circle) {
+        if (EnsureDefaultCircle()) {
+            Report("拖动圆心移动圆环，拖动内外圆控制点调整半径，松开鼠标抓圆。");
+        }
+    }
+    else if (enabled && EnsureDefaultRoi()) {
         Report("拖动矩形或四角控制点，松开鼠标后执行抓边。");
     }
     Refresh();
@@ -217,13 +227,33 @@ bool EdgeCaptureController::IsEnabled() const
     return m_enabled;
 }
 
+void EdgeCaptureController::SetShape(EdgeCaptureShape shape)
+{
+    if (m_shape == shape) {
+        return;
+    }
+    m_shape = shape;
+    m_consumingLeftButton = false;
+    m_dragMode = DragMode::None;
+    m_circleDragMode = CircleDragMode::None;
+    if (m_enabled) {
+        SetEnabled(true);
+    }
+}
+
 void EdgeCaptureController::SetView(MeasureView view)
 {
     m_view = view;
     m_consumingLeftButton = false;
     m_dragMode = DragMode::None;
+    m_circleDragMode = CircleDragMode::None;
     if (m_enabled) {
-        EnsureDefaultRoi();
+        if (m_shape == EdgeCaptureShape::Circle) {
+            EnsureDefaultCircle();
+        }
+        else {
+            EnsureDefaultRoi();
+        }
     }
     Refresh();
 }
@@ -236,6 +266,15 @@ void EdgeCaptureController::SetStatusCallback(StatusCallback callback)
 void EdgeCaptureController::Refresh()//根据数据画矩形
 {
     RemoveProps();
+    if (!m_enabled) {
+        RequestRender();
+        return;
+    }
+    if (m_shape == EdgeCaptureShape::Circle) {
+        RefreshCircle();
+        RequestRender();
+        return;
+    }
     const auto& state = CurrentState();
     if (!state.initialized || !m_renderer || !m_adapter) {
         RequestRender();
@@ -521,6 +560,215 @@ bool EdgeCaptureController::RunMeasurement()
 
     state.result = line;
     Report("抓边成功，共获得 " + std::to_string(line.measuredPointsCount) + " 个测量点。");
+    Refresh();
+    return true;
+}
+
+bool EdgeCaptureController::EnsureDefaultCircle()
+{
+    auto& circle = m_circleStates[ViewIndex(m_view)];
+    if (circle.initialized) {
+        return true;
+    }
+    ImageGeometry geometry;
+    if (!GetImageGeometry(geometry)
+        || std::min(geometry.width, geometry.height) < 13) {
+        Report("无法建立抓圆框：当前切片不可用或尺寸过小。");
+        return false;
+    }
+    const double uMin = geometry.extent[2 * geometry.uAxis];
+    const double uMax = geometry.extent[2 * geometry.uAxis + 1];
+    const double vMin = geometry.extent[2 * geometry.vAxis];
+    const double vMax = geometry.extent[2 * geometry.vAxis + 1];
+    circle.fixedIndex = geometry.fixedIndex;
+    circle.centerU = (uMin + uMax) * 0.5;
+    circle.centerV = (vMin + vMax) * 0.5;
+    circle.outerRadius = std::max(6.0, std::min(uMax - uMin, vMax - vMin) * 0.22);
+    circle.innerRadius = std::max(1.0,
+        std::min(circle.outerRadius * 0.75, circle.outerRadius - 4.0));
+    circle.initialized = true;
+    return true;
+}
+
+InteractionResult EdgeCaptureController::SendCircle(const InteractionEvent& event)
+{
+    if (event.eventKind == InteractionEventKind::PrimaryRelease
+        && m_consumingLeftButton) {
+        const bool shouldMeasure = m_circleDragMode != CircleDragMode::None;
+        m_consumingLeftButton = false;
+        m_circleDragMode = CircleDragMode::None;
+        if (shouldMeasure) {
+            RunCircleMeasurement();
+        }
+        return { true, true };
+    }
+
+    const bool press = event.eventKind == InteractionEventKind::PrimaryPress;
+    const bool drag = event.eventKind == InteractionEventKind::PointerMove
+        && m_consumingLeftButton;
+    if (!press && !drag) {
+        return {};
+    }
+    if (press) {
+        m_consumingLeftButton = true;
+        m_circleDragMode = CircleDragMode::None;
+    }
+    if (!EnsureDefaultCircle()) {
+        return { true, true };
+    }
+    const auto index = DisplayToContinuousIndex(event.x, event.y);
+    ImageGeometry geometry;
+    if (!index || !GetImageGeometry(geometry)) {
+        return { true, true };
+    }
+    const double u = (*index)[geometry.uAxis];
+    const double v = (*index)[geometry.vAxis];
+    auto& circle = m_circleStates[ViewIndex(m_view)];
+
+    if (press) {
+        // 在屏幕坐标内命中控制点；缩放视图后仍保持相同的拾取距离。
+        double nearestSquared = 14.0 * 14.0;
+        const auto hit = [&](double handleU, double handleV, CircleDragMode mode) {
+            const auto display = IndexToDisplay(handleU, handleV, circle.fixedIndex);
+            const double dx = display[0] - event.x;
+            const double dy = display[1] - event.y;
+            const double distanceSquared = dx * dx + dy * dy;
+            if (distanceSquared <= nearestSquared) {
+                nearestSquared = distanceSquared;
+                m_circleDragMode = mode;
+            }
+        };
+        hit(circle.centerU, circle.centerV, CircleDragMode::Move);
+        for (int axis = 0; axis < 4; ++axis) {
+            const double du = axis == 0 ? 1.0 : axis == 2 ? -1.0 : 0.0;
+            const double dv = axis == 1 ? 1.0 : axis == 3 ? -1.0 : 0.0;
+            hit(circle.centerU + du * circle.innerRadius,
+                circle.centerV + dv * circle.innerRadius, CircleDragMode::InnerRadius);
+            hit(circle.centerU + du * circle.outerRadius,
+                circle.centerV + dv * circle.outerRadius, CircleDragMode::OuterRadius);
+        }
+        if (m_circleDragMode == CircleDragMode::None
+            && std::hypot(u - circle.centerU, v - circle.centerV) <= circle.outerRadius) {
+            m_circleDragMode = CircleDragMode::Move;
+        }
+        m_pressU = u;
+        m_pressV = v;
+        m_circleDragStart = circle;
+        return { true, true };
+    }
+
+    if (m_circleDragMode == CircleDragMode::None) {
+        return { true, true };
+    }
+    const double uMin = geometry.extent[2 * geometry.uAxis];
+    const double uMax = geometry.extent[2 * geometry.uAxis + 1];
+    const double vMin = geometry.extent[2 * geometry.vAxis];
+    const double vMax = geometry.extent[2 * geometry.vAxis + 1];
+    if (m_circleDragMode == CircleDragMode::Move) {
+        circle.result.reset();
+        circle.centerU = Clamp(m_circleDragStart.centerU + u - m_pressU,
+            uMin + circle.outerRadius, uMax - circle.outerRadius);
+        circle.centerV = Clamp(m_circleDragStart.centerV + v - m_pressV,
+            vMin + circle.outerRadius, vMax - circle.outerRadius);
+    }
+    else {
+        const double delta = std::hypot(u - circle.centerU, v - circle.centerV)
+            - std::hypot(m_pressU - circle.centerU, m_pressV - circle.centerV);
+        circle.result.reset();
+        if (m_circleDragMode == CircleDragMode::InnerRadius) {
+            circle.innerRadius = Clamp(m_circleDragStart.innerRadius + delta,
+                1.0, circle.outerRadius - 4.0);
+        }
+        else {
+            const double maximum = std::min({ circle.centerU - uMin, uMax - circle.centerU,
+                circle.centerV - vMin, vMax - circle.centerV });
+            circle.outerRadius = Clamp(m_circleDragStart.outerRadius + delta,
+                circle.innerRadius + 4.0, maximum);
+        }
+    }
+    Refresh();
+    return { true, true };
+}
+
+void EdgeCaptureController::RefreshCircle()
+{
+    const auto& circle = m_circleStates[ViewIndex(m_view)];
+    if (!circle.initialized || !m_renderer || !m_adapter) {
+        return;
+    }
+    const auto worldPoint = [&](double u, double v) {
+        return PhysicalToWorld(IndexToPhysical(u, v, circle.fixedIndex));
+    };
+    std::vector<Point3> handles{ worldPoint(circle.centerU, circle.centerV) };
+    constexpr int segments = 180;
+    constexpr double twoPi = 6.28318530717958647692;
+    for (const double radius : { circle.innerRadius, circle.outerRadius }) {
+        std::vector<Point3> path;
+        path.reserve(segments + 1);
+        for (int i = 0; i < segments; ++i) {
+            const double angle = twoPi * i / segments;
+            path.push_back(worldPoint(circle.centerU + radius * std::cos(angle),
+                circle.centerV + radius * std::sin(angle)));
+        }
+        path.push_back(path.front());
+        AddPath(path, 1.0, 0.75, 0.05, 2.0);
+        handles.push_back(worldPoint(circle.centerU + radius, circle.centerV));
+        handles.push_back(worldPoint(circle.centerU - radius, circle.centerV));
+        handles.push_back(worldPoint(circle.centerU, circle.centerV + radius));
+        handles.push_back(worldPoint(circle.centerU, circle.centerV - radius));
+    }
+    if (circle.result) {
+        ImageGeometry geometry;
+        if (GetImageGeometry(geometry)) {
+            const auto& result = *circle.result;
+            const double centerU = geometry.extent[2 * geometry.uAxis] + result.x;
+            const double centerV = geometry.extent[2 * geometry.vAxis + 1] - result.y;
+            std::vector<Point3> path;
+            path.reserve(segments + 1);
+            for (int i = 0; i < segments; ++i) {
+                const double angle = twoPi * i / segments;
+                path.push_back(worldPoint(centerU + result.radius * std::cos(angle),
+                    centerV + result.radius * std::sin(angle)));
+            }
+            path.push_back(path.front());
+            AddPath(path, 0.1, 1.0, 0.2, 2.5);
+        }
+    }
+    AddHandles(handles);
+}
+
+bool EdgeCaptureController::RunCircleMeasurement()
+{
+    auto& state = m_circleStates[ViewIndex(m_view)];
+    state.result.reset();
+    ImageGeometry geometry;
+    if (!state.initialized || !GetImageGeometry(geometry)) {
+        Report("抓圆失败：当前切片不可用。");
+        Refresh();
+        return false;
+    }
+    geometry.fixedIndex = state.fixedIndex;
+    ZcGrayImage gray;
+    if (!BuildGraySlice(geometry, gray)) {
+        Report("抓圆失败：无法生成灰度切片。");
+        Refresh();
+        return false;
+    }
+    // VTK 向上的 V 转成 DLL 向下的图像行号；半径仍为像素。
+    const ZcCircleRingFrame frame{
+        state.centerU - geometry.extent[2 * geometry.uAxis],
+        geometry.extent[2 * geometry.vAxis + 1] - state.centerV,
+        state.innerRadius, state.outerRadius};
+    ZcMeasuredCircle result;
+    std::string error;
+    if (!m_algorithm.MeasureCircleByCircleRing(gray, frame, result, error)) {
+        Report("抓圆失败：" + error);
+        Refresh();
+        return false;
+    }
+    state.result = result;
+    Report("抓圆成功：半径 " + std::to_string(result.radius) + " 像素，测量点 "
+        + std::to_string(result.measuredPointsCount) + " 个。");
     Refresh();
     return true;
 }

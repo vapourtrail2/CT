@@ -15,6 +15,7 @@ class QVTKOpenGLNativeWidget;
 namespace measure {
 
 class EdgeCaptureController;
+enum class EdgeCaptureShape;
 class MeasurementInteractionHandler;
 class MeasurementOverlayStrategy;
 class MeasurementSession;
@@ -42,6 +43,7 @@ public:
     bool IsReady() const;
 
     void SetEdgeCaptureEnabled(bool isEnabled);
+    void SetEdgeCaptureShape(EdgeCaptureShape shape);
     bool IsEdgeCaptureEnabled() const;
     void SetEdgeStatusCallback(
         std::function<void(const std::string&)> callback);

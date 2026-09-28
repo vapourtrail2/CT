@@ -746,7 +746,7 @@ void EdgeCaptureController::RefreshCircle()
                 std::vector<Point3> path;
                 for (const auto& p : circle.arcResult->path)
                     path.push_back(worldPoint(g.extent[2*g.uAxis]+p[0], g.extent[2*g.vAxis+1]-p[1]));
-                AddPath(path, 0.1, 1, 0.2, 2.5);
+                AddHandles(path, 0.1, 1, 0.2, 2.5);
             }
         }
         AddHandles(handles);
@@ -874,7 +874,12 @@ void EdgeCaptureController::AddPath(
     m_props.push_back(actor);
 }
 
-void EdgeCaptureController::AddHandles(const std::vector<Point3>& worldPoints)
+void EdgeCaptureController::AddHandles(
+    const std::vector<Point3>& worldPoints,
+    double red ,
+    double green ,
+    double blue ,
+    double pointSize)
 {
     if (!m_renderer || worldPoints.empty()) {
         return;
@@ -894,9 +899,9 @@ void EdgeCaptureController::AddHandles(const std::vector<Point3>& worldPoints)
     actor->SetMapper(mapper);
     actor->PickableOff();
     actor->GetProperty()->LightingOff();
-    actor->GetProperty()->SetPointSize(10.0);
+    actor->GetProperty()->SetPointSize(pointSize);
     actor->GetProperty()->RenderPointsAsSpheresOn();
-    actor->GetProperty()->SetColor(1.0, 0.75, 0.05);
+    actor->GetProperty()->SetColor(red,green,blue);
     m_renderer->AddActor(actor);
     m_props.push_back(actor);
 }

@@ -618,25 +618,22 @@ public:
         if (std::max(raw, centered) < measured.pointsCount * 0.9) {
             error = "arc points outside requested sector; verify angular direction and coordinates"; return false;
         }
-        const auto center = map({measured.x, measured.y}, useCentered);
-        double first = tau, last = 0;
-        for (auto p : points) {
-            p = map(p, useCentered);
-            if (!inside(p)) continue;
-            const double a = phase(std::atan2(p.y - center.y, p.x - center.x));
-            first = std::min(first, a); last = std::max(last, a);
+        // 直接使用 DLL 返回的测量点，不再计算角度和生成拟合曲线
+        arc.path.reserve(points.size());
+
+        for (const auto& point : points) {
+            const auto p = map(point, useCentered);
+
+            if (!std::isfinite(p.x) || !std::isfinite(p.y)) {
+                arc.path.clear();
+                error = "invalid measured arc point";
+                return false;
+            }
+
+            arc.path.push_back({ p.x, p.y });
         }
-        if (last - first < 1e-4 || last - first > sweep + 0.1) {
-            error = "degenerate or inconsistent measured arc"; return false;
-        }
-        for (int i = 0; i <= 180; ++i) {
-            const double a = frame.startAngle + first + (last - first) * i / 180.0;
-            TMeasuredPoint2D p{center.x + measured.r * std::cos(a), center.y + measured.r * std::sin(a)};
-            if (!inside(p)) { error = "fitted arc outside requested sector"; return false; }
-            arc.path.push_back({p.x, p.y});
-        }
-        arc.measuredPointsCount = measured.pointsCount;
-        Trace(useCentered ? "arc coordinates: centered unit scale" : "arc coordinates: image pixels");
+
+        arc.measuredPointsCount = static_cast<int>(arc.path.size());
         return true;
     }
 

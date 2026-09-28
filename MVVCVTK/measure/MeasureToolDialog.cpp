@@ -77,25 +77,15 @@ void MeasureToolDialog::BuildUi()
     m_undoButton = new QPushButton(QStringLiteral("撤销"), this);
     m_redoButton = new QPushButton(QStringLiteral("重做"), this);
 
-    for (auto button : {
-        m_lineButton,
-        m_circleButton,
-        m_arcButton,
-        m_lineEdgeButton,
-        m_circleEdgeButton,
-        m_undoButton,
-        m_redoButton }) 
-    {
-		button->setAutoDefault(false);//取消默认按钮 避免失去焦点后蓝框恢复到第一个按钮
-    }
-
-    for (auto* button : { m_lineButton, m_circleButton, m_arcButton, m_lineEdgeButton, m_circleEdgeButton }) {
+    for (auto* button : { m_lineButton, m_circleButton, m_arcButton, m_lineEdgeButton, m_circleEdgeButton,m_arcEdgeButton }) {
         button->setCheckable(true);
         button->setMinimumSize(72, 32); 
+        button->setAutoDefault(false);
     }
     for (auto* button : { m_undoButton, m_redoButton }) {
         button->setMinimumSize(72, 32);
         button->setEnabled(false);
+        button->setAutoDefault(false);
     }
     m_undoButton->setToolTip(QStringLiteral("撤销最后一次测量或最后一个取点"));
     m_redoButton->setToolTip(QStringLiteral("重做最后一次撤销的测量"));

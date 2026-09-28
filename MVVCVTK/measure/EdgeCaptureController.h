@@ -107,7 +107,12 @@ private:
         double green,
         double blue,
         double width);
-    void AddHandles(const std::vector<Point3>& worldPoints);
+    void AddHandles(
+        const std::vector<Point3>& worldPoints,
+        double red = 1.0,
+        double green = 0.75,
+        double blue = 0.05,
+        double pointSize = 10.0);
     void RemoveProps();
     void RequestRender();
     void Report(const std::string& message) const;

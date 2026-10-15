@@ -15,7 +15,6 @@ class SceneTreePanel : public QWidget
 
 public:
     explicit SceneTreePanel(QWidget* parent = nullptr);
-
     void setDataState(
         bool hasData,
         const QString& sourcePath);
@@ -43,8 +42,7 @@ private:
     QPushButton* applyButton_ = nullptr;
     QPushButton* restoreButton_ = nullptr;
     QPushButton* exitButton_ = nullptr;
-
-    bool hasData_ = false;
     QString sourcePath_;
     CropTreeState cropTreeState_;
+    bool hasData_ = false;
 };

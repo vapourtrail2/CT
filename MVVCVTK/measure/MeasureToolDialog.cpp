@@ -51,7 +51,7 @@ void MeasureToolDialog::BuildUi()
     root->setSpacing(8);
 
     m_vtkWidget = new QVTKOpenGLNativeWidget(this);
-    m_vtkWidget->setMinimumSize(760, 560);
+    m_vtkWidget->setMinimumSize(760, 560);  
     m_vtkWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     root->addWidget(m_vtkWidget, 1);
 

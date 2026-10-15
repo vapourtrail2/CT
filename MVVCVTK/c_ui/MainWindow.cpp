@@ -342,7 +342,7 @@ void CTViewer::showMeasureToolsDialog()
     std::optional<measure::MeasureHostData> hostData;
     std::optional<HostRenderViewState> sourceState;
     for (int attempt = 0; attempt < 2; ++attempt) {
-        hostData = sessionManager.GetMeasureHostData(sourceTarget);
+        hostData = sessionManager.getMeasureHostData(sourceTarget);
         sourceState = sessionManager.getRenderViewState(sourceTarget);
         if (hostData
             && hostData->image
@@ -459,7 +459,6 @@ void CTViewer::connectAppSignals()
                 target.viewRole = SliceRoles[i];
                 const auto state = sessionManager.getRenderViewState(target);
                 cropWindowLevels_[i] =state->windowLevel;
-              
             }
             if (!context_.getSessionManager().applyCrop()) {
                 cropWindowLevels_ = {};
@@ -608,7 +607,7 @@ void CTViewer::onOpenRequested(const QString& path, const std::array<int, 3>& di
     fileHasData_ = true;
 
     QString err;
-    const bool ok =context_.getSessionManager().openFile(path,dims,spacing,origin, &err);
+    const bool ok =context_.getSessionManager().openData(path,dims,spacing,origin, &err);
 
     if (!ok) {
        

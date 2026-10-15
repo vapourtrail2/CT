@@ -269,7 +269,7 @@ bool SessionManager::resetGapFeature(QString* errorOut)
     return true;
 }
 
-bool SessionManager::openFile(const QString& path,
+bool SessionManager::openData(const QString& path,
 	const std::array<int, 3>& dims,
     const std::array<float, 3>& spacing,
     const std::array<float, 3>& origin,
@@ -712,9 +712,9 @@ void SessionManager::syncCropHistory()
     }
 
     if (history.hasEditableOp && history.nodeCount > 0) {
-        const std::size_t absoluteNode =
-            history.baseNodeCount + history.nodeCount;
-        if (absoluteNode <= cropRecords_.size()) {
+        const std::size_t absoluteNode =  history.baseNodeCount + history.nodeCount;
+        if (absoluteNode <= cropRecords_.size()) 
+        {
             auto& record = cropRecords_[absoluteNode - 1];
             const CropRemovalMode mode =
                 history.editMode == CropRemovalMode::None
@@ -735,7 +735,7 @@ void SessionManager::syncCropHistory()
 }
 
 std::optional<measure::MeasureHostData>
-SessionManager::GetMeasureHostData(const HostViewTarget& sourceView)
+SessionManager::getMeasureHostData(const HostViewTarget& sourceView)
 {
     if (!hostSession_ || state_ != State::Ready) {
         return std::nullopt;

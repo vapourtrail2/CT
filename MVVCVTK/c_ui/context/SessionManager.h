@@ -63,22 +63,17 @@ public:
     QString getSourcePath() const noexcept {
         return sourcePath_;
     }
-
-    std::optional<measure::MeasureHostData> GetMeasureHostData(
+    std::optional<measure::MeasureHostData> getMeasureHostData(
         const HostViewTarget& sourceView);
-
     std::optional<HostRenderViewState> getRenderViewState(
         const HostViewTarget& target);
-
     bool initHost(HostSessionConfig config, QString* err = nullptr);
-
-    bool openFile(const QString& path,
+    bool openData(const QString& path,
         const std::array<int,3>& dims,
         const std::array<float, 3>& spacing,
         const std::array<float,3>& origin,
         QString* errorOut = nullptr
         );
-
     bool openReconstructedData(
         std::vector<float>&& voxels,
         const std::array<int, 3>& dims,
@@ -86,7 +81,6 @@ public:
         const std::array<float, 3>& origin,
         const QString& sourcePath,
         QString* errorOut = nullptr);
-
     bool sendRequest(
         HostRequest&& request,
         HostCompleteCallback onComplete = nullptr);
@@ -100,6 +94,7 @@ public:
     bool restoreOriginalCrop();
     bool exitCrop();
     CropTreeState getCropTreeState() const;
+
     bool startGap(
         GapHostStartParams params,
         GapHostCallback onComplete = nullptr,
@@ -152,19 +147,16 @@ private:
     std::uint64_t requestGeneration_ = 0;
     QString sourcePath_;
     QString pendingSourcePath_;
-
     enum class CropRecordShape
     {
         Box,
         Plane
     };
-
     struct CropRecord final
     {
         CropRecordShape shape = CropRecordShape::Box;
         CropRemovalMode removalMode = CropRemovalMode::KeepInside;
     };
-
     std::vector<CropRecord> cropRecords_;
     CropRecordShape pendingCropShape_ = CropRecordShape::Box;
     CropRemovalMode pendingCropMode_ = CropRemovalMode::KeepInside;

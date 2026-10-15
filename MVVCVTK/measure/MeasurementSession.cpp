@@ -42,17 +42,6 @@ bool MeasurementSession::AppendPoint(
     std::vector<Point3> candidate = m_draft->physicalPoints;
 
     candidate.push_back(physicalPoint);//放在候选者里 ，而不是立即写回草稿 是因为最后一个点加入后还要验证结果是否有效
-
-    /*if (static_cast<int>(candidate.size()) >= 2) {
-
-        for (size_t i = 0; i < candidate.size(); ++i)
-        {
-            Point3& point = candidate[i];
-
-            std::cout << point[0] << "," << point[1] << "," << point[2] << std::endl;
-        }
-        std::cout << "----" << std::endl;
-    }*/
     const auto& definition = GetMeasurementToolDefinition(m_draft->request.tool);//返回线工具的配置
 	const int required = definition.requiredPointCount;//需要的点数 线是2点
     if (static_cast<int>(candidate.size()) < required) {

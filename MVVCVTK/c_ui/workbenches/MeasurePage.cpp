@@ -89,7 +89,7 @@ QWidget* MeasurePage::buildRibbon06(QWidget* parent)
 
         { QStringLiteral("设置"), 1 },
         { QStringLiteral("指示器"), 0 },
-        { QStringLiteral("量具"), 2 },
+        { QStringLiteral("测量"), 2 },
         { QStringLiteral("捕捉模式"), 3 },
         { QStringLiteral("重新捕捉量具控点"), 0 },
         { QStringLiteral("测量模板"), 4 },

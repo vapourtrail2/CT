@@ -35,7 +35,6 @@ struct TPoint {
     double z = 0.0;
 };
 
-// ZC_GetMeasuredPoints 当前 C# 调用按 16 字节步长读取 Point.X/Y。
 struct TMeasuredPoint2D {
     double x = 0.0;
     double y = 0.0;
@@ -559,14 +558,16 @@ public:
             || frame.x - frame.outerRadius < 0 || frame.y - frame.outerRadius < 0
             || frame.x + frame.outerRadius > image.width - 1
             || frame.y + frame.outerRadius > image.height - 1) {
-            error = "invalid arc image or ring"; return false;
+            error = "invalid arc image or ring";
+            return false;
         }
-        if (!EnsureReady(image.width, image.height, error)) return false;
-        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error)) return false;
+        if (!EnsureReady(image.width, image.height, error))
+            return false;
+        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error)) 
+            return false;
         IplImage header = MakeImageHeader(image);
         TPoint camera{};
         TMeasureAlgorithmPara algorithm{};
-        // UI and validation remain in radians; convert only at the DLL boundary.
         constexpr double radiansToDegrees = 360.0 / tau;
         TAlgorithmArcRingFramePara ring{frame.x, frame.y, frame.innerRadius,
             frame.outerRadius, 0, frame.startAngle * radiansToDegrees,
@@ -594,9 +595,6 @@ public:
         }
         std::vector<TMeasuredPoint2D> points(4096);
         const int pointsResult = ProtectedGetMeasuredPoints(m_getMeasuredPoints, points.data(), code);
-        if (pointsResult != 0) {
-            error = "arc ZC_GetMeasuredPoints failed: " + std::to_string(pointsResult); return false;
-        }
         points.resize(measured.pointsCount);
         const auto map = [&](TMeasuredPoint2D p, bool centered) {
             return centered ? TMeasuredPoint2D{p.x + image.width * 0.5, image.height * 0.5 - p.y} : p;
@@ -668,7 +666,7 @@ public:
             || frame.y + frame.outerRadius > image.height - 1) {
             error = "invalid circle ring bounds";
             return false;
-        }
+        }//成像原理 测量误差等理论
 
         // 3. 初始化并获取 DLL 函数
         if (!EnsureReady(image.width, image.height, error)) {

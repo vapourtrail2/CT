@@ -36,7 +36,7 @@ SceneTreePanel::SceneTreePanel(QWidget* parent)
     removeInsideButton_ = new QPushButton(QStringLiteral("移除内"), this);
     applyButton_ = new QPushButton(QStringLiteral("应用"), this);
     restoreButton_ = new QPushButton(QStringLiteral("恢复原始"), this);
-    exitButton_ = new QPushButton(QStringLiteral("退出"), this);
+    exitButton_ = new QPushButton(QStringLiteral("退出"), this);//也得留 但是怎么留?
 
 	auto* firstraw = new QHBoxLayout();
 	firstraw->setContentsMargins(0, 0, 0, 0);

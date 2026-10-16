@@ -105,6 +105,9 @@
     <ClInclude Include="c_ui\QtStlCompat.h">
       <Filter>c_ui\main</Filter>
     </ClInclude>
+    <ClInclude Include="c_ui\context\VolumeHostBridge.h">
+      <Filter>c_ui\context</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="measure\MeasureToolDialog.cpp">
@@ -163,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="c_ui\MainWindow.cpp">
       <Filter>c_ui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\context\VolumeHostBridge.cpp">
+      <Filter>c_ui\context</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

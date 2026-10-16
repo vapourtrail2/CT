@@ -235,13 +235,13 @@ void DocumentPage::showOpenDialog()
             box->setDecimals(2);
             box->setRange(-10000.0, 10000.0);
             box->setSingleStep(0.1);
-            /*box->setSuffix(QStringLiteral("mm"));*/
             return box;
             };
 
         auto makeNum_3 = [this]() {
             auto* box = new QDoubleSpinBox(docDialog_);
             box->setRange(1, 10000);
+            box->setDecimals(0);
             box->setSingleStep(1);
             return box;
             };
@@ -254,9 +254,9 @@ void DocumentPage::showOpenDialog()
 		spacingY_ = makeNum_1();
 		spacingZ_ = makeNum_1();
 
-		spacingX_->setValue(0.02125);
-		spacingY_->setValue(0.02125);
-		spacingZ_->setValue(0.02125);
+		spacingX_->setValue(0.02);
+		spacingY_->setValue(0.02);
+		spacingZ_->setValue(0.02);
 
         originX_ = makeNum_2();
         originY_ = makeNum_2();

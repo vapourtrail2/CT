@@ -1,12 +1,17 @@
 #include "c_ui/context/SessionManager.h"
+#include "c_ui/context/VolumeHostBridge.h"
 #include <QByteArray>
 #include <QMetaObject>
 #include <QPointer>
+#include <Qthread>
 
 #include <array>
 #include <cmath>
 #include <limits>
 #include <utility>
+#include <memory>
+#include <QDebug>
+#include <QStringList>
 
 void setError(QString* err,QString message) {
     if(err)
@@ -732,6 +737,160 @@ void SessionManager::syncCropHistory()
     if (isChanged) {
         emit cropHistoryChanged();
     }
+}
+
+TrustedImageSnapshot SessionManager::capturedVolumeSnapshot(QString* err)
+{
+    if (err) {
+        err->clear();
+    }
+
+    if (QThread::currentThread() != thread()) {
+        setError(err, QStringLiteral("thread must be same one"));
+        return {};
+    }
+
+    if (!hostSession_ || state_ != State::Ready || cropBuildPending_) {
+        setError(err, QStringLiteral("Volume is not ready for capture."));
+        return {};
+    }
+
+    std::shared_ptr bridge = std::make_shared<VolumeHostBridge>();
+    if (!hostSession_->AttachFeature(bridge)) {
+        const auto& detail = bridge->GetLastError();
+        setError(err, detail.empty()
+            ? QStringLiteral("Failed to attach capture feature.")
+            : QString::fromStdString(detail));
+        return {};
+    }
+    auto captured = bridge->GetCapturedImage();
+    if (!hostSession_->DetachFeature(*bridge)) {
+        setError(err, QStringLiteral("Failed to detach volume capture feature."));
+        return {};
+    }
+    if (!captured || !captured->image) {
+        setError(err, QStringLiteral("Captured volume is empty."));
+        return {};
+    }
+
+    return captured;
+}
+
+TrustedImageSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B交给SDK
+    const TrustedImageSnapshot& archive,
+    QString* err)
+{
+    if (err) err->clear();
+
+    if (QThread::currentThread() != thread()) {
+        setError(err, QStringLiteral("Publish must run on the owner thread."));
+        return {};
+    }
+    if (!hostSession_ || state_ != State::Ready || cropBuildPending_
+        || !archive || !archive->image) {
+        setError(err, QStringLiteral("Host or archive is not ready."));
+        return {};
+    }
+    if (gapFeature_) {
+        setError(err, QStringLiteral(
+            "This test requires no Gap feature. Restart and test loading/cropping only."));
+        return {};
+    }
+
+    auto fail = [this, err](const QString& message) -> TrustedImageSnapshot {
+        setError(err, message);
+        failVolumePublishTest(message);
+        return {};
+        };
+
+    // 只接受空闲四视图；先安全移除当前裁切上下文。
+    if (cropFeature_ && cropFeature_->GetState().isPublishing) {
+        setError(err, QStringLiteral("Crop is still publishing."));
+        return {};
+    }
+
+    cropStateTimer_.stop();
+    if (cropFeature_) {
+        if (cropFeature_->GetState().isActive) {
+            CropHostRequest exit;
+            exit.action = CropHostAction::Exit;
+            if (!cropFeature_->SendRequest(std::move(exit))) {
+                return fail(QStringLiteral("Failed to exit crop editing."));
+            }
+        }
+        if (!hostSession_->DetachFeature(*cropFeature_)) {
+            return fail(QStringLiteral("Failed to detach crop feature."));
+        }
+        cropFeature_.reset();
+    }
+    if (!hostSession_->AttachTimer({})) {
+        return fail(QStringLiteral("Failed to detach Host timer."));
+    }
+    clearCropHistory();
+
+    auto bridge = std::make_shared<VolumePublishBridge>();
+    if (!hostSession_->AttachFeature(bridge)) {
+        return fail(QStringLiteral("Failed to attach publish feature."));
+    }
+
+    std::string detail;
+    const auto published = bridge->Publish(archive, detail);
+    const bool renderRequested = published && bridge->RequestViewRenders();
+    const bool detached = hostSession_->DetachFeature(*bridge);
+
+    if (!detached) {
+        return fail(QStringLiteral("Failed to detach publish feature."));
+    }
+    if (!published) {
+        return fail(QString::fromStdString(detail));
+    }
+    if (!renderRequested) {
+        return fail(QStringLiteral("Failed to request renders for all four views."));
+    }
+
+    QString cropError;
+    if (!resetCropFeature(&cropError)) return fail(cropError);
+
+    setIsoState();
+    return published;
+}
+
+bool SessionManager::areAllRenderViewsAtVersion(
+    std::uint64_t expectedVersion,
+    QString* report)
+{
+    if (!hostSession_ || config_.renderViews.size() != 4) {
+        if (report) *report = QStringLiteral("Four-view Host is unavailable.");
+        return false;
+    }
+
+    bool all = true;
+    QStringList parts;
+    for (const auto& config : config_.renderViews) {
+        HostViewTarget target;
+        target.viewId = config.id;
+        const auto state = hostSession_->GetRenderViewState(target);
+        const QString id = QString::fromStdString(config.id);
+
+        if (!state) {
+            all = false;
+            parts << (id + QStringLiteral("=unavailable"));
+        }
+        else {
+            if (state->dataVersion != expectedVersion) all = false;
+            parts << (id + QStringLiteral("=")
+                + QString::number(static_cast<qulonglong>(state->dataVersion)));
+        }
+    }
+    if (report) *report = parts.join(QStringLiteral(", "));
+    return all;
+}
+
+void SessionManager::failVolumePublishTest(const QString& reason)
+{
+    qWarning() << "[volumePublish] test stopped " << reason;
+    setState(State::Failed);
+    emit isoStateCleared();
 }
 
 std::optional<measure::MeasureHostData>

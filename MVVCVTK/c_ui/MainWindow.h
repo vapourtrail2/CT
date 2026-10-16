@@ -14,6 +14,7 @@
 
 #include "c_ui/command/commands.h"
 #include "c_ui/context/AppContext.h"
+#include "MVVCVTK/SPI/Data/TrustedImageState.h"
 
 class QVBoxLayout;
 class DocumentPage; 
@@ -93,6 +94,7 @@ private:
     void updateCropTree();
     void handleCropBuildFinished(bool isSuccess, QString message);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
+    void switchVolumeForTest(bool useoriginal);
 
 private:
     UiState buildUiState(int index) const;
@@ -111,6 +113,9 @@ private:
     QPointer<GapAnalysisDialog> gapAnalysisDialog_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
+    TrustedImageSnapshot originalSnapshot_;
+    TrustedImageSnapshot croppedSnapshot_;
+    bool volumePublishTestBusy_ = false;
 
 
 private:

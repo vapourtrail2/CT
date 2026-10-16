@@ -26,6 +26,7 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <Keyword>QtVS_v304</Keyword>
     <QtMsBuild Condition="'$(QtMsBuild)'==''">$(LOCALAPPDATA)\QtMsBuild</QtMsBuild>
+    <ProjectName>CT</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -210,6 +211,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="c_ui\context\VolumeHostBridge.h" />
     <ClInclude Include="c_ui\QtStlCompat.h" />
     <ClInclude Include="c_ui\GapAnalysisDialog.h" />
     <QtMoc Include="c_ui\context\SessionManager.h" />
@@ -286,6 +288,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="c_ui\context\SessionManager.cpp" />
+    <ClCompile Include="c_ui\context\VolumeHostBridge.cpp" />
     <ClCompile Include="c_ui\GapAnalysisDialog.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">

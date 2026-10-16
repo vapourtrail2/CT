@@ -20,6 +20,9 @@
 #include <memory>
 #include <iostream>
 
+#include <QShortcut>
+#include <QKeySequence>
+#include <QTimer>
 #include <QApplication>
 #include <QComboBox>
 #include <QDebug>
@@ -84,7 +87,18 @@ CTViewer::CTViewer(QWidget* parent)
     buildTheTop();
     buildTheMiddle(); 
     setCommands();
-    wireConnect();     
+    wireConnect(); 
+    auto* showA = new QShortcut(QKeySequence(QStringLiteral("Ctrl+1")), this);
+    showA->setAutoRepeat(false);
+    connect(showA, &QShortcut::activated, this, [this]() {
+        switchVolumeForTest(true);
+        });
+
+    auto* showB = new QShortcut(QKeySequence(QStringLiteral("Ctrl+2")), this);
+    showB->setAutoRepeat(false);
+    connect(showB, &QShortcut::activated, this, [this]() {
+        switchVolumeForTest(false);
+        });
 }
 
 CTViewer::~CTViewer() {
@@ -1228,6 +1242,22 @@ void CTViewer::handleCropBuildFinished(
         return;
     }
 
+    QString captureError;
+    const auto captured = context_.getSessionManager().capturedVolumeSnapshot(&captureError);
+
+    if (!captured) {
+        qWarning() << "[VolumeCapture] B failed:" << captureError;
+    }
+    else {
+        croppedSnapshot_ = captured;
+        const auto& b = croppedSnapshot_;
+        qDebug() << "[VolumeCapture] B saved"
+            << "version=" << b->version
+            << "dims=" << b->dims[0] << b->dims[1] << b->dims[2]
+            << "hasMask=" << (b->validityMask != nullptr)
+            << "image=" << static_cast<const void*>(b->image.GetPointer());
+    }
+
 	auto& sessionManager = context_.getSessionManager();
 
     for (int i = 0; i < 3; ++i)
@@ -1248,6 +1278,77 @@ void CTViewer::handleCropBuildFinished(
     cropWindowLevels_ = {};
 
     workspacePage_->getViewportGather()->requestRefresh();
+}
+
+void CTViewer::switchVolumeForTest(bool useOriginal)
+{
+    if (volumePublishTestBusy_) return;
+
+    if (!originalSnapshot_ || !croppedSnapshot_) {
+        QMessageBox::warning(this, QStringLiteral("体积切换测试"),
+            QStringLiteral("请先加载 A 并成功应用一次裁切，确认 A/B 都已保存。"));
+        return;
+    }
+
+    const auto archive = useOriginal ? originalSnapshot_ : croppedSnapshot_;
+    const QString name = useOriginal ? QStringLiteral("A") : QStringLiteral("B");
+
+    volumePublishTestBusy_ = true;
+    setEnabled(false); 
+
+    QString error;
+    auto& manager = context_.getSessionManager();
+    const auto published = manager.publishVolumeSnapshotForTest(archive, &error);
+    if (!published) {
+        volumePublishTestBusy_ = false;
+        setEnabled(true);
+        QMessageBox::warning(this, QStringLiteral("发布测试未完成"), error);
+        return;
+    }
+
+    qDebug() << "[VolumePublish] data published" << name
+        << "archiveVersion=" << archive->version
+        << "publishedVersion=" << published->version
+        << "hasMask=" << (published->validityMask != nullptr);
+
+    workspacePage_->getViewportGather()->requestRefresh();
+
+    const auto expectedVersion = published->version;
+    auto attempts = std::make_shared<int>(0);
+    auto* timer = new QTimer(this);
+    timer->setInterval(50);
+
+    connect(timer, &QTimer::timeout, this,
+        [this, timer, attempts, expectedVersion, name]() {
+            QString report;
+            auto& session = context_.getSessionManager();
+            const bool synchronized =
+                session.areAllRenderViewsAtVersion(expectedVersion, &report);
+
+            ++(*attempts);
+            if (!synchronized && *attempts < 60) return;
+
+            timer->stop();
+            timer->deleteLater();
+            volumePublishTestBusy_ = false;
+            setEnabled(true);
+
+            if (synchronized) {
+                qDebug() << "[VolumePublish] four views synchronized"
+                    << name << report;
+                statusBar()->showMessage(
+                    QStringLiteral("已发布 %1，四视图版本一致；请继续检查图像和 mask。")
+                    .arg(name), 5000);
+            }
+            else {
+                const QString reason = QStringLiteral(
+                    "等待四视图同步超时，期望版本 %1；实际：%2。请重新加载后测试。")
+                    .arg(static_cast<qulonglong>(expectedVersion)).arg(report);
+                session.failVolumePublishTest(reason);
+                QMessageBox::warning(this, QStringLiteral("视图同步未通过"), reason);
+            }
+        });
+    timer->start();
 }
 
 //void CTViewer::setWindowLevel(
@@ -1328,6 +1429,24 @@ void CTViewer::handleLoadFinished(
 			pageDocument_->notifyFail(QStringLiteral("尺寸输入无效，请重新输入"));
         }
         return;
+    }
+
+    //test
+    originalSnapshot_.reset();
+    croppedSnapshot_.reset();
+    QString err;
+    originalSnapshot_ = context_.getSessionManager().capturedVolumeSnapshot(&err);
+
+    if (!originalSnapshot_) {
+        qWarning() << "[volumeCaptured] a failed" << err;
+    }
+    else {
+        auto& a = originalSnapshot_;
+        qDebug() << "[VolumeCaptured] A saved"
+            << "version=" << a->version
+            << "dims=" << a->dims[0] << a->dims[1] << a->dims[2]
+            << "hasMask=" << (a->validityMask != nullptr)
+            << "image=" << static_cast<void*>(a->image.GetPointer());
     }
 
     if (isDocuOpen) {

@@ -2,6 +2,7 @@
 
 #include "MVVCVTK/API/Features/GapAnalysis/Host/GapHostFeature.h"
 #include "MVVCVTK/API/Features/OrthogonalCrop/Host/CropHostFeature.h"
+#include "MVVCVTK/SPI/Data/TrustedImageState.h"
 #include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
 #include "MVVCVTK/API/Host/VtkAppHostSession.h"
 #include "measure/MeasureHostBridge.h"
@@ -36,7 +37,7 @@ struct CropTreeState final
     bool canRestoreOriginal = false;
 };
 
-class SessionManager final /*wsm*/ : public QObject
+class SessionManager final : public QObject
 {
     Q_OBJECT
 public:
@@ -63,6 +64,15 @@ public:
     QString getSourcePath() const noexcept {
         return sourcePath_;
     }
+    TrustedImageSnapshot capturedVolumeSnapshot(QString* err = nullptr);
+    //publish
+    TrustedImageSnapshot publishVolumeSnapshotForTest(
+        const TrustedImageSnapshot& archive,
+        QString* err = nullptr);
+    bool areAllRenderViewsAtVersion(
+        std::uint64_t expectedVersion,
+        QString* report = nullptr);
+    void failVolumePublishTest(const QString& reason);
     std::optional<measure::MeasureHostData> getMeasureHostData(
         const HostViewTarget& sourceView);
     std::optional<HostRenderViewState> getRenderViewState(

@@ -871,13 +871,13 @@ bool SessionManager::areAllRenderViewsAtVersion(
         target.viewId = config.id;
         const auto state = hostSession_->GetRenderViewState(target);
         const QString id = QString::fromStdString(config.id);
-
         if (!state) {
             all = false;
             parts << (id + QStringLiteral("=unavailable"));
         }
         else {
-            if (state->dataVersion != expectedVersion) all = false;
+            if (state->dataVersion != expectedVersion)
+                all = false;
             parts << (id + QStringLiteral("=")
                 + QString::number(static_cast<qulonglong>(state->dataVersion)));
         }

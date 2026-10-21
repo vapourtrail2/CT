@@ -212,6 +212,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="c_ui\context\VolumeHostBridge.h" />
+    <ClInclude Include="c_ui\context\VolumeManager.h" />
     <ClInclude Include="c_ui\QtStlCompat.h" />
     <ClInclude Include="c_ui\GapAnalysisDialog.h" />
     <QtMoc Include="c_ui\context\SessionManager.h" />
@@ -289,6 +290,7 @@
   <ItemGroup>
     <ClCompile Include="c_ui\context\SessionManager.cpp" />
     <ClCompile Include="c_ui\context\VolumeHostBridge.cpp" />
+    <ClCompile Include="c_ui\context\VolumeManager.cpp" />
     <ClCompile Include="c_ui\GapAnalysisDialog.cpp" />
     <ClCompile Include="c_ui\app\app.cpp" />
     <ClCompile Include="c_ui\contextarea\WorkspacePage.cpp">

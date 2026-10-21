@@ -2,6 +2,7 @@
 
 #include "c_ui/command/Commands.h"
 #include "c_ui/context/SessionManager.h"
+#include "c_ui/context/VolumeManager.h"
 
 class AppContext
 {
@@ -26,6 +27,16 @@ public:
         return sessionManager_;
     }
 
+    VolumeManager& getVolumeManager()
+    {
+        return volumeManager_;
+    }
+
+    const VolumeManager& getVolumeManager() const
+    {
+        return volumeManager_;
+    }
+
     bool hasData() const
     {
         return sessionManager_.gethasData();
@@ -34,4 +45,5 @@ public:
 private:
     Commands commands_;
     SessionManager sessionManager_;
+    VolumeManager volumeManager_;
 };

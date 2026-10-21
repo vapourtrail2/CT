@@ -94,7 +94,7 @@ private:
     void updateCropTree();
     void handleCropBuildFinished(bool isSuccess, QString message);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
-    void switchVolumeForTest(bool useoriginal);
+    void switchVolumeForTest(int volumeid);
 
 private:
     UiState buildUiState(int index) const;
@@ -113,8 +113,9 @@ private:
     QPointer<GapAnalysisDialog> gapAnalysisDialog_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
-    TrustedImageSnapshot originalSnapshot_;
-    TrustedImageSnapshot croppedSnapshot_;
+    int originVolumeId_= 0;//本轮体积
+    int latestCroppedVolumeId_ = 0;//最近裁切产物
+    int cropSourceVolumeId_= 0;
     bool volumePublishTestBusy_ = false;
 
 

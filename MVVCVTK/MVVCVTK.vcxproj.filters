@@ -108,6 +108,9 @@
     <ClInclude Include="c_ui\context\VolumeHostBridge.h">
       <Filter>c_ui\context</Filter>
     </ClInclude>
+    <ClInclude Include="c_ui\context\VolumeManager.h">
+      <Filter>c_ui\context</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="measure\MeasureToolDialog.cpp">
@@ -168,6 +171,9 @@
       <Filter>c_ui\main</Filter>
     </ClCompile>
     <ClCompile Include="c_ui\context\VolumeHostBridge.cpp">
+      <Filter>c_ui\context</Filter>
+    </ClCompile>
+    <ClCompile Include="c_ui\context\VolumeManager.cpp">
       <Filter>c_ui\context</Filter>
     </ClCompile>
   </ItemGroup>

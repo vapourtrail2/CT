@@ -465,8 +465,12 @@ void CTViewer::connectAppSignals()
         this,
         [this]() {
 			auto& sessionManager = context_.getSessionManager();
+            cropSourceVolumeId_ =  context_.getVolumeManager().getActiveVolumeid();
+            if (cropSourceVolumeId_ == 0) {
+                qDebug() << "没有已经登录的激活体积";
+                return;
+            }
             cropWindowLevels_ = {};
-
             for (int i = 0;i < 3;++i) {
                 HostViewTarget target;
                 target.isViewRoleUsed = true;
@@ -476,9 +480,7 @@ void CTViewer::connectAppSignals()
             }
             if (!context_.getSessionManager().applyCrop()) {
                 cropWindowLevels_ = {};
-                statusBar()->showMessage(
-                    QStringLiteral("裁切应用未启动。"),
-                    3000);
+                qDebug() << "裁切应用未启动。";
             }
         });
     connect(
@@ -514,7 +516,7 @@ void CTViewer::connectRenderPanel()
 
     connect(
         renderPanel,
-        &RenderPanel::volumeQualityRequested,
+        &RenderPanel::volumeQualityRequested,//应该判断当前的渲染模式？
         this,
         &CTViewer::setvolumeQuality);
 
@@ -1076,7 +1078,6 @@ void CTViewer::openCtReconUi2()
     dialog->activateWindow();
 }
 
-
 void CTViewer::set3DMode(
     HostRenderMode mode,
     HostVisibilityParams visibility)
@@ -1090,9 +1091,7 @@ void CTViewer::set3DMode(
     request.targetView.viewRole = HostRenderViewRole::Primary3D;
     request.mode = mode;
 	request.visibility = std::move(visibility);
-
     context_.getSessionManager().sendRequest(std::move(request));
-
     auto* ptr = workspacePage_->getViewportGather();
     ptr->requestRefresh();
 }
@@ -1129,8 +1128,7 @@ void CTViewer::setVisibility(
         request.targetView = {
             "", true, HostRenderViewRole::Primary3D };
         request.visibility = std::move(primaryVisibility);
-        const bool isViewAccepted =
-            sessionManager.sendRequest(std::move(request));
+        const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
         isAccepted = isViewAccepted && isAccepted;
  
 
@@ -1147,8 +1145,7 @@ void CTViewer::setVisibility(
             HostViewSetRequest request;
             request.targetView = { "", true, role };
             request.visibility = std::move(sliceVisibility);
-            const bool isViewAccepted =
-                sessionManager.sendRequest(std::move(request));
+            const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
             isAccepted = isViewAccepted && isAccepted;
         }
     }
@@ -1234,23 +1231,18 @@ void CTViewer::handleCropBuildFinished(
     QString message)
 {
     if (!isSuccess) {
-        cropWindowLevels_ = {};
-
-        if (!message.isEmpty()) {
-            statusBar()->showMessage(message, 3000);
-        }
         return;
     }
 
-    QString captureError;
-    const auto captured = context_.getSessionManager().capturedVolumeSnapshot(&captureError);
+    int sourceVolumeId = cropSourceVolumeId_;
+    cropSourceVolumeId_ = 0;
+    const auto captured = context_.getSessionManager().capturedVolumeSnapshot();
 
     if (!captured) {
-        qWarning() << "[VolumeCapture] B failed:" << captureError;
+        qDebug() << "[VolumeCapture] B failed";
     }
     else {
-        croppedSnapshot_ = captured;
-        const auto& b = croppedSnapshot_;
+        const auto& b = captured;
         qDebug() << "[VolumeCapture] B saved"
             << "version=" << b->version
             << "dims=" << b->dims[0] << b->dims[1] << b->dims[2]
@@ -1280,7 +1272,7 @@ void CTViewer::handleCropBuildFinished(
     workspacePage_->getViewportGather()->requestRefresh();
 }
 
-void CTViewer::switchVolumeForTest(bool useOriginal)
+void CTViewer::switchVolumeForTest(int volumeid)
 {
     if (volumePublishTestBusy_) return;
 
@@ -1431,24 +1423,15 @@ void CTViewer::handleLoadFinished(
         return;
     }
 
-    //test
-    originalSnapshot_.reset();
-    croppedSnapshot_.reset();
-    QString err;
-    originalSnapshot_ = context_.getSessionManager().capturedVolumeSnapshot(&err);
-
-    if (!originalSnapshot_) {
-        qWarning() << "[volumeCaptured] a failed" << err;
-    }
-    else {
-        auto& a = originalSnapshot_;
-        qDebug() << "[VolumeCaptured] A saved"
-            << "version=" << a->version
-            << "dims=" << a->dims[0] << a->dims[1] << a->dims[2]
-            << "hasMask=" << (a->validityMask != nullptr)
-            << "image=" << static_cast<void*>(a->image.GetPointer());
-    }
-
+    auto& volumes = context_.getVolumeManager();
+    volumes.setActiveVolumeid(0);
+    originVolumeId_ = 0;
+    latestCroppedVolumeId_ = 0;
+    cropSourceVolumeId_ = 0;
+    auto image = context_.getSessionManager().capturedVolumeSnapshot();
+    originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), image);
+    volumes.setActiveVolumeid(originVolumeId_);  
+    //原始体积和激活体积是一个体素
     if (isDocuOpen) {
         pageDocument_->closeOpenDialog();
     }
@@ -1456,7 +1439,7 @@ void CTViewer::handleLoadFinished(
     HostVisibilityParams p;
     p.isCrosshairVisible = false;
     setVisibility(std::move(p));
-    setvolumeQuality(HostVolumeQuality::High);
+    setvolumeQuality(HostVolumeQuality::Low);
     
     auto* viewport = workspacePage_->getViewportGather();
     viewport->requestRefresh();

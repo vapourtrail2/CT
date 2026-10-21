@@ -148,7 +148,7 @@ RenderPanel::RenderPanel(QWidget* parent)
     volumeQuality_->setCurrentIndex(1);
 
     auto* volumeQualityRow = new QHBoxLayout();
-    volumeQualityRow->addWidget(new QLabel(QStringLiteral("体渲染质量"), wlGroup));
+    volumeQualityRow->addWidget(new QLabel(QStringLiteral("模型质量"), wlGroup));
     volumeQualityRow->addWidget(volumeQuality_, 1);
     wv->addLayout(volumeQualityRow);
 

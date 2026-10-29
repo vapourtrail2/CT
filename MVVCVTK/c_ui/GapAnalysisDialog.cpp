@@ -254,6 +254,7 @@ void GapAnalysisDialog::initializeFromCurrentView()
     target.viewRole = HostRenderViewRole::Primary3D;
 
     const auto state = sessionManager_.getRenderViewState(target);
+    if (!state) return;
     const auto background = (state->background.r + state->background.g + state->background.b) / 3.0;
     const auto material = state->material.ambient;
     if (std::isfinite(background)&& std::isfinite(material))
@@ -298,17 +299,30 @@ void GapAnalysisDialog::startAnalysis()
 
     const QPointer<GapAnalysisDialog> guard(this);
     QString error;
+    setStatus(QStringLiteral("孔隙分析已开始，请稍候……"));
     const bool isAccepted = sessionManager_.startGap(
         buildStartParams(),
-        [guard](bool isDisplayed) {
+        [guard](GapHostResult result) {
             if (!guard) {
                 return;
             }
-            guard->setStatus(
-                isDisplayed
-                ? QStringLiteral("孔隙分析完成，结果已挂载到视图。")
-                : QStringLiteral("孔隙分析未能显示，请检查 Gap 运行时、参数和目标视图。"),
-                !isDisplayed);
+            const bool succeeded = result.status == GapResultStatus::Succeeded;
+            QString message;
+            if (succeeded)
+            {
+                message = QStringLiteral("孔隙分析完成，结果已挂载到视图");
+            }
+            else if(result.status == GapResultStatus::SucceededWithDisplayFailure)
+            {
+                message = QStringLiteral("孔隙结果已发布，但显示失败：%1").arg(QString::fromStdString(result.message));
+            }
+            else
+            {
+                message = QStringLiteral("孔隙分析失败：%1").arg(QString::fromStdString(result.message));
+            }
+
+            guard->refreshState();
+            guard->setStatus(message, !succeeded);
         },
         &error);
 
@@ -317,7 +331,6 @@ void GapAnalysisDialog::startAnalysis()
         return;
     }
 
-    setStatus(QStringLiteral("孔隙分析已开始，请稍候……"));
     refreshState();
 }
 
@@ -344,12 +357,17 @@ void GapAnalysisDialog::exportCSV()
     }
 
     QString error;
-    if (!sessionManager_.exportGapCsv(path, &error)) {
+    const QPointer<GapAnalysisDialog> guard(this);
+    setStatus(QStringLiteral("正在导出 CSV……"));
+    if (!sessionManager_.exportGapCsv(path, [guard, path](bool succeeded, QString message) {
+        if (!guard) return;
+        guard->refreshState();
+        guard->setStatus(succeeded ? QStringLiteral("CSV 导出成功：%1").arg(path) : message, !succeeded);
+    }, &error)) {
         setStatus(error, true);
         return;
     }
-
-    setStatus(QStringLiteral("CSV 导出成功：%1").arg(path));
+    refreshState();
 }
 
 void GapAnalysisDialog::exitAnalysis()
@@ -359,6 +377,7 @@ void GapAnalysisDialog::exitAnalysis()
         setStatus(error, true);
         return;
     }
+    isExitRequested_ = true;
     setStatus(QStringLiteral("正在退出孔隙分析……"));
     refreshState();
 }
@@ -380,11 +399,19 @@ void GapAnalysisDialog::refreshState()
         else if (state.analysisState == GapAnalysisState::Succeeded) {
             setStatus(QStringLiteral("分析完成，正在确认视图挂载结果……"));
         }
+        else if (state.analysisState == GapAnalysisState::Stale) {
+            setStatus(QStringLiteral("输入已变化，请重新运行孔隙分析。"),true);
+        }
         else if (lastAnalysisState_ >= 0
             && state.analysisState == GapAnalysisState::Idle) {
             setStatus(QStringLiteral("孔隙分析已退出。"));
         }
         lastAnalysisState_ = currentState;
+    }
+
+    if (isExitRequested_ && !state.isViewActive && !state.isExitPending) {
+        isExitRequested_ = false;
+        setStatus(QStringLiteral("孔隙分析已退出。"));
     }
 
     const bool isReady =
@@ -395,7 +422,8 @@ void GapAnalysisDialog::refreshState()
         && !state.isViewActive
         && !state.isExitPending);
     overlayButton_->setEnabled(state.isViewActive && !state.isExitPending);
-    exportCSVButton_->setEnabled(state.analysisState == GapAnalysisState::Succeeded && !state.isExitPending);
+    exportCSVButton_->setEnabled(isReady && state.analysisState == GapAnalysisState::Succeeded
+        && !state.isExitPending && !sessionManager_.getIsGapExporting());
     exitButton_->setEnabled(state.isViewActive && !state.isExitPending);
 }
 

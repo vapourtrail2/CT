@@ -20,7 +20,7 @@ class MeasurementSession;
 class MeasureToolDialog : public QDialog {
 public:
     MeasureToolDialog(
-        TrustedImageSnapshot imageSnapshot,
+        VtkImageGridSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState,
         QWidget* parent = nullptr);
     ~MeasureToolDialog() override;
@@ -28,7 +28,7 @@ public:
 private:
     void BuildUi();
     void BuildMeasurementViewport(  
-        TrustedImageSnapshot imageSnapshot,
+        VtkImageGridSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState);
     void SetView(MeasureView view);
     void BeginTool(MeasureTool tool);

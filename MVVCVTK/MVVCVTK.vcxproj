@@ -61,6 +61,10 @@
     <CTIncludeDir>$(CTRoot)libs\include</CTIncludeDir>
     <CTLibDir>$(CTRoot)libs\lib</CTLibDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <OutDir>$(CTRoot)out\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(CTRoot)out\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <Import Project="MVVCVTK.Sdk.props" Condition="'$(Platform)'=='x64' And Exists('MVVCVTK.Sdk.props')" />
   <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
@@ -97,10 +101,16 @@
     <Error Condition="'@(CTRuntime)'==''" Text="CT runtime libraries were not discovered in $(CTLibDir)." />
   </Target>
   <Target Name="CTCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64'">
+    <ItemGroup Condition="'$(Configuration)'=='Debug'">
+      <!-- 原有重建 DLL 依赖 Release Qt；Debug 宿主保留自己的 Debug Qt。 -->
+      <CTVendorQtRuntime Include="$(QtInstall)\bin\Qt5Core.dll;$(QtInstall)\bin\Qt5Gui.dll;$(QtInstall)\bin\Qt5Widgets.dll" />
+    </ItemGroup>
     <Error Condition="Exists('$(MVVCVTKVtkBinDir)\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the MVVCVTK SDK VTK runtime." />
     <Error Condition="Exists('$(MVVCVTKOpenCVBinDir)\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the MVVCVTK SDK OpenCV runtime." />
     <Error Condition="'$(QtInstall)'!='' And Exists('$(QtInstall)\bin\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the Qt host runtime." />
     <Copy SourceFiles="@(CTRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Error Condition="'@(CTVendorQtRuntime)'!='' And !Exists('%(CTVendorQtRuntime.FullPath)')" Text="CT vendor Qt runtime is missing: %(CTVendorQtRuntime.FullPath)." />
+    <Copy SourceFiles="@(CTVendorQtRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(CTVendorQtRuntime)'!=''" />
   </Target>
   <Target Name="CTAddLinkInputs" BeforeTargets="Link" Condition="'$(Platform)'=='x64'">
     <ItemGroup>
@@ -170,7 +180,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForceSynchronousPDBWrites>true</ForceSynchronousPDBWrites>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CTIncludeDir)</AdditionalIncludeDirectories>

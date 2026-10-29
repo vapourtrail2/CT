@@ -18,6 +18,8 @@
 #include <cstring>
 #include <cmath>
 #include <memory>
+#include <map>
+#include <limits>
 #include <iostream>
 
 #include <QShortcut>
@@ -29,6 +31,8 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QEvent>
+#include <QElapsedTimer>
+#include <QCloseEvent>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGuiApplication>
@@ -60,6 +64,7 @@
 #include <vtkActor.h>
 #include <vtkAutoInit.h>
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkImageData.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderer.h>
@@ -102,6 +107,84 @@ CTViewer::CTViewer(QWidget* parent)
 }
 
 CTViewer::~CTViewer() {
+}
+
+void CTViewer::closeEvent(QCloseEvent* event)
+{
+    isClosing_ = true;
+    setEnabled(false);
+
+    // 1. 检查是否存在当前窗口的模态子窗口
+    QWidget* modalWidget = QApplication::activeModalWidget();
+
+    if (modalWidget != nullptr &&
+        modalWidget != this &&
+        isAncestorOf(modalWidget))
+    {
+        QDialog* dialog = qobject_cast<QDialog*>(modalWidget);
+
+        if (dialog != nullptr)
+        {
+            dialog->reject();
+        }
+
+        event->ignore();
+        QTimer::singleShot(0, this, &QWidget::close);
+        return;
+    }
+
+    // 2. 停止在线重建任务
+    bool workersStopped = true;
+
+    auto dialogs = findChildren<fdkui::OnlineReconstructionDialog*>();
+
+    for (auto* dialog : dialogs)
+    {
+        bool stopped = dialog->Stop();
+
+        if (!stopped)
+        {
+            workersStopped = false;
+        }
+    }
+
+    // 3. 检查数据复制线程是否全部结束
+    for (const auto& thread : copyThreads_)
+    {
+        if (thread != nullptr && thread->isRunning())
+        {
+            workersStopped = false;
+        }
+    }
+
+    // 4. 如果仍有任务运行，稍后重新尝试关闭
+    if (!workersStopped)
+    {
+        event->ignore();
+
+        QTimer::singleShot(50, this, &QWidget::close);
+        return;
+    }
+
+    // 5. 停止 SDK
+    QString error;
+
+    bool sdkStopped = context_.getSessionManager().Stop(&error);
+
+    if (sdkStopped)
+    {
+        event->accept();
+        return;
+    }
+
+    // 6. SDK 尚未成功停止，稍后重试
+    event->ignore();
+
+    statusBar()->showMessage(
+        QStringLiteral("正在停止 SDK：%1").arg(error)
+    );
+
+    QTimer::singleShot(50, this, &QWidget::close);
 }
 
 void CTViewer::buildTheTop()
@@ -230,15 +313,16 @@ void CTViewer::buildContentStack(QWidget* totalContainer, QVBoxLayout* rootLayou
 
 void CTViewer::buildWorkspacePage()
 {
-    workspacePage_  = new WorkspacePage(secondstack_);
-
+    workspacePage_ = new WorkspacePage(secondstack_);
     secondstack_->addWidget(workspacePage_);
-
     QString err;
 
-    context_.getSessionManager().initHost(
-        workspacePage_->getHostConfig(),
-        &err);
+    auto& session = context_.getSessionManager();
+    const QPointer<ViewportGather> viewport(workspacePage_->getViewportGather());
+    session.SetViewVisibility([viewport](const std::string& id) { return viewport && viewport->GetViewVisible(id); });
+    connect(viewport, &ViewportGather::refreshRequested, &session, &SessionManager::RequestRender);
+    connect(&session, &SessionManager::hostError, this, [this](const QString& message) { statusBar()->showMessage(message, 5000); });
+    if (!session.initHost(workspacePage_->getHostConfig(),&err)) statusBar()->showMessage(err);
 }
 
 void CTViewer::buildEmptyPage() {
@@ -361,7 +445,9 @@ void CTViewer::showMeasureToolsDialog()
         if (hostData
             && hostData->image
             && sourceState
-            && hostData->image->version == sourceState->dataVersion) {
+            && hostData->image->data && hostData->image->binding
+            && hostData->image->data->self == sourceState->dataRevision
+            && hostData->image->binding->revision == sourceState->bindingRevision) {
             break;
         }
         hostData.reset();
@@ -398,7 +484,7 @@ void CTViewer::showMeasureToolsDialog()
         initialState,
         this);
 
-    dialog.exec();//这句话的意思是
+    dialog.exec();
 }
 
 void CTViewer::connectAppSignals()
@@ -435,9 +521,9 @@ void CTViewer::connectAppSignals()
         sceneTree,
         &SceneTreePanel::cropNodeActivated,
         this,
-        [this](qulonglong nodeCount) {
+        [this](qulonglong nodeId) {
             if (context_.getSessionManager().setCropNode(
-                    static_cast<std::size_t>(nodeCount))) {
+                    static_cast<CropNodeId>(nodeId))) {
                 workspacePage_->getViewportGather()->requestRefresh();
             }
         });
@@ -471,12 +557,13 @@ void CTViewer::connectAppSignals()
                 return;
             }
             cropWindowLevels_ = {};
-            for (int i = 0;i < 3;++i) {
+            for (int i = 0;i < 3; ++i) {
                 HostViewTarget target;
                 target.isViewRoleUsed = true;
                 target.viewRole = SliceRoles[i];
                 const auto state = sessionManager.getRenderViewState(target);
-                cropWindowLevels_[i] =state->windowLevel;
+                if (state) cropWindowLevels_[i] = state->windowLevel;
+
             }
             if (!context_.getSessionManager().applyCrop()) {
                 cropWindowLevels_ = {};
@@ -703,6 +790,7 @@ void CTViewer::showSaveSliceStackDialog()
         QPointer<QDialog> dialogPtr(&dialog);
         QPointer<QLabel> statusPtr(statusLabel);
         QPointer<QPushButton> saveButtonPtr(saveButton);
+        QPointer<CTViewer> self(this);
 
         HostSliceExportRequest request;
 
@@ -714,11 +802,14 @@ void CTViewer::showSaveSliceStackDialog()
         const bool started =
             context_.getSessionManager().sendRequest(
                 std::move(request),
-                [this, dialogPtr, statusPtr, saveButtonPtr](bool ok) {
+                [self, dialogPtr, statusPtr, saveButtonPtr](HostResult result) {
+                    if (!self) return;
+                    const bool ok = result.isSucceeded;
                     QMetaObject::invokeMethod(
-                        qApp,
-                        [this, dialogPtr, statusPtr, saveButtonPtr, ok]() {
-                            setCloseProgressDialog();
+                        self.data(),
+                        [self, dialogPtr, statusPtr, saveButtonPtr, ok]() {
+                            if (!self) return;
+                            self->setCloseProgressDialog();
 
                             if (statusPtr) {
                                 statusPtr->setText(
@@ -808,7 +899,8 @@ void CTViewer::showSaveTransformedDataDialog()
     const bool started =
         context_.getSessionManager().sendRequest(
             std::move(request),
-            [self](bool ok) {   
+            [self](HostResult result) {
+                const bool ok = result.isSucceeded;
                 QMetaObject::invokeMethod(
                     self.data(),
                     [self, ok]() {
@@ -845,6 +937,7 @@ void CTViewer::openCtReconUi()
 {
     if (!uiRecon3d_) {
         uiRecon3d_ = new UIReconstruct3D(this);
+        uiRecon3d_->setAttribute(Qt::WA_DeleteOnClose,false);
         QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {
             float* data = nullptr;
             std::array<float, 3> spacing{}, origin{};
@@ -869,10 +962,18 @@ void CTViewer::openCtReconUi()
                 return;
             }
 
-            const std::size_t voxelCount =
-                static_cast<std::size_t>(outSize[0])
-                * static_cast<std::size_t>(outSize[1])
-                * static_cast<std::size_t>(outSize[2]);
+            std::size_t voxelCount=1;
+            for(const auto dimension:outSize) {
+                if(voxelCount>std::numeric_limits<std::size_t>::max()/static_cast<std::size_t>(dimension)) {
+                    setCloseProgressDialog();statusBar()->showMessage(QStringLiteral("重建尺寸溢出。"),5000);return;
+                }
+                voxelCount*=static_cast<std::size_t>(dimension);
+            }
+            if(voxelCount>static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max())/sizeof(float)) {
+                setCloseProgressDialog();statusBar()->showMessage(QStringLiteral("重建体积超过可寻址范围。"),5000);return;
+            }
+            // 复制期间保留并冻结供应商窗口；裸缓冲仅借用到拥有型 vector 构建完成。
+            uiRecon3d_->setEnabled(false);
 
             auto voxels = std::make_shared<std::vector<float>>();
             QPointer<CTViewer> self(this);
@@ -918,7 +1019,7 @@ void CTViewer::openCtReconUi()
                     QMetaObject::invokeMethod(
                         self.data(),
                         [self, voxels, outSize, spacing, origin]() mutable {
-                            if (!self) {
+                            if (!self || self->isClosing_) {
                                 return;
                             }
 
@@ -969,6 +1070,11 @@ void CTViewer::openCtReconUi()
                 copyThread,
                 &QObject::deleteLater);
 
+            copyThreads_.push_back(copyThread);
+            connect(copyThread,&QThread::finished,this,[this] {
+                copyThreads_.erase(std::remove_if(copyThreads_.begin(),copyThreads_.end(),[](const auto& thread){return !thread||thread->isFinished();}),copyThreads_.end());
+                if(uiRecon3d_&&!isClosing_)uiRecon3d_->setEnabled(true);
+            });
             copyThread->start();
 
             }, Qt::QueuedConnection);
@@ -1044,7 +1150,7 @@ void CTViewer::openCtReconUi2()
                     QMetaObject::invokeMethod(
                         self.data(),
                         [self, copiedVoxels, dims, spacing, origin, sourcePath]() mutable {
-                            if (!self) return;
+                            if (!self || self->isClosing_) return;
 
                             QString error;
                             const bool ok =
@@ -1070,6 +1176,10 @@ void CTViewer::openCtReconUi2()
 
             connect(copyThread, &QThread::finished,
                 copyThread, &QObject::deleteLater);
+            copyThreads_.push_back(copyThread);
+            connect(copyThread,&QThread::finished,this,[this] {
+                copyThreads_.erase(std::remove_if(copyThreads_.begin(),copyThreads_.end(),[](const auto& thread){return !thread||thread->isFinished();}),copyThreads_.end());
+            });
             copyThread->start();
         });
 
@@ -1127,9 +1237,11 @@ void CTViewer::setVisibility(
     HostViewSetRequest request;
         request.targetView = {
             "", true, HostRenderViewRole::Primary3D };
-        request.visibility = std::move(primaryVisibility);
-        const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
-        isAccepted = isViewAccepted && isAccepted;
+        if (primaryVisibility.isPlanes3DVisible || primaryVisibility.isRulerVisible) {
+            request.visibility = std::move(primaryVisibility);
+            const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
+            isAccepted = isViewAccepted && isAccepted;
+        }
  
 
     if (visibility.isCrosshairVisible.has_value()) {
@@ -1234,18 +1346,21 @@ void CTViewer::handleCropBuildFinished(
         return;
     }
 
-    int sourceVolumeId = cropSourceVolumeId_;
+    const int sourceVolumeId = cropSourceVolumeId_;
     cropSourceVolumeId_ = 0;
-    const auto captured = context_.getSessionManager().capturedVolumeSnapshot();
+    QString captureError;
+    const auto captured = context_.getSessionManager().capturedVolumeSnapshot(&captureError);
 
     if (!captured) {
-        qDebug() << "[VolumeCapture] B failed";
+        qDebug() << "[VolumeCapture] B failed:" << captureError;
     }
     else {
-        const auto& b = captured;
+        croppedSnapshot_ = captured;
+        const auto& b = croppedSnapshot_;
         qDebug() << "[VolumeCapture] B saved"
-            << "version=" << b->version
-            << "dims=" << b->dims[0] << b->dims[1] << b->dims[2]
+            << "sourceVolumeId=" << sourceVolumeId
+            << "version=" << b->binding->revision
+            << "dims=" << b->image->GetDimensions()[0] << b->image->GetDimensions()[1] << b->image->GetDimensions()[2]
             << "hasMask=" << (b->validityMask != nullptr)
             << "image=" << static_cast<const void*>(b->image.GetPointer());
     }
@@ -1272,70 +1387,128 @@ void CTViewer::handleCropBuildFinished(
     workspacePage_->getViewportGather()->requestRefresh();
 }
 
-void CTViewer::switchVolumeForTest(int volumeid)
+void CTViewer::switchVolumeForTest(bool useOriginal)
 {
     if (volumePublishTestBusy_) return;
-
     if (!originalSnapshot_ || !croppedSnapshot_) {
         QMessageBox::warning(this, QStringLiteral("体积切换测试"),
             QStringLiteral("请先加载 A 并成功应用一次裁切，确认 A/B 都已保存。"));
         return;
     }
-
     const auto archive = useOriginal ? originalSnapshot_ : croppedSnapshot_;
     const QString name = useOriginal ? QStringLiteral("A") : QStringLiteral("B");
-
     volumePublishTestBusy_ = true;
-    setEnabled(false); 
-
-    QString error;
-    auto& manager = context_.getSessionManager();
-    const auto published = manager.publishVolumeSnapshotForTest(archive, &error);
-    if (!published) {
-        volumePublishTestBusy_ = false;
-        setEnabled(true);
-        QMessageBox::warning(this, QStringLiteral("发布测试未完成"), error);
-        return;
-    }
-
-    qDebug() << "[VolumePublish] data published" << name
-        << "archiveVersion=" << archive->version
-        << "publishedVersion=" << published->version
-        << "hasMask=" << (published->validityMask != nullptr);
-
-    workspacePage_->getViewportGather()->requestRefresh();
-
-    const auto expectedVersion = published->version;
+    setEnabled(false);
+    auto expectedRevision = std::make_shared<DataRevisionRef>();
+    auto expectedBinding = std::make_shared<DataBindingRevision>(0);
     auto attempts = std::make_shared<int>(0);
+    auto activationResult = std::make_shared<std::optional<HostResult>>();
+    auto activationCompletedAt = std::make_shared<qint64>(-1);
+    auto renderTargets = std::make_shared<std::map<std::string, std::uint64_t>>();
+    auto deadline = std::make_shared<QElapsedTimer>();
+    deadline->start();
     auto* timer = new QTimer(this);
     timer->setInterval(50);
-
     connect(timer, &QTimer::timeout, this,
-        [this, timer, attempts, expectedVersion, name]() {
+        [this, timer, attempts, expectedRevision, expectedBinding, activationResult, activationCompletedAt, renderTargets, deadline, archive, name]() {
+            if (isClosing_) { timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; return; }
             QString report;
             auto& session = context_.getSessionManager();
-            const bool synchronized =
-                session.areAllRenderViewsAtVersion(expectedVersion, &report);
-
+            // 沿用 CT 加载清理的 30 秒绝对保护；异步准备不再当成 60 次绘制核验。
+            const bool preparationTimedOut = activationResult->has_value()
+                ? *activationCompletedAt >= 30000 : deadline->elapsed() >= 30000;
+            if (preparationTimedOut) {
+                timer->stop(); timer->deleteLater();
+                volumePublishTestBusy_ = false; setEnabled(true);
+                // 停止旧 Host 的准备任务；失败时 resetHost 保留可重试的旧 Host/账本。
+                session.clearSession();
+                QMessageBox::warning(this, QStringLiteral("视图同步未通过"),
+                    session.getState() == SessionManager::State::Empty
+                    ? QStringLiteral("显示激活超时，SDK 工作已取消，请重新加载后重试。")
+                    : QStringLiteral("显示激活超时，SDK 停止仍未完成；已保留清理责任，请关闭后重试。"));
+                return;
+            }
+            if (!*expectedBinding) {
+                ++(*attempts);
+                bool isPending = false;
+                const auto published = session.publishVolumeSnapshotForTest(archive, &report, &isPending);
+                if (!published && isPending && *attempts < 60) return;
+                if (!published) {
+                    timer->stop(); timer->deleteLater();
+                    volumePublishTestBusy_ = false; setEnabled(true);
+                    if (isPending) session.failVolumePublishTest(report);
+                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), report);
+                    return;
+                }
+                qDebug() << "[VolumePublish] data published" << name
+                    << "archiveVersion=" << archive->binding->revision
+                    << "publishedVersion=" << published->binding->revision
+                    << "hasMask=" << (published->validityMask != nullptr);
+                *expectedRevision = published->data->self;
+                // 完整显示组激活使用当前 binding 的 CAS，并在提交时推进一次版本。
+                const auto binding = published->binding->revision;
+                if (binding == std::numeric_limits<DataBindingRevision>::max()) {
+                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
+                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), QStringLiteral("数据绑定版本已耗尽。"));
+                    return;
+                }
+                *expectedBinding = binding + 1;
+                *attempts = 0;
+                HostLoadActivationRequest activate;
+                activate.dataRevision = *expectedRevision;
+                activate.expectedBindingRevision = binding;
+                QPointer<CTViewer> self(this);
+                QPointer<QTimer> pendingTimer(timer);
+                // 同步返回仅表示接纳，拒绝不回调；接纳后在 owner 线程恰好完成一次，
+                // 可能在 sendRequest 返回前执行。只查询已提交场景并冻结目标 epoch，
+                // 不发送请求/绘制，不持有 VTK 租约。
+                const bool accepted = session.sendRequest(std::move(activate),
+                    [self, pendingTimer, activationResult, activationCompletedAt, deadline, renderTargets, expectedRevision, expectedBinding](HostResult result) {
+                        if (!self || self->isClosing_ || !pendingTimer || !pendingTimer->isActive()) return;
+                        *activationCompletedAt = deadline->elapsed();
+                        if (result.isSucceeded) {
+                            QString report;
+                            (void)self->context_.getSessionManager().areAllRenderViewsAtVersion(
+                                *expectedRevision, *expectedBinding, *renderTargets, &report);
+                            if (renderTargets->size() != 4) {
+                                result.isSucceeded = false;
+                                result.message = report.toStdString();
+                            }
+                        }
+                        *activationResult = std::move(result);
+                    });
+                if (!self || self->isClosing_) return;
+                if (!accepted) {
+                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
+                    QMessageBox::warning(this, QStringLiteral("显示激活未接纳"), QStringLiteral("数据已发布，SDK 显示激活请求被拒绝；保留资源以便退出或重试。"));
+                    return;
+                }
+                workspacePage_->getViewportGather()->requestRefresh();
+                return;
+            }
+            if (!activationResult->has_value()) return;
+            if (!activationResult->value().isSucceeded) {
+                timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
+                QMessageBox::warning(this, QStringLiteral("显示激活未完成"),
+                    QStringLiteral("数据已发布，显示激活失败或取消：%1").arg(QString::fromStdString(activationResult->value().message)));
+                return;
+            }
             ++(*attempts);
+            const bool synchronized = session.areAllRenderViewsAtVersion(
+                *expectedRevision, *expectedBinding, *renderTargets, &report);
             if (!synchronized && *attempts < 60) return;
-
-            timer->stop();
-            timer->deleteLater();
-            volumePublishTestBusy_ = false;
-            setEnabled(true);
-
+            timer->stop(); timer->deleteLater();
+            volumePublishTestBusy_ = false; setEnabled(true);
             if (synchronized) {
-                qDebug() << "[VolumePublish] four views synchronized"
-                    << name << report;
+                qDebug() << "[VolumePublish] four views synchronized" << name << report;
                 statusBar()->showMessage(
                     QStringLiteral("已发布 %1，四视图版本一致；请继续检查图像和 mask。")
                     .arg(name), 5000);
             }
             else {
                 const QString reason = QStringLiteral(
-                    "等待四视图同步超时，期望版本 %1；实际：%2。请重新加载后测试。")
-                    .arg(static_cast<qulonglong>(expectedVersion)).arg(report);
+                    "等待四视图同步超时，期望绑定版本 %1；实际：%2。请重新加载后测试。")
+                    .arg(static_cast<qulonglong>(*expectedBinding)).arg(report);
                 session.failVolumePublishTest(reason);
                 QMessageBox::warning(this, QStringLiteral("视图同步未通过"), reason);
             }
@@ -1418,7 +1591,7 @@ void CTViewer::handleLoadFinished(
 
     if (!issucc) {
         if (isDocuOpen) {
-			pageDocument_->notifyFail(QStringLiteral("尺寸输入无效，请重新输入"));
+			pageDocument_->notifyFail(message.isEmpty() ? QStringLiteral("加载失败，请检查输入参数。") : message);
         }
         return;
     }
@@ -1428,10 +1601,26 @@ void CTViewer::handleLoadFinished(
     originVolumeId_ = 0;
     latestCroppedVolumeId_ = 0;
     cropSourceVolumeId_ = 0;
-    auto image = context_.getSessionManager().capturedVolumeSnapshot();
-    originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), image);
-    volumes.setActiveVolumeid(originVolumeId_);  
-    //原始体积和激活体积是一个体素
+    originalSnapshot_.reset();
+    croppedSnapshot_.reset();
+    QString err;
+    originalSnapshot_ = context_.getSessionManager().capturedVolumeSnapshot(&err);
+
+    if (!originalSnapshot_) {
+        qWarning() << "[volumeCaptured] a failed" << err;
+    }
+    else {
+        // 登记同一份独立归档，不再捕获或复制一份体积。
+        originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), originalSnapshot_);
+        volumes.setActiveVolumeid(originVolumeId_);
+        const auto& a = originalSnapshot_;
+        qDebug() << "[VolumeCaptured] A saved"
+            << "version=" << a->binding->revision
+            << "dims=" << a->image->GetDimensions()[0] << a->image->GetDimensions()[1] << a->image->GetDimensions()[2]
+            << "hasMask=" << (a->validityMask != nullptr)
+            << "image=" << static_cast<void*>(a->image.GetPointer());
+    }
+
     if (isDocuOpen) {
         pageDocument_->closeOpenDialog();
     }

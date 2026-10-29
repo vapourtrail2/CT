@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QFontDatabase>
 #include <QLoggingCategory>
+#include <QLocale>
 #include <QPalette>
 #include <QStyleFactory>
 #include <QSurfaceFormat>
@@ -15,6 +16,8 @@ int App::run(int argc, char** argv)
 {
     QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
 
+    // 使用标准数字和小数点，保持现有数值输入在中文系统区域下可用。
+    QLocale::setDefault(QLocale::c());
     QApplication qtApp(argc, argv);
     applyGlobalStyle();
 

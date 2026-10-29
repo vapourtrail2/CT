@@ -80,7 +80,7 @@ MeasureViewAdapter::~MeasureViewAdapter()
 
 bool MeasureViewAdapter::Build(
     QVTKOpenGLNativeWidget* widget,
-    TrustedImageSnapshot image,
+    VtkImageGridSnapshot image,
     MeasureView view,
     const MeasurementViewInitState& initialState)
 {
@@ -131,7 +131,7 @@ bool MeasureViewAdapter::Build(
     m_slice->GetProperty()->SetInterpolationTypeToLinear();
     m_renderer->AddViewProp(m_slice);
 
-    const auto scalarRange = m_image->scalarRange;
+    const auto scalarRange = m_image->image->GetScalarRange();
     const double defaultWidth =
         std::max(0.01, scalarRange[1] - scalarRange[0]);
     const double defaultCenter =
@@ -237,7 +237,7 @@ bool MeasureViewAdapter::GetIsReady() const noexcept
         && m_worldToModel;
 }
 
-TrustedImageSnapshot MeasureViewAdapter::GetImageSnapshot() const
+VtkImageGridSnapshot MeasureViewAdapter::GetImageSnapshot() const
 {
     return m_image;
 }

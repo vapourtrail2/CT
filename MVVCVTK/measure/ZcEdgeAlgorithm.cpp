@@ -563,7 +563,7 @@ public:
         }
         if (!EnsureReady(image.width, image.height, error))
             return false;
-        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error)) 
+        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error))
             return false;
         IplImage header = MakeImageHeader(image);
         TPoint camera{};

@@ -588,4 +588,15 @@ void OnlineReconstructionDialog::closeEvent(QCloseEvent* event) {
     event->ignore();
 }
 
+bool OnlineReconstructionDialog::Stop()
+{
+    if (running_) {
+        closeWhenFinished_ = true;
+        cancelReconstruction();
+        return false;
+    }
+    close();
+    return true;
+}
+
 } // namespace fdkui

@@ -1,0 +1,3167 @@
+diff --git a/.gitmodules b/.gitmodules
+deleted file mode 100644
+index e9c0e987d8aeb3c3b9319208c2b5f0fb1f11563b..0000000000000000000000000000000000000000
+--- a/.gitmodules
++++ /dev/null
+@@ -1,3 +0,0 @@
+-[submodule "MVVCVTK/core/MVVCVTK"]
+-	path = MVVCVTK/core/MVVCVTK
+-	url = https://github.com/HelenTung/MVVCVTK.git
+diff --git a/MVVCVTK/MVVCVTK.Sdk.props b/MVVCVTK/MVVCVTK.Sdk.props
+index 50f5bf923fb28378559fa198e25d3c69167c92d1..5d655437b26aa4348af98850cb62236aeb2bb094 100644
+--- a/MVVCVTK/MVVCVTK.Sdk.props
++++ b/MVVCVTK/MVVCVTK.Sdk.props
+@@ -1,5 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <!-- 显式 MSBuild 参数优先；CT 本机属性先于可能属于其他项目的环境默认值。 -->
++  <Import Project="$(MSBuildThisFileDirectory)..\out\ct-sdk.props" Condition="'$(Platform)'=='x64' And Exists('$(MSBuildThisFileDirectory)..\out\ct-sdk.props')" />
+   <PropertyGroup Condition="'$(Platform)'=='x64'">
+     <MVVCVTKSdkRoot Condition="'$(MVVCVTKSdkRoot)'=='' And '$(MVVCVTK_SDK_ROOT)'!=''">$(MVVCVTK_SDK_ROOT)</MVVCVTKSdkRoot>
+   </PropertyGroup>
+@@ -20,13 +22,14 @@
+   <PropertyGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And Exists('$(MVVCVTKVtkRoot)\include')">
+     <MVVCVTKVtkIncludeDirs>$([System.IO.Directory]::GetDirectories('$(MVVCVTKVtkRoot)\include', 'vtk-*'))</MVVCVTKVtkIncludeDirs>
+   </PropertyGroup>
++  <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true'">
++    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\MVVCVTKHost.lib;$(MVVCVTKLibDir)\OrthogonalCrop.lib;$(MVVCVTKLibDir)\GapAnalysis.lib" />
++  </ItemGroup>
+   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Debug'">
+-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
+     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
+     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
+   </ItemGroup>
+   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Release'">
+-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
+     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*.lib" Exclude="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
+     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*.lib" Exclude="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
+   </ItemGroup>
+@@ -54,10 +57,10 @@
+     <Error Condition="!Exists('$(MVVCVTKIncludeDir)\MVVCVTK\API')" Text="MVVCVTK SDK API include directory is missing." />
+     <Error Condition="'$(MVVCVTKVtkIncludeDirs)'==''" Text="MVVCVTK SDK VTK include directory was not discovered." />
+     <Error Condition="!Exists('$(MVVCVTKOpenCVIncludeDir)')" Text="MVVCVTK SDK OpenCV include directory is missing." />
+-    <Error Condition="'@(MVVCVTKProductLibrary)'==''" Text="MVVCVTK SDK product libraries were not discovered." />
++    <Error Condition="!Exists('%(MVVCVTKProductLibrary.FullPath)')" Text="MVVCVTK SDK required product library is missing: %(MVVCVTKProductLibrary.FullPath)." />
+     <Error Condition="'@(MVVCVTKVtkLibrary)'==''" Text="MVVCVTK SDK VTK libraries were not discovered for $(Configuration)." />
+     <Error Condition="'@(MVVCVTKOpenCVLibrary)'==''" Text="MVVCVTK SDK OpenCV libraries were not discovered for $(Configuration)." />
+-    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll')" Text="MVVCVTK Gap kernel runtime is missing for $(Configuration)." />
++    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\GapKernel.dll')" Text="MVVCVTK Gap kernel runtime is missing for $(Configuration)." />
+     <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll')" Text="DefX Gap runtime is missing for $(Configuration)." />
+   </Target>
+   <Target Name="MVVCVTKCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
+@@ -66,7 +69,7 @@
+       <MVVCVTKRuntime Include="$(MVVCVTKVtkBinDir)\vtk*.dll" Exclude="$(MVVCVTKVtkBinDir)\vtk*d.dll" Condition="'$(Configuration)'=='Release'" />
+       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Debug'" />
+       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*.dll" Exclude="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Release'" />
+-      <MVVCVTKRuntime Include="$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll;$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll" />
++      <MVVCVTKRuntime Include="$(MVVCVTKGapRuntimeDir)\GapKernel.dll;$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll" />
+     </ItemGroup>
+     <Copy SourceFiles="@(MVVCVTKRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(MVVCVTKRuntime)'!=''" />
+   </Target>
+diff --git a/MVVCVTK/MVVCVTK.vcxproj b/MVVCVTK/MVVCVTK.vcxproj
+index 7bc064b9f2d559766dbaf4f421c6586d25ca64e7..a6842e45308dc3127956380596770b928c2d80fc 100644
+--- a/MVVCVTK/MVVCVTK.vcxproj
++++ b/MVVCVTK/MVVCVTK.vcxproj
+@@ -61,6 +61,10 @@
+     <CTIncludeDir>$(CTRoot)libs\include</CTIncludeDir>
+     <CTLibDir>$(CTRoot)libs\lib</CTLibDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Platform)'=='x64'">
++    <OutDir>$(CTRoot)out\$(Platform)\$(Configuration)\</OutDir>
++    <IntDir>$(CTRoot)out\obj\$(Platform)\$(Configuration)\</IntDir>
++  </PropertyGroup>
+   <Import Project="MVVCVTK.Sdk.props" Condition="'$(Platform)'=='x64' And Exists('MVVCVTK.Sdk.props')" />
+   <Import Project="$(QtMsBuild)\qt_defaults.props" Condition="Exists('$(QtMsBuild)\qt_defaults.props')" />
+   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+@@ -97,10 +101,16 @@
+     <Error Condition="'@(CTRuntime)'==''" Text="CT runtime libraries were not discovered in $(CTLibDir)." />
+   </Target>
+   <Target Name="CTCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64'">
++    <ItemGroup Condition="'$(Configuration)'=='Debug'">
++      <!-- 原有重建 DLL 依赖 Release Qt；Debug 宿主保留自己的 Debug Qt。 -->
++      <CTVendorQtRuntime Include="$(QtInstall)\bin\Qt5Core.dll;$(QtInstall)\bin\Qt5Gui.dll;$(QtInstall)\bin\Qt5Widgets.dll" />
++    </ItemGroup>
+     <Error Condition="Exists('$(MVVCVTKVtkBinDir)\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the MVVCVTK SDK VTK runtime." />
+     <Error Condition="Exists('$(MVVCVTKOpenCVBinDir)\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the MVVCVTK SDK OpenCV runtime." />
+     <Error Condition="'$(QtInstall)'!='' And Exists('$(QtInstall)\bin\%(CTRuntime.Filename)%(CTRuntime.Extension)')" Text="CT runtime %(CTRuntime.Filename)%(CTRuntime.Extension) conflicts with the Qt host runtime." />
+     <Copy SourceFiles="@(CTRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
++    <Error Condition="'@(CTVendorQtRuntime)'!='' And !Exists('%(CTVendorQtRuntime.FullPath)')" Text="CT vendor Qt runtime is missing: %(CTVendorQtRuntime.FullPath)." />
++    <Copy SourceFiles="@(CTVendorQtRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(CTVendorQtRuntime)'!=''" />
+   </Target>
+   <Target Name="CTAddLinkInputs" BeforeTargets="Link" Condition="'$(Platform)'=='x64'">
+     <ItemGroup>
+@@ -170,7 +180,7 @@
+       <SDLCheck>true</SDLCheck>
+       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <ConformanceMode>true</ConformanceMode>
+-      <LanguageStandard>stdcpp17</LanguageStandard>
++      <LanguageStandard>stdcpp20</LanguageStandard>
+       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+       <ForceSynchronousPDBWrites>true</ForceSynchronousPDBWrites>
+       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CTIncludeDir)</AdditionalIncludeDirectories>
+diff --git a/MVVCVTK/c_ui/GapAnalysisDialog.cpp b/MVVCVTK/c_ui/GapAnalysisDialog.cpp
+index 6c32ca433c981cf301d5309334841c73a15739ad..380b6cfc396905030b1b5ff2f3abb108b1c5f26a 100644
+--- a/MVVCVTK/c_ui/GapAnalysisDialog.cpp
++++ b/MVVCVTK/c_ui/GapAnalysisDialog.cpp
+@@ -254,6 +254,7 @@ void GapAnalysisDialog::initializeFromCurrentView()
+     target.viewRole = HostRenderViewRole::Primary3D;
+ 
+     const auto state = sessionManager_.getRenderViewState(target);
++    if (!state) return;
+     const auto background = (state->background.r + state->background.g + state->background.b) / 3.0;
+     const auto material = state->material.ambient;
+     if (std::isfinite(background)&& std::isfinite(material))
+@@ -298,17 +299,20 @@ void GapAnalysisDialog::startAnalysis()
+ 
+     const QPointer<GapAnalysisDialog> guard(this);
+     QString error;
++    setStatus(QStringLiteral("孔隙分析已开始，请稍候……"));
+     const bool isAccepted = sessionManager_.startGap(
+         buildStartParams(),
+-        [guard](bool isDisplayed) {
++        [guard](GapHostResult result) {
+             if (!guard) {
+                 return;
+             }
+-            guard->setStatus(
+-                isDisplayed
+-                ? QStringLiteral("孔隙分析完成，结果已挂载到视图。")
+-                : QStringLiteral("孔隙分析未能显示，请检查 Gap 运行时、参数和目标视图。"),
+-                !isDisplayed);
++            const bool succeeded = result.status == GapResultStatus::Succeeded;
++            const QString message = succeeded ? QStringLiteral("孔隙分析完成，结果已挂载到视图。")
++                : result.status == GapResultStatus::SucceededWithDisplayFailure ? QStringLiteral("孔隙结果已发布，但显示失败：%1").arg(QString::fromStdString(result.message))
++                : QStringLiteral("孔隙分析失败：%1").arg(QString::fromStdString(result.message));
++            // 先同步状态和按钮，防止下一次定时刷新用过渡提示覆盖本次终态。
++            guard->refreshState();
++            guard->setStatus(message, !succeeded);
+         },
+         &error);
+ 
+@@ -317,7 +321,6 @@ void GapAnalysisDialog::startAnalysis()
+         return;
+     }
+ 
+-    setStatus(QStringLiteral("孔隙分析已开始，请稍候……"));
+     refreshState();
+ }
+ 
+@@ -344,12 +347,17 @@ void GapAnalysisDialog::exportCSV()
+     }
+ 
+     QString error;
+-    if (!sessionManager_.exportGapCsv(path, &error)) {
++    const QPointer<GapAnalysisDialog> guard(this);
++    setStatus(QStringLiteral("正在导出 CSV……"));
++    if (!sessionManager_.exportGapCsv(path, [guard, path](bool succeeded, QString message) {
++        if (!guard) return;
++        guard->refreshState();
++        guard->setStatus(succeeded ? QStringLiteral("CSV 导出成功：%1").arg(path) : message, !succeeded);
++    }, &error)) {
+         setStatus(error, true);
+         return;
+     }
+-
+-    setStatus(QStringLiteral("CSV 导出成功：%1").arg(path));
++    refreshState();
+ }
+ 
+ void GapAnalysisDialog::exitAnalysis()
+@@ -359,6 +367,7 @@ void GapAnalysisDialog::exitAnalysis()
+         setStatus(error, true);
+         return;
+     }
++    isExitRequested_ = true;
+     setStatus(QStringLiteral("正在退出孔隙分析……"));
+     refreshState();
+ }
+@@ -380,6 +389,9 @@ void GapAnalysisDialog::refreshState()
+         else if (state.analysisState == GapAnalysisState::Succeeded) {
+             setStatus(QStringLiteral("分析完成，正在确认视图挂载结果……"));
+         }
++        else if (state.analysisState == GapAnalysisState::Stale) {
++            setStatus(QStringLiteral("输入已变化，请重新运行孔隙分析。"),true);
++        }
+         else if (lastAnalysisState_ >= 0
+             && state.analysisState == GapAnalysisState::Idle) {
+             setStatus(QStringLiteral("孔隙分析已退出。"));
+@@ -387,6 +399,12 @@ void GapAnalysisDialog::refreshState()
+         lastAnalysisState_ = currentState;
+     }
+ 
++    // 退出只解绑显示，分析结果可能仍为 Succeeded；按显示退出状态结束本次 UI 等待。
++    if (isExitRequested_ && !state.isViewActive && !state.isExitPending) {
++        isExitRequested_ = false;
++        setStatus(QStringLiteral("孔隙分析已退出。"));
++    }
++
+     const bool isReady =
+         sessionManager_.getState() == SessionManager::State::Ready;
+     startButton_->setEnabled(
+@@ -395,7 +413,8 @@ void GapAnalysisDialog::refreshState()
+         && !state.isViewActive
+         && !state.isExitPending);
+     overlayButton_->setEnabled(state.isViewActive && !state.isExitPending);
+-    exportCSVButton_->setEnabled(state.analysisState == GapAnalysisState::Succeeded && !state.isExitPending);
++    exportCSVButton_->setEnabled(isReady && state.analysisState == GapAnalysisState::Succeeded
++        && !state.isExitPending && !sessionManager_.getIsGapExporting());
+     exitButton_->setEnabled(state.isViewActive && !state.isExitPending);
+ }
+ 
+diff --git a/MVVCVTK/c_ui/GapAnalysisDialog.h b/MVVCVTK/c_ui/GapAnalysisDialog.h
+index 554cb287f496f2da4c9526f9aa046bfe7cead0d1..7f3f3d1786f2582d12d80b4c5734b567f89c818d 100644
+--- a/MVVCVTK/c_ui/GapAnalysisDialog.h
++++ b/MVVCVTK/c_ui/GapAnalysisDialog.h
+@@ -52,4 +52,5 @@ private:
+     QPushButton* exitButton_ = nullptr;
+     QTimer* stateTimer_ = nullptr;
+     int lastAnalysisState_ = -1;
++    bool isExitRequested_ = false;
+ };
+diff --git a/MVVCVTK/c_ui/MainWindow.cpp b/MVVCVTK/c_ui/MainWindow.cpp
+index 2d7bc3d56a6ee91d0f8b1b801c070e47254b7a9d..157d067d4fa9de4fc50f689278268e1028d0b526 100644
+--- a/MVVCVTK/c_ui/MainWindow.cpp
++++ b/MVVCVTK/c_ui/MainWindow.cpp
+@@ -18,6 +18,8 @@
+ #include <cstring>
+ #include <cmath>
+ #include <memory>
++#include <map>
++#include <limits>
+ #include <iostream>
+ 
+ #include <QShortcut>
+@@ -29,6 +31,8 @@
+ #include <QDialog>
+ #include <QDialogButtonBox>
+ #include <QEvent>
++#include <QElapsedTimer>
++#include <QCloseEvent>
+ #include <QFileDialog>
+ #include <QFormLayout>
+ #include <QGuiApplication>
+@@ -60,6 +64,7 @@
+ #include <vtkActor.h>
+ #include <vtkAutoInit.h>
+ #include <vtkGenericOpenGLRenderWindow.h>
++#include <vtkImageData.h>
+ #include <vtkOpenGLGPUVolumeRayCastMapper.h>
+ #include <vtkPolyDataMapper.h>
+ #include <vtkRenderer.h>
+@@ -104,6 +109,31 @@ CTViewer::CTViewer(QWidget* parent)
+ CTViewer::~CTViewer() {
+ }
+ 
++void CTViewer::closeEvent(QCloseEvent* event)
++{
++    isClosing_ = true;
++    setEnabled(false);
++    if (auto* modal = QApplication::activeModalWidget(); modal && modal != this && isAncestorOf(modal)) {
++        if (auto* dialog = qobject_cast<QDialog*>(modal)) dialog->reject();
++        event->ignore();
++        QTimer::singleShot(0, this, &QWidget::close);
++        return;
++    }
++    QString error;
++    bool workersStopped = true;
++    for (auto* dialog : findChildren<fdkui::OnlineReconstructionDialog*>()) workersStopped = dialog->Stop() && workersStopped;
++    for (const auto& thread : copyThreads_) workersStopped = (!thread || !thread->isRunning()) && workersStopped;
++    if (!workersStopped) {
++        event->ignore();
++        QTimer::singleShot(50, this, &QWidget::close);
++        return;
++    }
++    if (context_.getSessionManager().Stop(&error)) { event->accept(); return; }
++    event->ignore();
++    statusBar()->showMessage(QStringLiteral("正在停止 SDK：%1").arg(error));
++    QTimer::singleShot(50, this, &QWidget::close);
++}
++
+ void CTViewer::buildTheTop()
+ {
+ 	//第一行  包含 撤回 前进 标题 最小化 最大化 关闭
+@@ -236,9 +266,14 @@ void CTViewer::buildWorkspacePage()
+ 
+     QString err;
+ 
+-    context_.getSessionManager().initHost(
++    auto& session = context_.getSessionManager();
++    const QPointer<ViewportGather> viewport(workspacePage_->getViewportGather());
++    session.SetViewVisibility([viewport](const std::string& id) { return viewport && viewport->GetViewVisible(id); });
++    connect(viewport, &ViewportGather::refreshRequested, &session, &SessionManager::RequestRender);
++    connect(&session, &SessionManager::hostError, this, [this](const QString& message) { statusBar()->showMessage(message, 5000); });
++    if (!session.initHost(
+         workspacePage_->getHostConfig(),
+-        &err);
++        &err)) statusBar()->showMessage(err);
+ }
+ 
+ void CTViewer::buildEmptyPage() {
+@@ -361,7 +396,9 @@ void CTViewer::showMeasureToolsDialog()
+         if (hostData
+             && hostData->image
+             && sourceState
+-            && hostData->image->version == sourceState->dataVersion) {
++            && hostData->image->data && hostData->image->binding
++            && hostData->image->data->self == sourceState->dataRevision
++            && hostData->image->binding->revision == sourceState->bindingRevision) {
+             break;
+         }
+         hostData.reset();
+@@ -435,9 +472,9 @@ void CTViewer::connectAppSignals()
+         sceneTree,
+         &SceneTreePanel::cropNodeActivated,
+         this,
+-        [this](qulonglong nodeCount) {
++        [this](qulonglong nodeId) {
+             if (context_.getSessionManager().setCropNode(
+-                    static_cast<std::size_t>(nodeCount))) {
++                    static_cast<CropNodeId>(nodeId))) {
+                 workspacePage_->getViewportGather()->requestRefresh();
+             }
+         });
+@@ -476,7 +513,8 @@ void CTViewer::connectAppSignals()
+                 target.isViewRoleUsed = true;
+                 target.viewRole = SliceRoles[i];
+                 const auto state = sessionManager.getRenderViewState(target);
+-                cropWindowLevels_[i] =state->windowLevel;
++                if (state) cropWindowLevels_[i] = state->windowLevel;
++
+             }
+             if (!context_.getSessionManager().applyCrop()) {
+                 cropWindowLevels_ = {};
+@@ -703,6 +741,7 @@ void CTViewer::showSaveSliceStackDialog()
+         QPointer<QDialog> dialogPtr(&dialog);
+         QPointer<QLabel> statusPtr(statusLabel);
+         QPointer<QPushButton> saveButtonPtr(saveButton);
++        QPointer<CTViewer> self(this);
+ 
+         HostSliceExportRequest request;
+ 
+@@ -714,11 +753,14 @@ void CTViewer::showSaveSliceStackDialog()
+         const bool started =
+             context_.getSessionManager().sendRequest(
+                 std::move(request),
+-                [this, dialogPtr, statusPtr, saveButtonPtr](bool ok) {
++                [self, dialogPtr, statusPtr, saveButtonPtr](HostResult result) {
++                    if (!self) return;
++                    const bool ok = result.isSucceeded;
+                     QMetaObject::invokeMethod(
+-                        qApp,
+-                        [this, dialogPtr, statusPtr, saveButtonPtr, ok]() {
+-                            setCloseProgressDialog();
++                        self.data(),
++                        [self, dialogPtr, statusPtr, saveButtonPtr, ok]() {
++                            if (!self) return;
++                            self->setCloseProgressDialog();
+ 
+                             if (statusPtr) {
+                                 statusPtr->setText(
+@@ -808,7 +850,8 @@ void CTViewer::showSaveTransformedDataDialog()
+     const bool started =
+         context_.getSessionManager().sendRequest(
+             std::move(request),
+-            [self](bool ok) {   
++            [self](HostResult result) {
++                const bool ok = result.isSucceeded;
+                 QMetaObject::invokeMethod(
+                     self.data(),
+                     [self, ok]() {
+@@ -845,6 +888,7 @@ void CTViewer::openCtReconUi()
+ {
+     if (!uiRecon3d_) {
+         uiRecon3d_ = new UIReconstruct3D(this);
++        uiRecon3d_->setAttribute(Qt::WA_DeleteOnClose,false);
+         QObject::connect(uiRecon3d_, &UIReconstruct3D::reconFinished, this, [this]() {
+             float* data = nullptr;
+             std::array<float, 3> spacing{}, origin{};
+@@ -869,10 +913,18 @@ void CTViewer::openCtReconUi()
+                 return;
+             }
+ 
+-            const std::size_t voxelCount =
+-                static_cast<std::size_t>(outSize[0])
+-                * static_cast<std::size_t>(outSize[1])
+-                * static_cast<std::size_t>(outSize[2]);
++            std::size_t voxelCount=1;
++            for(const auto dimension:outSize) {
++                if(voxelCount>std::numeric_limits<std::size_t>::max()/static_cast<std::size_t>(dimension)) {
++                    setCloseProgressDialog();statusBar()->showMessage(QStringLiteral("重建尺寸溢出。"),5000);return;
++                }
++                voxelCount*=static_cast<std::size_t>(dimension);
++            }
++            if(voxelCount>static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max())/sizeof(float)) {
++                setCloseProgressDialog();statusBar()->showMessage(QStringLiteral("重建体积超过可寻址范围。"),5000);return;
++            }
++            // 复制期间保留并冻结供应商窗口；裸缓冲仅借用到拥有型 vector 构建完成。
++            uiRecon3d_->setEnabled(false);
+ 
+             auto voxels = std::make_shared<std::vector<float>>();
+             QPointer<CTViewer> self(this);
+@@ -918,7 +970,7 @@ void CTViewer::openCtReconUi()
+                     QMetaObject::invokeMethod(
+                         self.data(),
+                         [self, voxels, outSize, spacing, origin]() mutable {
+-                            if (!self) {
++                            if (!self || self->isClosing_) {
+                                 return;
+                             }
+ 
+@@ -969,6 +1021,11 @@ void CTViewer::openCtReconUi()
+                 copyThread,
+                 &QObject::deleteLater);
+ 
++            copyThreads_.push_back(copyThread);
++            connect(copyThread,&QThread::finished,this,[this] {
++                copyThreads_.erase(std::remove_if(copyThreads_.begin(),copyThreads_.end(),[](const auto& thread){return !thread||thread->isFinished();}),copyThreads_.end());
++                if(uiRecon3d_&&!isClosing_)uiRecon3d_->setEnabled(true);
++            });
+             copyThread->start();
+ 
+             }, Qt::QueuedConnection);
+@@ -1044,7 +1101,7 @@ void CTViewer::openCtReconUi2()
+                     QMetaObject::invokeMethod(
+                         self.data(),
+                         [self, copiedVoxels, dims, spacing, origin, sourcePath]() mutable {
+-                            if (!self) return;
++                            if (!self || self->isClosing_) return;
+ 
+                             QString error;
+                             const bool ok =
+@@ -1070,6 +1127,10 @@ void CTViewer::openCtReconUi2()
+ 
+             connect(copyThread, &QThread::finished,
+                 copyThread, &QObject::deleteLater);
++            copyThreads_.push_back(copyThread);
++            connect(copyThread,&QThread::finished,this,[this] {
++                copyThreads_.erase(std::remove_if(copyThreads_.begin(),copyThreads_.end(),[](const auto& thread){return !thread||thread->isFinished();}),copyThreads_.end());
++            });
+             copyThread->start();
+         });
+ 
+@@ -1127,9 +1188,11 @@ void CTViewer::setVisibility(
+     HostViewSetRequest request;
+         request.targetView = {
+             "", true, HostRenderViewRole::Primary3D };
+-        request.visibility = std::move(primaryVisibility);
+-        const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
+-        isAccepted = isViewAccepted && isAccepted;
++        if (primaryVisibility.isPlanes3DVisible || primaryVisibility.isRulerVisible) {
++            request.visibility = std::move(primaryVisibility);
++            const bool isViewAccepted = sessionManager.sendRequest(std::move(request));
++            isAccepted = isViewAccepted && isAccepted;
++        }
+  
+ 
+     if (visibility.isCrosshairVisible.has_value()) {
+@@ -1234,18 +1297,21 @@ void CTViewer::handleCropBuildFinished(
+         return;
+     }
+ 
+-    int sourceVolumeId = cropSourceVolumeId_;
++    const int sourceVolumeId = cropSourceVolumeId_;
+     cropSourceVolumeId_ = 0;
+-    const auto captured = context_.getSessionManager().capturedVolumeSnapshot();
++    QString captureError;
++    const auto captured = context_.getSessionManager().capturedVolumeSnapshot(&captureError);
+ 
+     if (!captured) {
+-        qDebug() << "[VolumeCapture] B failed";
++        qWarning() << "[VolumeCapture] B failed:" << captureError;
+     }
+     else {
+-        const auto& b = captured;
++        croppedSnapshot_ = captured;
++        const auto& b = croppedSnapshot_;
+         qDebug() << "[VolumeCapture] B saved"
+-            << "version=" << b->version
+-            << "dims=" << b->dims[0] << b->dims[1] << b->dims[2]
++            << "sourceVolumeId=" << sourceVolumeId
++            << "version=" << b->binding->revision
++            << "dims=" << b->image->GetDimensions()[0] << b->image->GetDimensions()[1] << b->image->GetDimensions()[2]
+             << "hasMask=" << (b->validityMask != nullptr)
+             << "image=" << static_cast<const void*>(b->image.GetPointer());
+     }
+@@ -1272,70 +1338,128 @@ void CTViewer::handleCropBuildFinished(
+     workspacePage_->getViewportGather()->requestRefresh();
+ }
+ 
+-void CTViewer::switchVolumeForTest(int volumeid)
++void CTViewer::switchVolumeForTest(bool useOriginal)
+ {
+     if (volumePublishTestBusy_) return;
+-
+     if (!originalSnapshot_ || !croppedSnapshot_) {
+         QMessageBox::warning(this, QStringLiteral("体积切换测试"),
+             QStringLiteral("请先加载 A 并成功应用一次裁切，确认 A/B 都已保存。"));
+         return;
+     }
+-
+     const auto archive = useOriginal ? originalSnapshot_ : croppedSnapshot_;
+     const QString name = useOriginal ? QStringLiteral("A") : QStringLiteral("B");
+-
+     volumePublishTestBusy_ = true;
+-    setEnabled(false); 
+-
+-    QString error;
+-    auto& manager = context_.getSessionManager();
+-    const auto published = manager.publishVolumeSnapshotForTest(archive, &error);
+-    if (!published) {
+-        volumePublishTestBusy_ = false;
+-        setEnabled(true);
+-        QMessageBox::warning(this, QStringLiteral("发布测试未完成"), error);
+-        return;
+-    }
+-
+-    qDebug() << "[VolumePublish] data published" << name
+-        << "archiveVersion=" << archive->version
+-        << "publishedVersion=" << published->version
+-        << "hasMask=" << (published->validityMask != nullptr);
+-
+-    workspacePage_->getViewportGather()->requestRefresh();
+-
+-    const auto expectedVersion = published->version;
++    setEnabled(false);
++    auto expectedRevision = std::make_shared<DataRevisionRef>();
++    auto expectedBinding = std::make_shared<DataBindingRevision>(0);
+     auto attempts = std::make_shared<int>(0);
++    auto activationResult = std::make_shared<std::optional<HostResult>>();
++    auto activationCompletedAt = std::make_shared<qint64>(-1);
++    auto renderTargets = std::make_shared<std::map<std::string, std::uint64_t>>();
++    auto deadline = std::make_shared<QElapsedTimer>();
++    deadline->start();
+     auto* timer = new QTimer(this);
+     timer->setInterval(50);
+-
+     connect(timer, &QTimer::timeout, this,
+-        [this, timer, attempts, expectedVersion, name]() {
++        [this, timer, attempts, expectedRevision, expectedBinding, activationResult, activationCompletedAt, renderTargets, deadline, archive, name]() {
++            if (isClosing_) { timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; return; }
+             QString report;
+             auto& session = context_.getSessionManager();
+-            const bool synchronized =
+-                session.areAllRenderViewsAtVersion(expectedVersion, &report);
+-
++            // 沿用 CT 加载清理的 30 秒绝对保护；异步准备不再当成 60 次绘制核验。
++            const bool preparationTimedOut = activationResult->has_value()
++                ? *activationCompletedAt >= 30000 : deadline->elapsed() >= 30000;
++            if (preparationTimedOut) {
++                timer->stop(); timer->deleteLater();
++                volumePublishTestBusy_ = false; setEnabled(true);
++                // 停止旧 Host 的准备任务；失败时 resetHost 保留可重试的旧 Host/账本。
++                session.clearSession();
++                QMessageBox::warning(this, QStringLiteral("视图同步未通过"),
++                    session.getState() == SessionManager::State::Empty
++                    ? QStringLiteral("显示激活超时，SDK 工作已取消，请重新加载后重试。")
++                    : QStringLiteral("显示激活超时，SDK 停止仍未完成；已保留清理责任，请关闭后重试。"));
++                return;
++            }
++            if (!*expectedBinding) {
++                ++(*attempts);
++                bool isPending = false;
++                const auto published = session.publishVolumeSnapshotForTest(archive, &report, &isPending);
++                if (!published && isPending && *attempts < 60) return;
++                if (!published) {
++                    timer->stop(); timer->deleteLater();
++                    volumePublishTestBusy_ = false; setEnabled(true);
++                    if (isPending) session.failVolumePublishTest(report);
++                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), report);
++                    return;
++                }
++                qDebug() << "[VolumePublish] data published" << name
++                    << "archiveVersion=" << archive->binding->revision
++                    << "publishedVersion=" << published->binding->revision
++                    << "hasMask=" << (published->validityMask != nullptr);
++                *expectedRevision = published->data->self;
++                // 完整显示组激活使用当前 binding 的 CAS，并在提交时推进一次版本。
++                const auto binding = published->binding->revision;
++                if (binding == std::numeric_limits<DataBindingRevision>::max()) {
++                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
++                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), QStringLiteral("数据绑定版本已耗尽。"));
++                    return;
++                }
++                *expectedBinding = binding + 1;
++                *attempts = 0;
++                HostLoadActivationRequest activate;
++                activate.dataRevision = *expectedRevision;
++                activate.expectedBindingRevision = binding;
++                QPointer<CTViewer> self(this);
++                QPointer<QTimer> pendingTimer(timer);
++                // 同步返回仅表示接纳，拒绝不回调；接纳后在 owner 线程恰好完成一次，
++                // 可能在 sendRequest 返回前执行。只查询已提交场景并冻结目标 epoch，
++                // 不发送请求/绘制，不持有 VTK 租约。
++                const bool accepted = session.sendRequest(std::move(activate),
++                    [self, pendingTimer, activationResult, activationCompletedAt, deadline, renderTargets, expectedRevision, expectedBinding](HostResult result) {
++                        if (!self || self->isClosing_ || !pendingTimer || !pendingTimer->isActive()) return;
++                        *activationCompletedAt = deadline->elapsed();
++                        if (result.isSucceeded) {
++                            QString report;
++                            (void)self->context_.getSessionManager().areAllRenderViewsAtVersion(
++                                *expectedRevision, *expectedBinding, *renderTargets, &report);
++                            if (renderTargets->size() != 4) {
++                                result.isSucceeded = false;
++                                result.message = report.toStdString();
++                            }
++                        }
++                        *activationResult = std::move(result);
++                    });
++                if (!self || self->isClosing_) return;
++                if (!accepted) {
++                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
++                    QMessageBox::warning(this, QStringLiteral("显示激活未接纳"), QStringLiteral("数据已发布，SDK 显示激活请求被拒绝；保留资源以便退出或重试。"));
++                    return;
++                }
++                workspacePage_->getViewportGather()->requestRefresh();
++                return;
++            }
++            if (!activationResult->has_value()) return;
++            if (!activationResult->value().isSucceeded) {
++                timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
++                QMessageBox::warning(this, QStringLiteral("显示激活未完成"),
++                    QStringLiteral("数据已发布，显示激活失败或取消：%1").arg(QString::fromStdString(activationResult->value().message)));
++                return;
++            }
+             ++(*attempts);
++            const bool synchronized = session.areAllRenderViewsAtVersion(
++                *expectedRevision, *expectedBinding, *renderTargets, &report);
+             if (!synchronized && *attempts < 60) return;
+-
+-            timer->stop();
+-            timer->deleteLater();
+-            volumePublishTestBusy_ = false;
+-            setEnabled(true);
+-
++            timer->stop(); timer->deleteLater();
++            volumePublishTestBusy_ = false; setEnabled(true);
+             if (synchronized) {
+-                qDebug() << "[VolumePublish] four views synchronized"
+-                    << name << report;
++                qDebug() << "[VolumePublish] four views synchronized" << name << report;
+                 statusBar()->showMessage(
+                     QStringLiteral("已发布 %1，四视图版本一致；请继续检查图像和 mask。")
+                     .arg(name), 5000);
+             }
+             else {
+                 const QString reason = QStringLiteral(
+-                    "等待四视图同步超时，期望版本 %1；实际：%2。请重新加载后测试。")
+-                    .arg(static_cast<qulonglong>(expectedVersion)).arg(report);
++                    "等待四视图同步超时，期望绑定版本 %1；实际：%2。请重新加载后测试。")
++                    .arg(static_cast<qulonglong>(*expectedBinding)).arg(report);
+                 session.failVolumePublishTest(reason);
+                 QMessageBox::warning(this, QStringLiteral("视图同步未通过"), reason);
+             }
+@@ -1418,7 +1542,7 @@ void CTViewer::handleLoadFinished(
+ 
+     if (!issucc) {
+         if (isDocuOpen) {
+-			pageDocument_->notifyFail(QStringLiteral("尺寸输入无效，请重新输入"));
++			pageDocument_->notifyFail(message.isEmpty() ? QStringLiteral("加载失败，请检查输入参数。") : message);
+         }
+         return;
+     }
+@@ -1428,10 +1552,26 @@ void CTViewer::handleLoadFinished(
+     originVolumeId_ = 0;
+     latestCroppedVolumeId_ = 0;
+     cropSourceVolumeId_ = 0;
+-    auto image = context_.getSessionManager().capturedVolumeSnapshot();
+-    originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), image);
+-    volumes.setActiveVolumeid(originVolumeId_);  
+-    //原始体积和激活体积是一个体素
++    originalSnapshot_.reset();
++    croppedSnapshot_.reset();
++    QString err;
++    originalSnapshot_ = context_.getSessionManager().capturedVolumeSnapshot(&err);
++
++    if (!originalSnapshot_) {
++        qWarning() << "[volumeCaptured] a failed" << err;
++    }
++    else {
++        // 登记同一份独立归档，不再捕获或复制一份体积。
++        originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), originalSnapshot_);
++        volumes.setActiveVolumeid(originVolumeId_);
++        const auto& a = originalSnapshot_;
++        qDebug() << "[VolumeCaptured] A saved"
++            << "version=" << a->binding->revision
++            << "dims=" << a->image->GetDimensions()[0] << a->image->GetDimensions()[1] << a->image->GetDimensions()[2]
++            << "hasMask=" << (a->validityMask != nullptr)
++            << "image=" << static_cast<void*>(a->image.GetPointer());
++    }
++
+     if (isDocuOpen) {
+         pageDocument_->closeOpenDialog();
+     }
+diff --git a/MVVCVTK/c_ui/MainWindow.h b/MVVCVTK/c_ui/MainWindow.h
+index 2e76e2a19d01df8d1ce3e2b58b00695b4155561d..e1d7c8ba2f6635cafb22b14544b2670405edded5 100644
+--- a/MVVCVTK/c_ui/MainWindow.h
++++ b/MVVCVTK/c_ui/MainWindow.h
+@@ -14,7 +14,7 @@
+ 
+ #include "c_ui/command/commands.h"
+ #include "c_ui/context/AppContext.h"
+-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
++#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
+ 
+ class QVBoxLayout;
+ class DocumentPage; 
+@@ -41,6 +41,7 @@ class RibbonPage;
+ class UIReconstruct3D;
+ class QProgressDialog;
+ class GapAnalysisDialog;
++class QThread;
+ 
+ class CTViewer : public QMainWindow
+ {
+@@ -49,6 +50,9 @@ public:
+     explicit CTViewer(QWidget* parent = nullptr);
+     ~CTViewer();
+ 
++protected:
++    void closeEvent(QCloseEvent* event) override;
++
+ private:
+     void buildTheTop();
+     void buildTheMiddle();
+@@ -94,7 +98,7 @@ private:
+     void updateCropTree();
+     void handleCropBuildFinished(bool isSuccess, QString message);
+    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
+-    void switchVolumeForTest(int volumeid);
++    void switchVolumeForTest(bool useoriginal);
+ 
+ private:
+     UiState buildUiState(int index) const;
+@@ -113,10 +117,14 @@ private:
+     QPointer<GapAnalysisDialog> gapAnalysisDialog_;
+     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
+     AppContext context_;
+-    int originVolumeId_= 0;//本轮体积
+-    int latestCroppedVolumeId_ = 0;//最近裁切产物
+-    int cropSourceVolumeId_= 0;
++    VtkImageGridSnapshot originalSnapshot_;
++    VtkImageGridSnapshot croppedSnapshot_;
++    int originVolumeId_ = 0;
++    int latestCroppedVolumeId_ = 0;
++    int cropSourceVolumeId_ = 0;
+     bool volumePublishTestBusy_ = false;
++    bool isClosing_ = false;
++    std::vector<QPointer<QThread>> copyThreads_;
+ 
+ 
+ private:
+diff --git a/MVVCVTK/c_ui/app/app.cpp b/MVVCVTK/c_ui/app/app.cpp
+index 1a577f751f7192c2aa052df6b61ca7ba253c7e7d..4a6acdc21aca324b83f022875482fa45f72e9ed0 100644
+--- a/MVVCVTK/c_ui/app/app.cpp
++++ b/MVVCVTK/c_ui/app/app.cpp
+@@ -4,6 +4,7 @@
+ #include <QCoreApplication>
+ #include <QFontDatabase>
+ #include <QLoggingCategory>
++#include <QLocale>
+ #include <QPalette>
+ #include <QStyleFactory>
+ #include <QSurfaceFormat>
+@@ -15,6 +16,8 @@ int App::run(int argc, char** argv)
+ {
+     QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
+ 
++    // 使用标准数字和小数点，保持现有数值输入在中文系统区域下可用。
++    QLocale::setDefault(QLocale::c());
+     QApplication qtApp(argc, argv);
+     applyGlobalStyle();
+ 
+diff --git a/MVVCVTK/c_ui/context/SessionManager.cpp b/MVVCVTK/c_ui/context/SessionManager.cpp
+index e7b7eaff86bdc5ca7db63282796d5c7aad442972..87151243be391d1e968abe242951a4711ed1a42b 100644
+--- a/MVVCVTK/c_ui/context/SessionManager.cpp
++++ b/MVVCVTK/c_ui/context/SessionManager.cpp
+@@ -11,8 +11,71 @@
+ #include <utility>
+ #include <memory>
+ #include <QDebug>
++#include <QCoreApplication>
++#include <QSaveFile>
++#include <QUuid>
++#include <atomic>
++#include <chrono>
++#include <vtkImageData.h>
++#include <vtkPolyData.h>
+ #include <QStringList>
+ 
++struct SessionManager::WorkSignal {
++    QObject* receiver = nullptr;
++    QPointer<SessionManager> owner;
++    std::atomic<bool> isQueued{false};
++};
++
++namespace {
++std::pair<bool, QString> WriteGapCsv(const QString& path,
++    const std::shared_ptr<const GapResultReader>& reader,
++    const std::shared_ptr<std::atomic_bool>& cancelled)
++{
++    const auto getCancelled = [cancelled] { return cancelled->load(); };
++    QSaveFile file(path);
++    if (!file.open(QIODevice::WriteOnly)) return {false, file.errorString()};
++    const auto writeLine = [&file](const QStringList& cells) {
++        const auto bytes = (cells.join(',') + "\r\n").toUtf8();
++        return file.write(bytes) == bytes.size();
++    };
++    if (!writeLine({"id", "voxel_count", "volume_mm3", "parent_volume_mm3",
++        "intersection_volume_mm3", "equivalent_diameter_mm", "is_roi_partial",
++        "has_whole_object_geometry", "bounds_model_min_x_mm", "bounds_model_max_x_mm",
++        "bounds_model_min_y_mm", "bounds_model_max_y_mm", "bounds_model_min_z_mm", "bounds_model_max_z_mm", "boundary_status"}))
++        return {false, file.errorString()};
++    const auto metadata = reader->GetMetadata();
++    std::uint64_t offset = 0;
++    while (offset < metadata.objectCount) {
++        if (getCancelled()) return {false, QStringLiteral("CSV 导出已取消。")};
++        const auto page = reader->GetObjects(offset, 4096, getCancelled);
++        if (page.error != GapReadError::None || page.result != metadata.result
++            || page.total != metadata.objectCount || page.next <= offset
++            || page.next > page.total || page.next - offset != page.objects.size())
++            return {false, QStringLiteral("孔隙对象分页读取失败，错误码 %1。").arg(int(page.error))};
++        for (const auto& object : page.objects) {
++            if (getCancelled()) return {false, QStringLiteral("CSV 导出已取消。")};
++            QStringList cells{QString::number(object.id), QString::number(qulonglong(object.voxelCount))};
++            for (const auto value : {object.volumeMM3, object.parentVolumeMM3,
++                object.intersectionVolumeMM3, object.equivalentDiameterMM})
++                cells << QString::number(value, 'g', 17);
++            cells << QString::number(object.isRoiPartial ? 1 : 0)
++                  << QString::number(object.hasWholeObjectGeometry ? 1 : 0);
++            for (const auto value : object.boundsModel) cells << QString::number(value, 'g', 17);
++            switch (object.boundaryStatus) {
++            case GapBoundaryStatus::Interior: cells << QStringLiteral("Interior"); break;
++            case GapBoundaryStatus::BoundaryUncertain: cells << QStringLiteral("BoundaryUncertain"); break;
++            default: return {false, QStringLiteral("孔隙对象边界状态无法识别。")};
++            }
++            if (!writeLine(cells)) return {false, file.errorString()};
++        }
++        offset = page.next;
++    }
++    if (getCancelled()) return {false, QStringLiteral("CSV 导出已取消。")};
++    if (!file.commit()) return {false, file.errorString()};
++    return {true, QStringLiteral("CSV 导出完成，共 %1 条对象记录。").arg(qulonglong(offset))};
++}
++}
++
+ void setError(QString* err,QString message) {
+     if(err)
+         *err = message;
+@@ -40,8 +103,18 @@ bool isVoxelCountRight(std::array<int, 3> dimensions, std::size_t& voxelcount) {
+ }
+ 
+ SessionManager::SessionManager(QObject* parent)
+-    : QObject(parent)
++    : QObject(parent), workSignal_(std::make_shared<WorkSignal>())
+ {
++    workSignal_->receiver = QCoreApplication::instance();
++    workSignal_->owner = this;
++    renderClock_.start();
++    renderTimer_.setSingleShot(true);
++    renderTimer_.setTimerType(Qt::PreciseTimer);
++    connect(&renderTimer_, &QTimer::timeout, this, &SessionManager::SendRender);
++    loadRetryTimer_.setInterval(50);
++    connect(&loadRetryTimer_, &QTimer::timeout, this, &SessionManager::SendPendingLoad);
++    gapExportTimer_.setInterval(50);
++    connect(&gapExportTimer_, &QTimer::timeout, this, &SessionManager::finishGapExport);
+     cropStateTimer_.setInterval(100);
+     connect(
+         &cropStateTimer_,
+@@ -53,6 +126,8 @@ SessionManager::SessionManager(QObject* parent)
+ SessionManager::~SessionManager()
+ {
+     ++requestGeneration_;
++    if (gapExportCancelled_) gapExportCancelled_->store(true);
++    if (gapExport_.valid()) gapExport_.wait();
+     (void)StopHost();
+ }
+ 
+@@ -66,23 +141,31 @@ bool SessionManager::initHost(HostSessionConfig config, QString* err)
+     }
+ 
+     if (!config.sendOwnerTask) {
+-        const QPointer<SessionManager> guard(this);
++        QObject* receiver = QCoreApplication::instance();
+         config.sendOwnerTask =
+-            [guard](std::function<void()> task) {
+-                if (!guard || !task) {
++            [receiver](std::function<void()> task) {
++                if (!receiver || !task) {
+                     return false;
+                 }
+                 return QMetaObject::invokeMethod(
+-                    guard.data(),
+-                    [guard, task = std::move(task)]() mutable {
+-                        if (guard) {
+-                            task();
+-                        }
+-                    },
++                    receiver,
++                    std::move(task),
+                     Qt::QueuedConnection);
+             };
+     }
+ 
++    config.driveMode = HostDriveMode::HostDriven;
++    const std::weak_ptr<WorkSignal> weak = workSignal_;
++    config.onWorkAvailable = [weak] {
++        const auto signal = weak.lock();
++        if (!signal || signal->isQueued.exchange(true)) return;
++        if (!signal->receiver || !QMetaObject::invokeMethod(signal->receiver, [weak] {
++            const auto ready = weak.lock();
++            if (!ready) return;
++            ready->isQueued.store(false);
++            if (ready->owner) ready->owner->SendUpdates();
++        }, Qt::QueuedConnection)) signal->isQueued.store(false);
++    };
+     config_ = std::move(config);
+     hasConfig_ = true;
+ 
+@@ -101,6 +184,8 @@ bool SessionManager::initHost(HostSessionConfig config, QString* err)
+ bool SessionManager::resetHost(QString* errorOut)
+ {
+     ++requestGeneration_;
++    loadRetryTimer_.stop();
++    pendingLoad_.reset();
+     if (!StopHost(errorOut)) {
+         return false;
+     }
+@@ -112,6 +197,7 @@ bool SessionManager::resetHost(QString* errorOut)
+         return false;
+     }
+ 
++    isClosing_ = false;
+     auto newHost = std::make_unique<VtkAppHostSession>(config_);
+ 
+     if (!newHost->BuildSession()) {
+@@ -124,8 +210,7 @@ bool SessionManager::resetHost(QString* errorOut)
+ 
+     hostSession_ = std::move(newHost);
+     if (!resetCropFeature(errorOut)) {
+-        (void)hostSession_->Stop();
+-        hostSession_.reset();
++        (void)StopHost();
+         return false;
+     }
+     return true;
+@@ -133,11 +218,48 @@ bool SessionManager::resetHost(QString* errorOut)
+ 
+ bool SessionManager::StopHost(QString* errorOut)
+ {
++    if (gapExport_.valid()) {
++        gapExportCancelled_->store(true);
++        if (gapExport_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
++            setError(errorOut, QStringLiteral("正在取消 CSV 导出，请稍候。"));
++            return false;
++        }
++        finishGapExport();
++    }
+     if (!hostSession_) {
+         gapFeature_.reset();
++        isGapRestoreCleanupPending_ = false;
+         clearCropFeature();
+         return true;
+     }
++    // Running 阶段先按 Feature 卸载协议收口：该协议会恢复仍占用裁剪结果的主输入。
++    // 普通 CloseDocument 不具备卸载时的输入恢复权限，不能在主输入占用结果时反复重发。
++    if (hostSession_->GetStopState() == HostStopState::Running) {
++        const auto pumpClosingViews = [this] {
++            (void)hostSession_->SendUpdates();
++            HostRenderRequest draw;
++            for (const auto& view : hostSession_->GetSceneViewStates())
++                if (view.isAvailable) draw.viewIds.push_back(view.id);
++            if (!draw.viewIds.empty()) (void)hostSession_->SendRender(draw);
++        };
++        if (gapFeature_) {
++            if (!hostSession_->DetachFeature(*gapFeature_)) {
++                pumpClosingViews();
++                setError(errorOut, QStringLiteral("正在退出孔隙业务，请稍候。"));
++                return false;
++            }
++            gapFeature_.reset();
++            isGapRestoreCleanupPending_ = false;
++        }
++        if (cropFeature_) {
++            if (!hostSession_->DetachFeature(*cropFeature_)) {
++                pumpClosingViews();
++                setError(errorOut, QStringLiteral("正在关闭裁切工具，请稍候。"));
++                return false;
++            }
++            cropFeature_.reset();
++        }
++    }
+     if (!hostSession_->Stop()) {
+         setError(
+             errorOut,
+@@ -146,8 +268,12 @@ bool SessionManager::StopHost(QString* errorOut)
+     }
+ 
+     cropStateTimer_.stop();
++    renderTimer_.stop();
++    pendingRender_.clear();
+     gapFeature_.reset();
++    isGapRestoreCleanupPending_ = false;
+     cropFeature_.reset();
++    volumePublishBridge_.reset();
+     hostSession_.reset();
+     clearCropHistory();
+     return true;
+@@ -156,54 +282,45 @@ bool SessionManager::StopHost(QString* errorOut)
+ CropHostTarget SessionManager::getCropTarget() const
+ {
+     CropHostTarget target;
++    target.inputBinding = std::string(primaryVolumeBinding);
+     target.referenceView = {
+         "", true, HostRenderViewRole::Primary3D };
+-    target.targetViews.viewRoles = {
+-        HostRenderViewRole::Primary3D,
+-    };
+-    target.isTargetViewsUsed = true;
+-    target.source = CropHostSource::CurrentImage;
++    target.targetViews = getGapTargets();
+     return target;
+ }
+ 
+ void SessionManager::clearCropHistory()
+ {
+-    cropRecords_.clear();
+     cropBuildPending_ = false;
+-    hasOriginalCrop_ = false;
++    cropRevision_ = 0;
++    cropRenderedHead_ = 0;
+     emit cropHistoryChanged();
+ }
+ 
+-void SessionManager::clearCropFeature()
++bool SessionManager::clearCropFeature()
+ {
++    if (hostSession_ && cropFeature_ && !hostSession_->DetachFeature(*cropFeature_)) return false;
+     cropStateTimer_.stop();
+-
+-    if (hostSession_) {
+-        (void)hostSession_->AttachTimer({});
+-        if (cropFeature_) {
+-            (void)hostSession_->DetachFeature(*cropFeature_);
+-        }
+-    }
+-
+     cropFeature_.reset();
+     clearCropHistory();
++    return true;
+ }
+ 
+ bool SessionManager::resetCropFeature(QString* errorOut)
+ {
+-    clearCropFeature();
++    if (!clearCropFeature()) {
++        setError(errorOut, QStringLiteral("裁剪文档仍在退出，请稍后重试加载。"));
++        return false;
++    }
+ 
+-    if (!hostSession_) {
++    if (!hostSession_ || isClosing_) {
+         setError(
+             errorOut,
+             QStringLiteral("Host session has not been initialized."));
+         return false;
+     }
+ 
+-    CropHostConfig config;
+-    config.defaultTarget = getCropTarget();
+-
+-    auto feature = std::make_shared<CropHostFeature>(std::move(config));
++    auto feature = std::make_shared<CropHostFeature>();
+     if (!hostSession_->AttachFeature(feature)) {
+         setError(
+             errorOut,
+@@ -211,18 +328,6 @@ bool SessionManager::resetCropFeature(QString* errorOut)
+         return false;
+     }
+ 
+-    HostTimerConfig timer;
+-    timer.isTimerEnabled = true;
+-    timer.targetView = {
+-        "", true, HostRenderViewRole::Primary3D };
+-    if (!hostSession_->AttachTimer(timer)) {
+-        (void)hostSession_->DetachFeature(*feature);
+-        setError(
+-            errorOut,
+-            QStringLiteral("Failed to attach Core crop timer."));
+-        return false;
+-    }
+-
+     cropFeature_ = std::move(feature);
+     cropStateTimer_.start();
+     return true;
+@@ -244,7 +349,7 @@ bool SessionManager::resetGapFeature(QString* errorOut)
+ {
+     gapFeature_.reset();
+ 
+-    if (!hostSession_) {
++    if (!hostSession_ || isClosing_) {
+         setError(
+             errorOut,
+             QStringLiteral("Host session has not been initialized."));
+@@ -293,8 +398,11 @@ bool SessionManager::openData(const QString& path,
+     const QByteArray utf8Path = p.toUtf8();
+     request.filePath = utf8Path.toStdString();
+     request.geometry.dimensions = dims ;
+-    request.geometry.spacing = spacing;
+-    request.geometry.origin = origin;
++    request.geometry.spacing = { spacing[0], spacing[1], spacing[2] };
++    request.geometry.origin = { origin[0], origin[1], origin[2] };
++    request.metadata.identity.datasetId = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
++    request.metadata.source.kind = ImageSourceKind::RawFile;
++    request.metadata.source.uri = request.filePath;
+ 
+     return sendLoadRequest(std::move(request), p, errorOut);
+ }
+@@ -333,8 +441,11 @@ bool SessionManager::openReconstructedData(
+     request.voxels = std::move(voxels);
+ 
+     request.geometry.dimensions = dims;
+-    request.geometry.spacing = spacing;
+-    request.geometry.origin = origin;
++    request.geometry.spacing = { spacing[0], spacing[1], spacing[2] };
++    request.geometry.origin = { origin[0], origin[1], origin[2] };
++    request.metadata.identity.datasetId = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
++    request.metadata.source.kind = ImageSourceKind::Memory;
++    request.metadata.source.uri = "ct-reconstruction:" + request.metadata.identity.datasetId;
+ 
+     const QString displayPath =
+         sourcePath.trimmed().isEmpty()
+@@ -347,60 +458,39 @@ bool SessionManager::openReconstructedData(
+         errorOut);
+ }
+ 
+-bool SessionManager::sendRequest(HostRequest&& request, HostCompleteCallback onComplete)
++bool SessionManager::sendRequest(HostRequest&& request, HostResultCallback onComplete)
+ {
+-    if (!hostSession_) {
++    if (!hostSession_ || isClosing_) {
+         return false;
+     }
+ 
+-    return hostSession_->SendRequestResult(
++    const auto admission = hostSession_->SendRequest(
+         std::move(request),
+-        [onComplete = std::move(onComplete)](HostResult result) {
+-            if (onComplete) {
+-                onComplete(result.isSucceeded);
++        [guard = QPointer<SessionManager>(this), onComplete = std::move(onComplete)](HostResult result) {
++            if (!guard) return;
++            if (!result.isSucceeded) emit guard->hostError(QString::fromStdString(result.message));
++            if (guard && onComplete) {
++                onComplete(std::move(result));
+             }
+         });
++    if (admission.status != HostAdmissionStatus::Accepted) {
++        emit hostError(QString::fromStdString(admission.message));
++        return false;
++    }
++    return true;
+ }
+ 
+ bool SessionManager::sendCropAction(CropHostRequest request)
+ {
+-    return state_ == State::Ready
++    return !isClosing_ && state_ == State::Ready
+         && cropFeature_
+         && !cropBuildPending_
+         && cropFeature_->SendRequest(std::move(request));
+ }
+ 
+-bool SessionManager::startBoxCrop()
+-{
+-    pendingCropShape_ = CropRecordShape::Box;
+-
+-    CropHostRequest request;
+-    request.action = CropHostAction::Box;
+-    request.target = getCropTarget();
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
+-
+-    const bool isModeSet = keepCropInside();
+-    emit cropHistoryChanged();
+-    return isModeSet;
+-}
+-
+-bool SessionManager::startPlaneCrop()
+-{
+-    pendingCropShape_ = CropRecordShape::Plane;
+-
+-    CropHostRequest request;
+-    request.action = CropHostAction::Plane;
+-    request.target = getCropTarget();
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
++bool SessionManager::startBoxCrop() { return StartCrop(CropHostAction::Box); }
+ 
+-    const bool isModeSet = keepCropInside();
+-    emit cropHistoryChanged();
+-    return isModeSet;
+-}
++bool SessionManager::startPlaneCrop() { return StartCrop(CropHostAction::Plane); }
+ 
+ bool SessionManager::keepCropInside()
+ {
+@@ -408,14 +498,9 @@ bool SessionManager::keepCropInside()
+     request.action = CropHostAction::Mode;
+     request.target = getCropTarget();
+     request.removalMode = CropRemovalMode::KeepInside;
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
+-
+-    pendingCropMode_ = CropRemovalMode::KeepInside;
+-    syncCropHistory();
+-    emit cropHistoryChanged();
+-    return true;
++    const bool accepted = sendCropAction(request);
++    if (accepted) syncCropHistory();
++    return accepted;
+ }
+ 
+ bool SessionManager::removeCropInside()
+@@ -424,161 +509,229 @@ bool SessionManager::removeCropInside()
+     request.action = CropHostAction::Mode;
+     request.target = getCropTarget();
+     request.removalMode = CropRemovalMode::RemoveInside;
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
+-
+-    pendingCropMode_ = CropRemovalMode::RemoveInside;
+-    syncCropHistory();
+-    emit cropHistoryChanged();
+-    return true;
++    const bool accepted = sendCropAction(request);
++    if (accepted) syncCropHistory();
++    return accepted;
+ }
+ 
+-bool SessionManager::setCropNode(const std::size_t nodeCount)
++bool SessionManager::setCropNode(CropNodeId nodeId)
+ {
+-    CropHostRequest request;
+-    request.action = CropHostAction::Node;
+-    request.nodeCount = nodeCount;
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
+-
+-    syncCropHistory();
++    if (state_ != State::Ready || isClosing_ || !cropFeature_ || cropBuildPending_) return false;
++    const auto history = cropFeature_->GetHistory();
++    CropEditRequest request;
++    request.documentId = history.documentId;
++    request.nodeId = nodeId;
++    request.kind = CropEditKind::Select;
++    request.requestId = CropHostFeature::CreateRequestId();
++    request.expectedRevision = history.stateRevision;
++    cropBuildPending_ = true;
++    QPointer<SessionManager> guard(this);
++    const auto generation = requestGeneration_;
++    const auto admission = cropFeature_->SendRequest(request, [guard, generation](CropEditOutcome result) {
++        if (!guard || result.status == CropEditStatus::Queued) return;
++        QTimer::singleShot(0, guard, [guard, generation, result] {
++            if (!guard || guard->requestGeneration_ != generation) return;
++            guard->cropBuildPending_ = false;
++            if (result.status != CropEditStatus::Succeeded) emit guard->hostError(QStringLiteral("裁剪节点选择失败，错误码 %1。").arg(int(result.failureReason)));
++            emit guard->cropHistoryChanged();
++        });
++    });
++    if (!admission.isAccepted) cropBuildPending_ = false;
+     emit cropHistoryChanged();
+-    return true;
++    return admission.isAccepted;
+ }
+ 
+ bool SessionManager::applyCrop()
+ {
+-    if (state_ != State::Ready
+-        || !cropFeature_
+-        || cropBuildPending_) {
+-        return false;
+-    }
+-
+-    CropHostRequest request;
+-    request.action = CropHostAction::BuildResult;
+-    request.target = getCropTarget();
+-
++    if (state_ != State::Ready || isClosing_ || !cropFeature_ || cropBuildPending_) return false;
++    const auto history = cropFeature_->GetHistory();
++    if (!history.documentId || history.appliedHead == history.rootNodeId || history.renderedHead != history.appliedHead) return false;
++    CropBuildRequest request;
++    request.documentId = history.documentId;
++    request.nodeId = history.appliedHead;
++    request.requestId = CropHostFeature::CreateRequestId();
++    request.expectedRevision = history.stateRevision;
++    const auto generation = requestGeneration_;
+     QPointer<SessionManager> guard(this);
+-    const bool started = cropFeature_->SendRequest(
+-        std::move(request),
+-        [guard](CropBuildResult result) {
+-            if (!guard) {
++    cropBuildPending_ = true;
++    const auto admission = cropFeature_->SendRequest(request, [guard, generation](CropBuildResult result) {
++        if (!guard) return;
++        QTimer::singleShot(0, guard, [guard, generation, result = std::move(result)] {
++            if (!guard || guard->requestGeneration_ != generation || guard->isClosing_) return;
++            if (!result.isSucceeded) {
++                guard->cropBuildPending_ = false;
++                emit guard->cropHistoryChanged();
++                emit guard->cropBuildFinished(false, QString::fromStdString(result.message));
+                 return;
+             }
+-
+-            const bool isSuccess = result.isSucceeded;
+-            const QString message = QString::fromStdString(result.message);
+-            QMetaObject::invokeMethod(
+-                guard.data(),
+-                [guard, isSuccess, message]() {
+-                    if (!guard) {
+-                        return;
+-                    }
+-
++            const auto descriptor = guard->hostSession_->GetImageDescriptor();
++            if (!descriptor || descriptor->dataRevision != result.sourceRevision) {
++                guard->cropBuildPending_ = false;
++                emit guard->cropHistoryChanged();
++                emit guard->cropBuildFinished(false, QStringLiteral("裁剪已构建，但当前来源已变化，未替换主输入。"));
++                return;
++            }
++            HostDataSelectRequest select;
++            select.dataRevision = result.outputRevision;
++            select.expectedBindingRevision = descriptor->bindingRevision;
++            const auto onSelected = [guard, generation](HostResult selected) {
++                if (!guard) return;
++                QTimer::singleShot(0, guard, [guard, generation, selected = std::move(selected)] {
++                    if (!guard || guard->requestGeneration_ != generation) return;
+                     guard->cropBuildPending_ = false;
+-                    if (isSuccess) {
+-                        guard->hasOriginalCrop_ = true;
+-                        guard->setIsoState();
+-                    }
+-                    guard->syncCropHistory();
++                    guard->setIsoState();
+                     emit guard->cropHistoryChanged();
+-                    emit guard->cropBuildFinished(
+-                        isSuccess,
+-                        message);
+-                },
+-                Qt::QueuedConnection);
++                    emit guard->cropBuildFinished(selected.isSucceeded, QString::fromStdString(selected.message));
++                });
++            };
++            const auto selected = guard->hostSession_->SendRequest(std::move(select), onSelected);
++            // SDK 拒绝时不回调，CT 仍需结束裁剪进度并报告失败。
++            if (selected.status != HostAdmissionStatus::Accepted) {
++                onSelected({ false, selected.errorCode, selected.message });
++            }
+         });
+-
+-    if (!started) {
+-        return false;
+-    }
+-
+-    cropBuildPending_ = true;
++    });
++    if (!admission.isAccepted) cropBuildPending_ = false;
+     emit cropHistoryChanged();
+-    return true;
++    return admission.isAccepted;
+ }
+ 
+ bool SessionManager::restoreOriginalCrop()
+ {
+-    CropHostRequest request;
+-    request.action = CropHostAction::RestoreOriginal;
+-    if (!sendCropAction(std::move(request))) {
++    const auto reject = [this](const QString& message) {
++        emit hostError(message);
+         return false;
++    };
++    if (QThread::currentThread() != thread() || isClosing_ || !hostSession_
++        || state_ != State::Ready || hostSession_->GetStopState() != HostStopState::Running)
++        return reject(QStringLiteral("当前会话尚未就绪，不能恢复原始。"));
++    if (!cropFeature_ || cropBuildPending_)
++        return reject(QStringLiteral("裁切尚未就绪，请稍后重试恢复原始。"));
++
++    const auto crop = cropFeature_;
++    const auto host = hostSession_.get();
++    const auto isCropReady = [crop, host] {
++        const auto state = crop->GetState();
++        const auto history = crop->GetHistory();
++        const auto input = host->GetImageDescriptor();
++        return !state.isPublishing && !state.history.pendingRequestCount && !state.history.isDragging
++            && history.documentId && input && input->dataRevision != history.sourceRevision;
++    };
++    if (!isCropReady())
++        return reject(QStringLiteral("裁切文档忙碌或已显示原始输入，未启动恢复。"));
++    if (getIsGapExporting())
++        return reject(QStringLiteral("CSV 正在导出，请等待完成后再恢复原始。"));
++    if (gapFeature_) {
++        // SDK 快捷键也能发起分析；清理重试必须重新核对，不能用 CT 标记跳过。
++        const auto state = gapFeature_->GetState();
++        if (state.analysisState == GapAnalysisState::Running)
++            return reject(QStringLiteral("孔隙分析正在运行，请等待完成后再恢复原始。"));
++        if (state.isViewActive || state.isExitPending)
++            return reject(QStringLiteral("请先退出孔隙显示并等待退出完成，再恢复原始。"));
+     }
+ 
+-    cropRecords_.clear();
+-    cropBuildPending_ = false;
+-    hasOriginalCrop_ = true;
+-    setIsoState();
++    QPointer<SessionManager> guard(this);
++    const auto generation = requestGeneration_;
++    const auto isCurrent = [guard, generation, host, crop] {
++        return guard && !guard->isClosing_ && guard->requestGeneration_ == generation
++            && guard->hostSession_.get() == host && guard->cropFeature_ == crop;
++    };
++    if (gapFeature_) {
++        // 普通 Exit 保留正式结果；显式恢复来源前才卸载这个消费者。
++        const auto gap = gapFeature_;
++        isGapRestoreCleanupPending_ = true;
++        cropBuildPending_ = true;
++        const bool detached = host->DetachFeature(*gap);
++        if (!isCurrent()) return false;
++        if (gapFeature_ != gap) { cropBuildPending_ = false; return false; }
++        if (!detached) {
++            SendUpdates();
++            if (!isCurrent()) return false;
++            SendRender();
++            if (!isCurrent()) return false;
++            cropBuildPending_ = false;
++            emit cropHistoryChanged();
++            if (!isCurrent() || cropBuildPending_) return false;
++            return reject(QStringLiteral("孔隙结果仍在释放，请稍后重试恢复原始。"));
++        }
++        gapFeature_.reset();
++        isGapRestoreCleanupPending_ = false;
++        cropBuildPending_ = false;
++    }
++    if (!isCropReady())
++        return reject(QStringLiteral("裁切来源状态已变化，未启动恢复，请重试。"));
++    const auto history = crop->GetHistory();
++    CropDocumentRequest request;
++    request.action = CropDocumentAction::ReturnToSource;
++    request.documentId = history.documentId;
++    request.requestId = CropHostFeature::CreateRequestId();
++    request.expectedRevision = history.stateRevision;
++    cropBuildPending_ = true;
++    const auto admission = crop->SendRequest(request, [guard, generation](CropDocumentOutcome result) {
++        if (!guard || result.status == CropEditStatus::Queued) return;
++        QTimer::singleShot(0, guard, [guard, generation, result] {
++            if (!guard || guard->isClosing_ || guard->requestGeneration_ != generation) return;
++            guard->cropBuildPending_ = false;
++            guard->setIsoState();
++            if (!guard || guard->isClosing_ || guard->requestGeneration_ != generation) return;
++            emit guard->cropHistoryChanged();
++            // 远程 CT 用 cropBuildFinished 保存归档 B；恢复来源不能覆盖该归档。
++            if (guard && !guard->isClosing_ && guard->requestGeneration_ == generation
++                && result.status != CropEditStatus::Succeeded)
++                emit guard->hostError(QStringLiteral("恢复来源失败，错误码 %1。").arg(int(result.failureReason)));
++        });
++    });
++    if (!isCurrent()) return false;
++    if (!admission.isAccepted) cropBuildPending_ = false;
+     emit cropHistoryChanged();
+-    return true;
++    return admission.isAccepted;
+ }
+ 
+ bool SessionManager::exitCrop()
+ {
+     CropHostRequest request;
+     request.action = CropHostAction::Exit;
+-    if (!sendCropAction(std::move(request))) {
+-        return false;
+-    }
+-
+-    syncCropHistory();
+-    emit cropHistoryChanged();
+-    return true;
++    const bool accepted = sendCropAction(request);
++    if (accepted) emit cropHistoryChanged();
++    return accepted;
+ }
+ 
+ CropTreeState SessionManager::getCropTreeState() const
+ {
+-    CropTreeState treeState;
+-    if (!cropFeature_) {
+-        return treeState;
+-    }
+-
+-    const CropHostState cropState = cropFeature_->GetState();
+-    const auto& history = cropState.history;
+-    treeState.isCropping = cropState.isActive;
+-    treeState.isBuilding = cropBuildPending_ || cropState.isPublishing;
+-    treeState.canApply = !treeState.isBuilding && history.nodeCount > 0;
+-    treeState.canRestoreOriginal =
+-        !treeState.isBuilding && hasOriginalCrop_;
+-
+-    for (std::size_t index = 0;
+-        index < cropRecords_.size(); ++index) {
+-        const auto& record = cropRecords_[index];
+-        const std::size_t absoluteNode = index + 1;
+-        const bool isApplied = absoluteNode <= history.baseNodeCount;
+-        const bool isSelectable =
+-            !isApplied
+-            && absoluteNode <= history.baseNodeCount
+-                + history.operationCount;
+-        const std::size_t nodeCount =
+-            isSelectable
+-            ? absoluteNode - history.baseNodeCount
+-            : 0;
+-        const QString shape =
+-            record.shape == CropRecordShape::Box
+-            ? QStringLiteral("框")
+-            : QStringLiteral("平面");
+-        const QString mode =
+-            record.removalMode == CropRemovalMode::RemoveInside
+-            ? QStringLiteral("移除内部")
+-            : QStringLiteral("保留内部");
+-
+-        treeState.items.push_back(CropTreeItem{
+-            QStringLiteral("裁切 %1｜%2｜%3")
+-                .arg(absoluteNode)
+-                .arg(shape)
+-                .arg(mode),
+-            nodeCount,
+-            isSelectable && nodeCount == history.nodeCount,
+-            isApplied,
+-            isSelectable
+-        });
++    CropTreeState tree;
++    if (!cropFeature_) return tree;
++    const auto state = cropFeature_->GetState();
++    auto history = cropFeature_->GetHistory();
++    const auto input = hostSession_ ? hostSession_->GetImageDescriptor() : std::optional<ImageDescriptor>{};
++    tree.isCropping = state.isActive;
++    tree.isBuilding = cropBuildPending_ || state.isPublishing || state.history.pendingRequestCount || state.history.isDragging;
++    const bool isSourceDisplayed = input && input->dataRevision == history.sourceRevision;
++    tree.canApply = !tree.isBuilding && isSourceDisplayed && history.documentId
++        && history.appliedHead != history.rootNodeId && history.renderedHead == history.appliedHead;
++    tree.canRestoreOriginal = !tree.isBuilding && history.documentId && input && input->dataRevision != history.sourceRevision;
++    const auto revision = history.stateRevision;
++    const auto results = history.results;
++    for (;;) {
++        for (const auto& node : history.nodes) {
++            QString text = QStringLiteral("原始输入");
++            if (node.operation) {
++                const auto& operation = *node.operation;
++                const auto shape = operation.geometryType == CropShape::Box ? QStringLiteral("框")
++                    : operation.geometryType == CropShape::Plane ? QStringLiteral("平面")
++                    : operation.geometryType == CropShape::Sphere ? QStringLiteral("球") : QStringLiteral("圆柱");
++                text = QStringLiteral("节点 %1｜%2｜%3").arg(qulonglong(node.nodeId)).arg(shape)
++                    .arg(operation.removalMode == CropRemovalMode::RemoveInside ? QStringLiteral("移除内部") : QStringLiteral("保留内部"));
++            }
++            bool isApplied = false;
++            for (const auto& result : results) isApplied = isApplied || (input && result.nodeId == node.nodeId
++                && result.status == CropResultStatus::Published && result.outputRevision == input->dataRevision);
++            tree.items.push_back({text, node.nodeId, node.nodeId == state.history.appliedHead, isApplied, !tree.isBuilding && isSourceDisplayed});
++        }
++        if (!history.nextPageAfter) break;
++        history = cropFeature_->GetHistory(history.documentId, history.nextPageAfter);
++        if (history.stateRevision != revision) { tree.items.clear(); break; }
+     }
+-
+-    return treeState;
++    return tree;
+ }
+ 
+ bool SessionManager::startGap(
+@@ -586,7 +739,11 @@ bool SessionManager::startGap(
+     GapHostCallback onComplete,
+     QString* errorOut)
+ {
+-    if (!hostSession_ || state_ != State::Ready) {
++    if (isGapRestoreCleanupPending_ || cropBuildPending_) {
++        setError(errorOut, QStringLiteral("裁切恢复或结果释放尚未完成，请稍后重试孔隙分析。"));
++        return false;
++    }
++    if (!hostSession_ || state_ != State::Ready || isClosing_) {
+         setError(
+             errorOut,
+             QStringLiteral("请先加载 RAW 数据或重建结果。"));
+@@ -603,9 +760,10 @@ bool SessionManager::startGap(
+     request.action = GapHostAction::Start;
+     request.start = std::move(params);
+ 
+-    if (!gapFeature_->SendRequest(
++    const auto admission = gapFeature_->SendRequest(
+         std::move(request),
+-        std::move(onComplete))) {
++        std::move(onComplete));
++    if (admission.status != GapAdmissionStatus::Accepted) {
+         setError(
+             errorOut,
+             QStringLiteral("孔隙分析请求未被 SDK 接纳，请检查参数或先退出当前孔隙会话。"));
+@@ -624,51 +782,42 @@ bool SessionManager::toggleGapOverlay(QString* errorOut)
+ 
+     GapHostRequest request;
+     request.action = GapHostAction::Overlay;
+-    if (!gapFeature_->SendRequest(std::move(request))) {
++    const auto admission = gapFeature_->SendRequest(std::move(request));
++    if (admission.status != GapAdmissionStatus::Accepted) {
+         setError(errorOut, QStringLiteral("当前没有可切换的孔隙分析结果。"));
+         return false;
+     }
+     return true;
+ }
+ 
+-bool SessionManager::exportGapCsv(
+-    const QString& outputPath,
+-    QString* errorOut)
++bool SessionManager::exportGapCsv(const QString& outputPath,
++    std::function<void(bool, QString)> onComplete, QString* errorOut)
+ {
+-    if (!gapFeature_) {
+-        setError(
+-            errorOut,
+-            QStringLiteral("孔隙分析功能尚未初始化。"));
++    if (isGapRestoreCleanupPending_ || cropBuildPending_) {
++        setError(errorOut, QStringLiteral("裁切恢复或结果释放尚未完成，暂不能导出 CSV。"));
+         return false;
+     }
+-
+-    const GapHostState state = gapFeature_->GetState();
+-    if (state.analysisState != GapAnalysisState::Succeeded) {
+-        setError(
+-            errorOut,
+-            QStringLiteral("请等待孔隙分析成功后再导出。"));
++    if (getIsGapExporting()) {
++        setError(errorOut, QStringLiteral("CSV 正在导出，请等待完成。"));
+         return false;
+     }
+-
+-    const QString path = outputPath.trimmed();
+-    if (path.isEmpty()) {
+-        setError(
+-            errorOut,
+-            QStringLiteral("CSV 保存路径为空。"));
++    const auto reader = getGapResultReader();
++    if (!reader || outputPath.trimmed().isEmpty() || !onComplete) {
++        setError(errorOut, QStringLiteral("无法取得当前来源的孔隙结果或有效保存路径。"));
+         return false;
+     }
+-
+-    GapHostRequest request;
+-    request.action = GapHostAction::Export;
+-    request.outputPath = path.toUtf8().toStdString();
+-
+-    if (!gapFeature_->SendRequest(std::move(request))) {
+-        setError(
+-            errorOut,
+-            QStringLiteral("CSV 导出失败，请检查分析状态和保存路径。"));
++    auto cancelled = std::make_shared<std::atomic_bool>(false);
++    try {
++        gapExport_ = std::async(std::launch::async, [reader, cancelled, outputPath] {
++            return WriteGapCsv(outputPath, reader, cancelled);
++        });
++    } catch (const std::exception& error) {
++        setError(errorOut, QString::fromUtf8(error.what()));
+         return false;
+     }
+-
++    gapExportCancelled_ = std::move(cancelled);
++    gapExportCallback_ = std::move(onComplete);
++    gapExportTimer_.start();
+     return true;
+ }
+ 
+@@ -681,7 +830,8 @@ bool SessionManager::exitGap(QString* errorOut)
+ 
+     GapHostRequest request;
+     request.action = GapHostAction::Exit;
+-    if (!gapFeature_->SendRequest(std::move(request))) {
++    const auto admission = gapFeature_->SendRequest(std::move(request));
++    if (admission.status != GapAdmissionStatus::Accepted) {
+         setError(errorOut, QStringLiteral("当前没有可退出的孔隙分析会话。"));
+         return false;
+     }
+@@ -697,49 +847,16 @@ GapHostState SessionManager::getGapState() const
+ 
+ void SessionManager::syncCropHistory()
+ {
+-    if (!cropFeature_) {
+-        return;
+-    }
+-
+-    const CropHostState cropState = cropFeature_->GetState();
+-    const auto& history = cropState.history;
+-    bool isChanged = false;
+-
+-    if (cropRecords_.size() > history.allOperationCount) {
+-        cropRecords_.resize(history.allOperationCount);
+-        isChanged = true;
+-    }
+-    while (cropRecords_.size() < history.allOperationCount) {
+-        cropRecords_.push_back(CropRecord{
+-            pendingCropShape_,
+-            pendingCropMode_ });
+-        isChanged = true;
+-    }
+-
+-    if (history.hasEditableOp && history.nodeCount > 0) {
+-        const std::size_t absoluteNode =  history.baseNodeCount + history.nodeCount;
+-        if (absoluteNode <= cropRecords_.size()) 
+-        {
+-            auto& record = cropRecords_[absoluteNode - 1];
+-            const CropRemovalMode mode =
+-                history.editMode == CropRemovalMode::None
+-                ? pendingCropMode_
+-                : history.editMode;
+-            if (record.shape != pendingCropShape_
+-                || record.removalMode != mode) {
+-                record.shape = pendingCropShape_;
+-                record.removalMode = mode;
+-                isChanged = true;
+-            }
+-        }
+-    }
+-
+-    if (isChanged) {
++    if (!cropFeature_) return;
++    const auto history = cropFeature_->GetState().history;
++    if (cropRevision_ != history.stateRevision || cropRenderedHead_ != history.renderedHead) {
++        cropRevision_ = history.stateRevision;
++        cropRenderedHead_ = history.renderedHead;
+         emit cropHistoryChanged();
+     }
+ }
+ 
+-TrustedImageSnapshot SessionManager::capturedVolumeSnapshot(QString* err)
++VtkImageGridSnapshot SessionManager::capturedVolumeSnapshot(QString* err)
+ {
+     if (err) {
+         err->clear();
+@@ -776,18 +893,19 @@ TrustedImageSnapshot SessionManager::capturedVolumeSnapshot(QString* err)
+     return captured;
+ }
+ 
+-TrustedImageSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B交给SDK
+-    const TrustedImageSnapshot& archive,
+-    QString* err)
++VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B交给SDK
++    const VtkImageGridSnapshot& archive,
++    QString* err, bool* isPending)
+ {
+     if (err) err->clear();
++    if (isPending) *isPending = false;
+ 
+     if (QThread::currentThread() != thread()) {
+         setError(err, QStringLiteral("Publish must run on the owner thread."));
+         return {};
+     }
+-    if (!hostSession_ || state_ != State::Ready || cropBuildPending_
+-        || !archive || !archive->image) {
++    if (!hostSession_ || isClosing_ || state_ != State::Ready || cropBuildPending_
++        || !archive || !archive->image || !archive->data) {
+         setError(err, QStringLiteral("Host or archive is not ready."));
+         return {};
+     }
+@@ -797,9 +915,8 @@ TrustedImageSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
+         return {};
+     }
+ 
+-    auto fail = [this, err](const QString& message) -> TrustedImageSnapshot {
++    auto fail = [err](const QString& message) -> VtkImageGridSnapshot {
+         setError(err, message);
+-        failVolumePublishTest(message);
+         return {};
+         };
+ 
+@@ -819,31 +936,42 @@ TrustedImageSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
+             }
+         }
+         if (!hostSession_->DetachFeature(*cropFeature_)) {
+-            return fail(QStringLiteral("Failed to detach crop feature."));
++            // 当前 SDK 卸载会等待源预览/视图归还；由既有 Qt 切换定时器继续推进。
++            if (isPending) *isPending = true;
++            SendUpdates();
++            SendRender();
++            setError(err, QStringLiteral("正在归还裁剪视图，请稍候。"));
++            return {};
+         }
+         cropFeature_.reset();
+     }
+-    if (!hostSession_->AttachTimer({})) {
+-        return fail(QStringLiteral("Failed to detach Host timer."));
+-    }
+     clearCropHistory();
+ 
+-    auto bridge = std::make_shared<VolumePublishBridge>();
+-    if (!hostSession_->AttachFeature(bridge)) {
+-        return fail(QStringLiteral("Failed to attach publish feature."));
++    if (!volumePublishBridge_) {
++        auto bridge = std::make_shared<VolumePublishBridge>();
++        if (!hostSession_->AttachFeature(bridge))
++            return fail(QStringLiteral("Failed to attach publish feature."));
++        volumePublishBridge_ = std::move(bridge);
+     }
+-
+-    std::string detail;
+-    const auto published = bridge->Publish(archive, detail);
+-    const bool renderRequested = published && bridge->RequestViewRenders();
+-    const bool detached = hostSession_->DetachFeature(*bridge);
+-
+-    if (!detached) {
+-        return fail(QStringLiteral("Failed to detach publish feature."));
++    if (!ReleasePublishedVolumes(false, err)) {
++        if (isPending) *isPending = true;
++        SendUpdates(); SendRender();
++        return {};
+     }
++    const auto scope = volumePublishBridge_->CreateDataEntityId();
++    const DataRevisionRef revision{volumePublishBridge_->CreateDataEntityId(), 1};
++    std::string detail;
++    const auto published = volumePublishBridge_->Publish(archive, scope, revision, detail);
++    const bool renderRequested = published && volumePublishBridge_->RequestViewRenders();
++    (void)ReleasePublishedVolumes(false);
+     if (!published) {
+         return fail(QString::fromStdString(detail));
+     }
++    qDebug() << "[VolumeScope] published scope="
++        << QByteArray(reinterpret_cast<const char*>(scope.bytes.data()), 16).toHex()
++        << "entity=" << QByteArray(reinterpret_cast<const char*>(revision.entityId.bytes.data()), 16).toHex()
++        << "generation=" << revision.generation << "binding=" << published->binding->revision
++        << "tracked=" << volumePublishBridge_->GetPublicationCount();
+     if (!renderRequested) {
+         return fail(QStringLiteral("Failed to request renders for all four views."));
+     }
+@@ -852,11 +980,39 @@ TrustedImageSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
+     if (!resetCropFeature(&cropError)) return fail(cropError);
+ 
+     setIsoState();
++    SendUpdates();
+     return published;
+ }
+ 
++bool SessionManager::ReleasePublishedVolumes(bool all, QString* errorOut)
++{
++    if (!volumePublishBridge_) return true;
++    if (!all && volumePublishBridge_->GetPublicationCount() != 0) {
++        // 全局换绑不代表异步 3D/切片已采用新输入。旧作用域必须留到四视图
++        // 的场景提交完成，否则资源过渡退役会令仍在显示的旧修订不可解析。
++        const auto current = hostSession_ ? hostSession_->GetImageDescriptor() : std::nullopt;
++        const auto scenes = hostSession_ ? hostSession_->GetSceneViewStates()
++                                         : std::vector<HostSceneViewState>{};
++        if (!current || scenes.size() != config_.renderViews.size()) return false;
++        for (const auto& scene : scenes) {
++            if (!scene.isAvailable || !scene.presentation
++                || scene.presentation->dataRevision != current->dataRevision
++                || scene.presentation->bindingRevision != current->bindingRevision) {
++                setError(errorOut, QStringLiteral("正在等待四视图提交新体积，保留旧体积资源。"));
++                return false;
++            }
++        }
++    }
++    std::string error;
++    const bool complete = volumePublishBridge_->ReleasePublications(all, error);
++    if (!complete) setError(errorOut, QStringLiteral("旧体积资源尚未归还：%1").arg(QString::fromStdString(error)));
++    return complete;
++}
++
+ bool SessionManager::areAllRenderViewsAtVersion(
+-    std::uint64_t expectedVersion,
++    const DataRevisionRef& expectedRevision,
++    DataBindingRevision expectedBindingRevision,
++    std::map<std::string, std::uint64_t>& renderTargets,
+     QString* report)
+ {
+     if (!hostSession_ || config_.renderViews.size() != 4) {
+@@ -864,22 +1020,47 @@ bool SessionManager::areAllRenderViewsAtVersion(
+         return false;
+     }
+ 
++    // 首次调用必须发生在本次激活完成回调中；仅对目标输入的完整显示组冻结
++    // epoch。后续无关场景提交不移动这一绘制目标，也不能借用旧输入的 epoch。
++    if (renderTargets.empty()) {
++        std::map<std::string, std::uint64_t> targets;
++        for (const auto& config : config_.renderViews) {
++            HostViewTarget target; target.viewId = config.id;
++            const auto scene = hostSession_->GetSceneViewState(target);
++            if (!scene || !scene->isAvailable || !scene->presentation || !scene->sceneEpoch
++                || scene->presentation->dataRevision != expectedRevision
++                || scene->presentation->bindingRevision != expectedBindingRevision) {
++                if (report) *report = QStringLiteral("激活完成时，显示组尚未提交指定输入。");
++                return false;
++            }
++            targets.emplace(config.id, scene->sceneEpoch);
++        }
++        renderTargets = std::move(targets);
++    }
+     bool all = true;
+     QStringList parts;
+     for (const auto& config : config_.renderViews) {
+         HostViewTarget target;
+         target.viewId = config.id;
+-        const auto state = hostSession_->GetRenderViewState(target);
++        const auto state = hostSession_->GetSceneViewState(target);
+         const QString id = QString::fromStdString(config.id);
++
+         if (!state) {
+             all = false;
+             parts << (id + QStringLiteral("=unavailable"));
+         }
+         else {
+-            if (state->dataVersion != expectedVersion)
+-                all = false;
++            const auto expectedEpoch = renderTargets.find(config.id);
++            if (!state->isAvailable || !state->presentation
++                || state->presentation->dataRevision != expectedRevision
++                || state->presentation->bindingRevision != expectedBindingRevision
++                || expectedEpoch == renderTargets.end()
++                || state->renderedEpoch < expectedEpoch->second) all = false;
+             parts << (id + QStringLiteral("=")
+-                + QString::number(static_cast<qulonglong>(state->dataVersion)));
++                + QString::number(static_cast<qulonglong>(state->presentation ? state->presentation->bindingRevision : 0))
++                + QStringLiteral(" target/scene/render=%1/%2/%3")
++                    .arg(qulonglong(expectedEpoch == renderTargets.end() ? 0 : expectedEpoch->second))
++                    .arg(qulonglong(state->sceneEpoch)).arg(qulonglong(state->renderedEpoch)));
+         }
+     }
+     if (report) *report = parts.join(QStringLiteral(", "));
+@@ -926,7 +1107,7 @@ bool SessionManager::sendLoadRequest(
+     const QString& sourcePath,
+     QString* errorOut)
+ {
+-    if (!hostSession_) {
++    if (!hostSession_ || isClosing_) {
+         setError(
+             errorOut,
+             QStringLiteral("Host session has not been initialized."));
+@@ -940,56 +1121,31 @@ bool SessionManager::sendLoadRequest(
+         return false;
+     }
+ 
+-    if (!resetCropFeature(errorOut)) {
+-        return false;
+-    }
+-
+-    const std::uint64_t generation = ++requestGeneration_;
+-
++    // CT 接管请求存储；旧 Crop 文档的异步退出完成后再交给 SDK，避免丢弃重建 buffer。
++    if (auto* file = dynamic_cast<HostLoadRequest*>(&request)) pendingLoad_ = std::make_unique<HostLoadRequest>(std::move(*file));
++    else if (auto* memory = dynamic_cast<HostReloadRequest*>(&request)) pendingLoad_ = std::make_unique<HostReloadRequest>(std::move(*memory));
++    else { setError(errorOut, QStringLiteral("未知加载请求。")); return false; }
++    ++requestGeneration_;
+     sourcePath_.clear();
+     pendingSourcePath_ = sourcePath;
+     setState(State::Loading);
+-	emit isoStateCleared();//清除 isoStateChanged 信号 加载第二个文件第一个文件的iosvalue就不会显示
+-
+-    QPointer<SessionManager> ptr(this);
+-    const bool started = hostSession_->SendRequestResult(
+-        std::move(request),
+-        [ptr, generation](HostResult result) {
+-            if (!ptr) {
+-                return;
+-            }
+-
+-            const bool isSuccess = result.isSucceeded;
+-            QMetaObject::invokeMethod(//回到qt线程
+-                ptr.data(),
+-                [ptr, generation, isSuccess]() {
+-                    if (ptr) {
+-                        ptr->finishLoadRequest(generation,isSuccess);
+-                    }
+-                },
+-                Qt::QueuedConnection);
+-        });
+-
+-    if (!started)  
+-    {
+-        ++requestGeneration_;
+-        pendingSourcePath_.clear();
+-        setState(State::Failed);
+-        return false;
+-    }
+-
++    emit isoStateCleared();
++    loadRetryClock_.restart();
++    SendPendingLoad();
+     return true;
+ }
+ 
+ void SessionManager::finishLoadRequest(//更新状态
+     std::uint64_t generation,
+-    bool isSuccess)
++    HostResult result)
+ {
++    const bool isSuccess = result.isSucceeded;
+     if (generation != requestGeneration_) {
+         return;
+     }
+ 
+     if (isSuccess) {
++        (void)ReleasePublishedVolumes(false);
+         sourcePath_ = pendingSourcePath_;
+     }
+ 
+@@ -1011,8 +1167,7 @@ void SessionManager::finishLoadRequest(//更新状态
+         isSuccess,
+         isSuccess
+         ? QString()
+-        : QStringLiteral(
+-            "Core load request failed."));
++        : QString::fromStdString(result.message));
+ }
+ 
+ void SessionManager::setIsoState()
+@@ -1074,3 +1229,185 @@ void SessionManager::clearSession()
+     setState(State::Empty);
+     emit isoStateCleared();
+ }
++
++
++void SessionManager::SetViewVisibility(std::function<bool(const std::string&)> getVisible)
++{
++    getVisible_ = std::move(getVisible);
++}
++
++
++void SessionManager::SendUpdates()
++{
++    if (!hostSession_ || isClosing_) return;
++    const auto result = hostSession_->SendUpdates();
++    pendingRender_.insert(result.renderViewIds.begin(), result.renderViewIds.end());
++    (void)ReleasePublishedVolumes(false);
++    if (result.status == HostUpdateStatus::Failed) emit hostError(QStringLiteral("SDK 视图更新失败，等待后续工作事件重试。"));
++    syncCropHistory();
++    if (!renderTimer_.isActive()) renderTimer_.start(static_cast<int>(qMax<qint64>(0, nextRenderAt_ - renderClock_.elapsed())));
++}
++
++
++void SessionManager::SendRender()
++{
++    if (!hostSession_ || isClosing_) return;
++    HostRenderRequest request;
++    request.desiredUpdateRate = 30.0;
++    for (const auto& id : pendingRender_) if (!getVisible_ || getVisible_(id)) request.viewIds.push_back(id);
++    if (request.viewIds.empty()) return;
++    const auto result = hostSession_->SendRender(request);
++    bool wasRendered = false;
++    for (const auto& view : result.views) {
++        if (view.status == HostRenderStatus::Rendered || view.status == HostRenderStatus::Unchanged) pendingRender_.erase(view.viewId);
++        if (view.status == HostRenderStatus::Failed) emit hostError(QStringLiteral("SDK 视图绘制失败：%1").arg(QString::fromStdString(view.viewId)));
++        wasRendered = wasRendered || view.status == HostRenderStatus::Rendered;
++    }
++    (void)ReleasePublishedVolumes(false);
++    nextRenderAt_ = renderClock_.elapsed() + 33;
++    // GPU effect 完成后再推进一次 owner 更新；空闲和隐藏窗口不持续自激。
++    if (wasRendered) QTimer::singleShot(0, this, &SessionManager::SendUpdates);
++}
++
++
++void SessionManager::RequestRender()
++{
++    SendUpdates();
++}
++
++
++bool SessionManager::Stop(QString* errorOut)
++{
++    if (!isClosing_) {
++        isClosing_ = true; ++requestGeneration_;
++        loadRetryTimer_.stop(); pendingLoad_.reset();
++    }
++    return StopHost(errorOut);
++}
++
++
++bool SessionManager::GetIsStopped() const { return !hostSession_ || hostSession_->GetIsStopped(); }
++
++
++bool SessionManager::SetCropWidget(CropHostAction shape)
++{
++    CropHostRequest request;
++    request.action = shape;
++    request.target = getCropTarget();
++    if (!cropFeature_->SendRequest(request)) return false;
++    request = {};
++    request.action = CropHostAction::Mode;
++    request.target = getCropTarget();
++    request.removalMode = CropRemovalMode::KeepInside;
++    const bool accepted = cropFeature_->SendRequest(request);
++    if (!accepted) {
++        CropHostRequest exit; exit.action = CropHostAction::Exit;
++        cropFeature_->SendRequest(exit);
++        emit hostError(QStringLiteral("裁剪模式设置失败，已退出编辑。"));
++    }
++    syncCropHistory();
++    // Widget 启停不一定改变历史修订，编辑按钮仍需同步当前激活状态。
++    emit cropHistoryChanged();
++    return accepted;
++}
++
++
++bool SessionManager::StartCrop(CropHostAction shape)
++{
++    if (state_ != State::Ready || isClosing_ || !cropFeature_ || cropBuildPending_) return false;
++    const auto input = hostSession_->GetImageDescriptor();
++    if (!input) return false;
++    const auto history = cropFeature_->GetHistory();
++    if (history.documentId && history.sourceRevision == input->dataRevision) return SetCropWidget(shape);
++
++    CropDocumentRequest request;
++    request.action = CropDocumentAction::CreateDocument;
++    request.requestId = CropHostFeature::CreateRequestId();
++    request.target = getCropTarget();
++    request.sourceRevision = input->dataRevision;
++    cropBuildPending_ = true;
++    const auto generation = requestGeneration_;
++    QPointer<SessionManager> guard(this);
++    const auto admission = cropFeature_->SendRequest(request, [guard, generation, shape](CropDocumentOutcome result) {
++        if (!guard) return;
++        QTimer::singleShot(0, guard, [guard, generation, shape, result] {
++            if (!guard || guard->requestGeneration_ != generation || guard->isClosing_) return;
++            guard->cropBuildPending_ = false;
++            const bool succeeded = result.status == CropEditStatus::Succeeded && guard->SetCropWidget(shape);
++            if (!succeeded) emit guard->hostError(QStringLiteral("裁剪启动失败，错误码 %1。").arg(int(result.failureReason)));
++            emit guard->cropHistoryChanged();
++        });
++    });
++    if (!admission.isAccepted) cropBuildPending_ = false;
++    emit cropHistoryChanged();
++    return admission.isAccepted;
++}
++
++
++std::shared_ptr<const GapResultReader> SessionManager::getGapResultReader() const
++{
++    if (!gapFeature_ || !hostSession_ || state_ != State::Ready
++        || hostSession_->GetStopState() != HostStopState::Running) return {};
++    const auto state = gapFeature_->GetState();
++    const auto source = hostSession_->GetImageDescriptor();
++    if (!source || state.analysisState != GapAnalysisState::Succeeded
++        || source->dataRevision != state.sourceRevision) return {};
++    const auto reader = gapFeature_->GetResultReader(state.resultSet);
++    return reader ? reader->CreateObjectReader() : nullptr;
++}
++
++
++bool SessionManager::getIsGapExporting() const { return gapExport_.valid(); }
++
++
++void SessionManager::finishGapExport()
++{
++    if (!gapExport_.valid() || gapExport_.wait_for(std::chrono::seconds(0)) != std::future_status::ready) return;
++    gapExportTimer_.stop();
++    std::pair<bool, QString> result;
++    try { result = gapExport_.get(); }
++    catch (const std::exception& error) { result = {false, QString::fromUtf8(error.what())}; }
++    auto callback = std::move(gapExportCallback_);
++    gapExportCancelled_.reset();
++    if (callback) callback(result.first, std::move(result.second));
++}
++
++
++void SessionManager::SendPendingLoad()
++{
++    if (!pendingLoad_ || isClosing_ || !hostSession_) { loadRetryTimer_.stop(); return; }
++    // Gap 退出显示后仍可保留分析结果和来源租约；数据重载时先按既有卸载协议
++    // 释放此依赖，再关闭裁剪文档，沿用 StopHost 的消费者先于生产者顺序。
++    bool isGapClosed = !gapFeature_;
++    if (gapFeature_ && hostSession_->DetachFeature(*gapFeature_)) {
++        gapFeature_.reset();
++        isGapRestoreCleanupPending_ = false;
++        isGapClosed = true;
++    }
++    if (!isGapClosed || !resetCropFeature()) {
++        if (loadRetryClock_.elapsed() >= 30000) {
++            pendingLoad_.reset(); loadRetryTimer_.stop();
++            HostResult result; result.message = "Previous Gap/crop cleanup timed out; previous resources remain retained.";
++            finishLoadRequest(requestGeneration_, std::move(result));
++            return;
++        }
++        SendUpdates();
++        if (!loadRetryTimer_.isActive()) loadRetryTimer_.start();
++        return;
++    }
++    loadRetryTimer_.stop();
++    const auto generation = requestGeneration_;
++    auto request = std::move(pendingLoad_);
++    QPointer<SessionManager> guard(this);
++    const auto onComplete = [guard,generation](HostResult result) {
++        if (!guard) return;
++        QTimer::singleShot(0,guard,[guard,generation,result=std::move(result)]() mutable {
++            if (guard) guard->finishLoadRequest(generation,std::move(result));
++        });
++    };
++    const auto admission = hostSession_->SendRequest(std::move(*request), onComplete);
++    // 请求已转交 SDK；拒绝也必须结束 Loading，不能等待不存在的完成回调。
++    if (admission.status != HostAdmissionStatus::Accepted) {
++        onComplete({ false, admission.errorCode, admission.message });
++    }
++}
+diff --git a/MVVCVTK/c_ui/context/SessionManager.h b/MVVCVTK/c_ui/context/SessionManager.h
+index 90cc9dde8cc1e424b365458db38432945261f6cd..6ea30a289dea650be4ecf4bedf1d2895f676d6ad 100644
+--- a/MVVCVTK/c_ui/context/SessionManager.h
++++ b/MVVCVTK/c_ui/context/SessionManager.h
+@@ -1,8 +1,9 @@
+ #pragma once
++#include <map>
+ 
+ #include "MVVCVTK/API/Features/GapAnalysis/Host/GapHostFeature.h"
+ #include "MVVCVTK/API/Features/OrthogonalCrop/Host/CropHostFeature.h"
+-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
++#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
+ #include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
+ #include "MVVCVTK/API/Host/VtkAppHostSession.h"
+ #include "measure/MeasureHostBridge.h"
+@@ -15,14 +16,20 @@
+ #include <QObject>
+ #include <QString>
+ #include <QTimer>
++#include <QElapsedTimer>
++#include <functional>
++#include <set>
++#include <atomic>
++#include <future>
+ 
+ struct HostRequest;
+ class VtkAppHostSession;
++class VolumePublishBridge;
+ 
+ struct CropTreeItem final
+ {
+     QString text;
+-    std::size_t nodeCount = 0;
++    CropNodeId nodeId = 0;
+     bool isCurrent = false;
+     bool isApplied = false;
+     bool isSelectable = false;
+@@ -64,13 +71,15 @@ public:
+     QString getSourcePath() const noexcept {
+         return sourcePath_;
+     }
+-    TrustedImageSnapshot capturedVolumeSnapshot(QString* err = nullptr);
++    VtkImageGridSnapshot capturedVolumeSnapshot(QString* err = nullptr);
+     //publish
+-    TrustedImageSnapshot publishVolumeSnapshotForTest(
+-        const TrustedImageSnapshot& archive,
+-        QString* err = nullptr);
++    VtkImageGridSnapshot publishVolumeSnapshotForTest(
++        const VtkImageGridSnapshot& archive,
++        QString* err = nullptr, bool* isPending = nullptr);
+     bool areAllRenderViewsAtVersion(
+-        std::uint64_t expectedVersion,
++        const DataRevisionRef& expectedRevision,
++        DataBindingRevision expectedBindingRevision,
++        std::map<std::string, std::uint64_t>& renderTargets,
+         QString* report = nullptr);
+     void failVolumePublishTest(const QString& reason);
+     std::optional<measure::MeasureHostData> getMeasureHostData(
+@@ -78,6 +87,12 @@ public:
+     std::optional<HostRenderViewState> getRenderViewState(
+         const HostViewTarget& target);
+     bool initHost(HostSessionConfig config, QString* err = nullptr);
++    bool Stop(QString* errorOut = nullptr);
++    bool GetIsStopped() const;
++    void SetViewVisibility(std::function<bool(const std::string&)> getVisible);
++    void SendUpdates();
++    void SendRender();
++    void RequestRender();
+     bool openData(const QString& path,
+         const std::array<int,3>& dims,
+         const std::array<float, 3>& spacing,
+@@ -93,13 +108,13 @@ public:
+         QString* errorOut = nullptr);
+     bool sendRequest(
+         HostRequest&& request,
+-        HostCompleteCallback onComplete = nullptr);
++        HostResultCallback onComplete = {});
+ 
+     bool startBoxCrop();
+     bool startPlaneCrop();
+     bool keepCropInside();
+     bool removeCropInside();
+-    bool setCropNode(std::size_t nodeCount);
++    bool setCropNode(CropNodeId nodeId);
+     bool applyCrop();
+     bool restoreOriginalCrop();
+     bool exitCrop();
+@@ -112,7 +127,9 @@ public:
+     bool toggleGapOverlay(QString* errorOut = nullptr);
+     bool exportGapCsv(
+         const QString& outputPath,
++        std::function<void(bool, QString)> onComplete,
+         QString* errorOut = nullptr);
++    bool getIsGapExporting() const;
+     bool exitGap(QString* errorOut = nullptr);
+     GapHostState getGapState() const;
+     void clearSession();
+@@ -127,13 +144,17 @@ signals:
+     void isoStateCleared();
+     void cropHistoryChanged();
+     void cropBuildFinished(bool isSuccess, QString message);
++    void hostError(QString message);
+ 
+ private:
+     bool resetHost(QString* errorOut);
+     bool StopHost(QString* errorOut = nullptr);
+     bool resetCropFeature(QString* errorOut = nullptr);
+     bool resetGapFeature(QString* errorOut = nullptr);
+-    void clearCropFeature();
++    bool clearCropFeature();
++    bool ReleasePublishedVolumes(bool all, QString* errorOut = nullptr);
++    bool StartCrop(CropHostAction shape);
++    bool SetCropWidget(CropHostAction shape);
+     CropHostTarget getCropTarget() const;
+     static HostViewTargets getGapTargets();
+     bool sendCropAction(CropHostRequest request);
+@@ -143,7 +164,10 @@ private:
+         HostRequest&& request,
+         const QString& sourcePath,
+         QString* errorOut);
+-    void finishLoadRequest(std::uint64_t generation, bool isSuccess);
++    void SendPendingLoad();
++    void finishLoadRequest(std::uint64_t generation, HostResult result);
++    void finishGapExport();
++    std::shared_ptr<const GapResultReader> getGapResultReader() const;
+     void setIsoState();
+     void setState(State state);
+ 
+@@ -157,20 +181,26 @@ private:
+     std::uint64_t requestGeneration_ = 0;
+     QString sourcePath_;
+     QString pendingSourcePath_;
+-    enum class CropRecordShape
+-    {
+-        Box,
+-        Plane
+-    };
+-    struct CropRecord final
+-    {
+-        CropRecordShape shape = CropRecordShape::Box;
+-        CropRemovalMode removalMode = CropRemovalMode::KeepInside;
+-    };
+-    std::vector<CropRecord> cropRecords_;
+-    CropRecordShape pendingCropShape_ = CropRecordShape::Box;
+-    CropRemovalMode pendingCropMode_ = CropRemovalMode::KeepInside;
+     bool cropBuildPending_ = false;
+-    bool hasOriginalCrop_ = false;
++    bool isGapRestoreCleanupPending_ = false;
+     QTimer cropStateTimer_;
++    struct WorkSignal;
++    std::shared_ptr<WorkSignal> workSignal_;
++    std::function<bool(const std::string&)> getVisible_;
++    std::set<std::string> pendingRender_;
++    QTimer renderTimer_;
++    QElapsedTimer renderClock_;
++    qint64 nextRenderAt_ = 0;
++    bool isClosing_ = false;
++    std::uint64_t cropRevision_ = 0;
++    CropNodeId cropRenderedHead_ = 0;
++    std::unique_ptr<HostRequest> pendingLoad_;
++    QTimer loadRetryTimer_;
++    QElapsedTimer loadRetryClock_;
++    QTimer gapExportTimer_;
++    std::future<std::pair<bool, QString>> gapExport_;
++    std::shared_ptr<std::atomic_bool> gapExportCancelled_;
++    std::function<void(bool, QString)> gapExportCallback_;
++    std::shared_ptr<VolumePublishBridge> volumePublishBridge_;
++
+ };
+diff --git a/MVVCVTK/c_ui/context/VolumeHostBridge.cpp b/MVVCVTK/c_ui/context/VolumeHostBridge.cpp
+index ab23d1baf5bfa53de5d812d1706b72a7d8d57387..b386eded59036f7008a3bd14bb5fe51e675255c7 100644
+--- a/MVVCVTK/c_ui/context/VolumeHostBridge.cpp
++++ b/MVVCVTK/c_ui/context/VolumeHostBridge.cpp
+@@ -1,10 +1,35 @@
+ #include "VolumeHostBridge.h"
+ #include "MVVCVTK/SPI/App/Services/FeatureViewService.h"
++#include "MVVCVTK/SPI/Data/DataPayloads.h"
+ #include <vtkSmartPointer.h>
+ #include <vtkImageData.h>
+ #include <exception>
+ #include <memory>
+ #include <utility>
++#include <iostream>
++
++namespace {
++std::string GetScopeText(const DataEntityId& scope)
++{
++    constexpr char digits[] = "0123456789abcdef";
++    std::string text(32, '0');
++    for (std::size_t i = 0; i < scope.bytes.size(); ++i) {
++        text[i * 2] = digits[scope.bytes[i] >> 4];
++        text[i * 2 + 1] = digits[scope.bytes[i] & 15];
++    }
++    return text;
++}
++std::shared_ptr<const ImageGrid3DPayload> CopyImagePayload(const ImageGrid3DPayload& source)
++{
++    const auto& original = source.GetValues();
++    if (!original) return {};
++    auto bytes = std::make_shared<const std::vector<std::uint8_t>>(
++        original->begin(), original->end());
++    return std::make_shared<const ImageGrid3DPayload>(source.GetGeometry(),
++        source.GetValueType(), source.GetComponentCount(), std::move(bytes),
++        source.GetValidityMask(), source.GetScalarRange(), source.GetMetadata());
++}
++}
+ 
+ std::string_view VolumeHostBridge::GetFeatureId() const noexcept
+ {
+@@ -23,27 +48,28 @@ bool VolumeHostBridge::AttachHost(const HostFeatureContext& context)
+ 
+ 	try
+ 	{
+-		const auto source = context.data->GetImageSnapshot();
+-		if (!source || !source->image) {
++		const auto source = context.data->GetPrimaryImage();
++		if (!source || !source->image || !source->data || !source->binding) {
+ 			lastError_ = "Current volume image is unavailable.";
+ 			return false;
+ 		}
+ 
+-		//复制数据 
+-		auto capturedptr = std::make_shared<TrustedImageState>(*source);
+-		auto copyimage = vtkSmartPointer<vtkImageData>::New();
+-		copyimage->DeepCopy(source->image);
+-		capturedptr->image = copyimage;
+-
+-		if (source->validityMask) {
+-			auto maskcopyed = vtkSmartPointer<vtkImageData>::New();
+-			maskcopyed->DeepCopy(source->validityMask);
+-			capturedptr->validityMask = maskcopyed;
+-		}
+-		else
+-		{
+-			capturedptr->validityMask = nullptr;
++		const auto payload = std::dynamic_pointer_cast<const ImageGrid3DPayload>(source->data->payload);
++		const auto copied = payload ? CopyImagePayload(*payload) : nullptr;
++		const auto prepared = copied ? VtkPreparedDataView::BuildDataView(copied) : nullptr;
++		if (!prepared || !prepared->image) {
++			lastError_ = "Independent archive preparation failed.";
++			return false;
+ 		}
++		// 只复制值标识供日志使用；不保存原 graph、别名 data、租约或原像素/mask owner。
++		auto archiveData = std::make_shared<DataRevision>();
++		archiveData->self = source->data->self;
++		archiveData->type = copied->GetDataType();
++		archiveData->payload = copied;
++		archiveData->provenance = source->data->provenance;
++		auto capturedptr = std::make_shared<VtkImageGridView>(*prepared->image);
++		capturedptr->data = std::move(archiveData);
++		capturedptr->binding = source->binding;
+ 		captruedImage_= capturedptr;
+ 		return true;
+ 
+@@ -68,7 +94,7 @@ bool VolumeHostBridge::OnHostTick()
+ 	return true;
+ }
+ 
+-TrustedImageSnapshot VolumeHostBridge::GetCapturedImage() const
++VtkImageGridSnapshot VolumeHostBridge::GetCapturedImage() const
+ {
+ 	return captruedImage_;
+ }
+@@ -84,6 +110,11 @@ std::string_view VolumePublishBridge::GetFeatureId() const noexcept
+     return "ct.volume-publish-test";
+ }
+ 
++FeatureDataContract VolumePublishBridge::GetDataContract() const
++{
++    return {{}, {{"archived-volume", DataTypes::imageGrid3D, {DataFacets::scalarGrid3D}}}};
++}
++
+ bool VolumePublishBridge::AttachHost(const HostFeatureContext& context)
+ {
+     data_ = context.data;
+@@ -93,6 +124,10 @@ bool VolumePublishBridge::AttachHost(const HostFeatureContext& context)
+ 
+ bool VolumePublishBridge::DetachHost()
+ {
++    // 账本随 Host 持有的 bridge 存活；不依赖外层 SessionManager 的析构次序。
++    // Host Stop 先归还当前 owned primary，再调用此处；阻塞时保留端口和责任记录。
++    std::string error;
++    if (!ReleasePublications(true, error)) return false;
+     data_.reset();
+     views_.reset();
+     return true;
+@@ -103,50 +138,68 @@ bool VolumePublishBridge::OnHostTick()
+     return true;
+ }
+ 
+-TrustedImageSnapshot VolumePublishBridge::Publish(
+-    const TrustedImageSnapshot& archive,
++VtkImageGridSnapshot VolumePublishBridge::Publish(
++    const VtkImageGridSnapshot& archive,
++    const DataEntityId& scopeId, const DataRevisionRef& revision,
+     std::string& error)
+ {
+     error.clear();
+-    if (!data_ || !archive || !archive->image) {
++    if (!data_ || !archive || !archive->image || !archive->data
++        || !GetDataEntityIdValid(scopeId) || !GetDataRevisionRefValid(revision)) {
+         error = "Publish data port or archive is unavailable.";
+         return {};
+     }
+ 
+     try {
++        // 在任何正式提交前登记，包含拒绝、通知异常和随后换绑的情况。
++        publications_.emplace_back(scopeId, revision);
+         // expected 必须是现在的 SDK 输入，不能使用归档 A/B 代替。
+-        const auto expected = data_->GetImageSnapshot();
+-        if (!expected || !expected->image) {
++        const auto expected = data_->GetPrimaryImage();
++        if (!expected || !expected->image || !expected->data || !expected->binding) {
+             error = "Current SDK input is unavailable.";
+             return {};
+         }
+ 
+-        TrustedImageState working = *archive;
+-        auto image = vtkSmartPointer<vtkImageData>::New();
+-        image->DeepCopy(archive->image);
+-        working.image = image;
+-
+-        if (archive->validityMask) {
+-            auto mask = vtkSmartPointer<vtkImageData>::New();
+-            mask->DeepCopy(archive->validityMask);
+-            working.validityMask = mask;
++        const auto payload = std::dynamic_pointer_cast<const ImageGrid3DPayload>(archive->data->payload);
++        if (!payload || !payload->GetValid()) {
++            error = "Archived image payload is unavailable.";
++            return {};
+         }
+-        else {
+-            working.validityMask = nullptr;
++        // 发布存储也独立于归档，保证 A/B 常驻时旧发布作用域仍能真正释放。
++        DataRevisionDraft output;
++        output.entityId = revision.entityId;
++        output.type = payload->GetDataType();
++        output.payload = CopyImagePayload(*payload);
++        output.provenance = archive->data->provenance;
++        output.lifetimeScope = scopeId;
++        output.lifetimePolicy = DataLifetimePolicy::OwnerRetirement;
++        DataTransaction transaction;
++        transaction.outputs.push_back(std::move(output));
++        transaction.bindings.push_back({std::string(primaryVolumeBinding),
++            expected->binding->revision, true, expected->binding->target, revision});
++        struct Receipt final : DataCommitReceipt {
++            bool committed = false;
++            void SetDataCommitted(const DataCommitResult& result) noexcept override {
++                committed = result.status != DataCommitStatus::Rejected && result.isActivated;
++            }
++        } receipt;
++        DataCommitResult committed;
++        try {
++            committed = data_->SetDataCommit(std::move(transaction), &receipt);
+         }
+-
+-        TrustedImageSnapshot published;
+-        if (!data_->SetImageState(std::move(working), expected, published)) {
+-            error = "SDK SetImageState rejected the candidate.";
+-            return {};
++        catch (const std::exception& e) {
++            if (!receipt.committed) throw;
++            std::cerr << "Volume published; notification failed: " << e.what() << '\n';
+         }
+-
+-        if (!published || !published->image) {
+-            error = "SDK returned no published image.";
++        if (!receipt.committed && committed.status == DataCommitStatus::Rejected) {
++            error = "SDK archive publication rejected: " + committed.message;
+             return {};
+         }
+-        if (published->version == expected->version) {
+-            error = "Published input version did not advance.";
++        const auto published = data_->GetPrimaryImage();
++        if (!published || !published->image || !published->data || !published->binding
++            || published->data->self != revision
++            || published->binding->revision <= expected->binding->revision) {
++            error = "Archive was published but is no longer the active input.";
+             return {};
+         }
+         return published;
+@@ -157,6 +210,75 @@ TrustedImageSnapshot VolumePublishBridge::Publish(
+     }
+ }
+ 
++DataEntityId VolumePublishBridge::CreateDataEntityId()
++{
++    return data_ ? data_->CreateDataEntityId() : DataEntityId{};
++}
++
++DataLifetimeState VolumePublishBridge::GetPublicationLifetime(const DataEntityId& scopeId) const
++{
++    return data_ ? data_->GetDataLifetime(scopeId) : DataLifetimeState{};
++}
++
++bool VolumePublishBridge::ReleasePublication(const DataEntityId& scopeId, std::string& error)
++{
++    if (!data_) { error = "Publication data port is unavailable."; return false; }
++    try {
++        auto state = data_->GetDataLifetime(scopeId);
++        if (state.status == DataLifetimeStatus::Unknown || state.status == DataLifetimeStatus::Released) return true;
++        if (state.status == DataLifetimeStatus::Published) {
++            DataTransaction transaction;
++            transaction.retireScopes.push_back({scopeId, DataLifetimeStatus::Published,
++                state.ownedRevisions, true});
++            try {
++                const auto retired = data_->SetDataCommit(std::move(transaction));
++                if (retired.status == DataCommitStatus::Rejected) {
++                    error = retired.message;
++                    return false;
++                }
++            }
++            catch (const std::exception&) {
++                // 通知异常不撤销已发生的退役；重新读取实际状态。
++                if (data_->GetDataLifetime(scopeId).status == DataLifetimeStatus::Published) throw;
++            }
++        }
++        try { state = data_->SetDataRelease(scopeId); }
++        catch (const std::exception&) {
++            state = data_->GetDataLifetime(scopeId);
++            if (state.status != DataLifetimeStatus::Released) throw;
++        }
++        if (state.status != DataLifetimeStatus::Released) {
++            error = "Publication resources are still in use.";
++            return false;
++        }
++        return true;
++    }
++    catch (const std::exception& e) { error = e.what(); return false; }
++}
++
++bool VolumePublishBridge::ReleasePublications(bool all, std::string& error)
++{
++    if (!data_) return publications_.empty();
++    const auto current = data_->GetDataBinding(data_->GetDataGraph(), primaryVolumeBinding);
++    bool complete = true;
++    for (auto item = publications_.begin(); item != publications_.end();) {
++        if (!all && current && current->target == item->second) { ++item; continue; }
++        if (!ReleasePublication(item->first, error)) { complete = false; ++item; continue; }
++        const auto state = GetPublicationLifetime(item->first);
++        std::cerr << (state.status == DataLifetimeStatus::Released
++            ? "[VolumeScope] released scope=" : "[VolumeScope] uncommitted scope=")
++            << GetScopeText(item->first) << " state=" << int(state.status)
++            << " remaining=" << (publications_.size() - 1) << '\n';
++        item = publications_.erase(item);
++    }
++    return complete;
++}
++
++std::size_t VolumePublishBridge::GetPublicationCount() const
++{
++    return publications_.size();
++}
++
+ bool VolumePublishBridge::RequestViewRenders()//找到视图并且刷新界面
+ {
+     if (!views_) return false;
+diff --git a/MVVCVTK/c_ui/context/VolumeHostBridge.h b/MVVCVTK/c_ui/context/VolumeHostBridge.h
+index 195f416d5edb7e195a94e5dc69e12871e068ca50..4107203cc91cc0839a33212fad39ac014bd06d56 100644
+--- a/MVVCVTK/c_ui/context/VolumeHostBridge.h
++++ b/MVVCVTK/c_ui/context/VolumeHostBridge.h
+@@ -2,6 +2,9 @@
+ 
+ #include "MVVCVTK/SPI/Host/HostFeature.h"
+ #include "string"
++#include <cstddef>
++#include <utility>
++#include <vector>
+ 
+ class VolumeHostBridge final : public HostFeature {
+ public:
+@@ -10,29 +13,38 @@ public:
+     bool DetachHost() override;
+ 	bool OnHostTick() override;
+ 
+-	TrustedImageSnapshot GetCapturedImage() const;
++	VtkImageGridSnapshot GetCapturedImage() const;
+ 	const std::string& GetLastError() const noexcept;
+ 
+ private:
+-	TrustedImageSnapshot captruedImage_;
++	VtkImageGridSnapshot captruedImage_;
+ 	std::string lastError_;
+ };
+ 
+ class VolumePublishBridge final : public HostFeature {
+ public:
+     std::string_view GetFeatureId() const noexcept override;
++    FeatureDataContract GetDataContract() const override;
+     bool AttachHost(const HostFeatureContext& context) override;
+     bool DetachHost() override;
+     bool OnHostTick() override;
+ 
+     // 返回发布快照。这里只验证数据发布，不代表四视图已同步。
+-    TrustedImageSnapshot Publish(
+-        const TrustedImageSnapshot& archive,
++    VtkImageGridSnapshot Publish(
++        const VtkImageGridSnapshot& archive,
++        const DataEntityId& scopeId, const DataRevisionRef& revision,
+         std::string& error);
+ 
++    DataEntityId CreateDataEntityId();
++    DataLifetimeState GetPublicationLifetime(const DataEntityId& scopeId) const;
++    bool ReleasePublication(const DataEntityId& scopeId, std::string& error);
++    bool ReleasePublications(bool all, std::string& error);
++    std::size_t GetPublicationCount() const;
++
+     bool RequestViewRenders();
+ 
+ private:
+-    std::shared_ptr<TrustedFeatureDataPort> data_;
++    std::shared_ptr<TrustedDataPort> data_;
+     std::shared_ptr<FeatureViewDirectory> views_;
+-};
+\ No newline at end of file
++    std::vector<std::pair<DataEntityId, DataRevisionRef>> publications_;
++};
+diff --git a/MVVCVTK/c_ui/context/VolumeManager.cpp b/MVVCVTK/c_ui/context/VolumeManager.cpp
+index aee009c9a88f94dc008df5ff8ee6de78f162298a..d378ab55e8457279db31f1b817124d12fc15247b 100644
+--- a/MVVCVTK/c_ui/context/VolumeManager.cpp
++++ b/MVVCVTK/c_ui/context/VolumeManager.cpp
+@@ -1,7 +1,7 @@
+ #include "VolumeManager.h"
+ #include <utility>
+ 
+-int VolumeManager::addVolume(QString name, TrustedImageSnapshot image, int VolumeSourceid)
++int VolumeManager::addVolume(QString name, VtkImageGridSnapshot image, int VolumeSourceid)
+ {
+ 	int id = nextVolumeid_;
+ 	VolumeRecord record{ id,std::move(name),std::move(image),std::move(VolumeSourceid) };
+diff --git a/MVVCVTK/c_ui/context/VolumeManager.h b/MVVCVTK/c_ui/context/VolumeManager.h
+index e9e3cbe7cd33984f978c1a9b6c84aa34cdd8ea99..2c058ff7b649e4fcd853ec478eca36fa260898d7 100644
+--- a/MVVCVTK/c_ui/context/VolumeManager.h
++++ b/MVVCVTK/c_ui/context/VolumeManager.h
+@@ -1,27 +1,26 @@
+ #pragma once
+-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
++#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
+ #include <QString>
+ #include <map>
+ 
+ struct VolumeRecord
+ {
+ 	int id = 0;
+-	QString name; 
+-	TrustedImageSnapshot image;
++	QString name;
++	VtkImageGridSnapshot image;
+ 	int VolumeSourceid = 0;//来源体积
+ };
+ 
+ class VolumeManager {
+ public:
+-	int addVolume(QString name,TrustedImageSnapshot image,int VolumeSourceid = 0);
++	int addVolume(QString name,VtkImageGridSnapshot image,int VolumeSourceid = 0);
+ 	VolumeRecord& getVolume(int id);//没人会改为什么加const 这个引用又是啥意思，不加引用会如何
+ 	std::map<int, VolumeRecord>& getVolumes();
+ 	int getActiveVolumeid();
+ 	void setActiveVolumeid(int id);
+-	
++
+ private:
+ 	std::map<int, VolumeRecord> volumes_;
+ 	int nextVolumeid_ = 1;
+ 	int activeVolumeid_ = 0;
+ };
+-
+diff --git a/MVVCVTK/c_ui/external/online_reconstruction_dialog.cpp b/MVVCVTK/c_ui/external/online_reconstruction_dialog.cpp
+index eb621c94e8cb2cd1e42c434018c0bdff9fc9c1e4..7598d6c2d0962dfec59d933ffe4d618adc973d7f 100644
+--- a/MVVCVTK/c_ui/external/online_reconstruction_dialog.cpp
++++ b/MVVCVTK/c_ui/external/online_reconstruction_dialog.cpp
+@@ -588,4 +588,15 @@ void OnlineReconstructionDialog::closeEvent(QCloseEvent* event) {
+     event->ignore();
+ }
+ 
++bool OnlineReconstructionDialog::Stop()
++{
++    if (running_) {
++        closeWhenFinished_ = true;
++        cancelReconstruction();
++        return false;
++    }
++    close();
++    return true;
++}
++
+ } // namespace fdkui
+diff --git a/MVVCVTK/c_ui/external/online_reconstruction_dialog.h b/MVVCVTK/c_ui/external/online_reconstruction_dialog.h
+index c2250df3c13b1446af5513a985d0911aa216788a..b53705f8b8ee352754062e2d03b646ab9a59ea74 100644
+--- a/MVVCVTK/c_ui/external/online_reconstruction_dialog.h
++++ b/MVVCVTK/c_ui/external/online_reconstruction_dialog.h
+@@ -32,6 +32,7 @@ public:
+     ~OnlineReconstructionDialog() override;
+ 
+     void setInitialConfigPath(const QString& path);
++    bool Stop();
+ 
+ signals:
+     void reconstructionCompleted(fdkui::ReconstructionResultPtr result);
+diff --git a/MVVCVTK/c_ui/panels/SceneTreePanel.cpp b/MVVCVTK/c_ui/panels/SceneTreePanel.cpp
+index dd7b712c7f0f4fc1ec7252c1ff57ca0b08e024b1..d5b87bef0cd7445521f423683a1733e2488294dd 100644
+--- a/MVVCVTK/c_ui/panels/SceneTreePanel.cpp
++++ b/MVVCVTK/c_ui/panels/SceneTreePanel.cpp
+@@ -166,7 +166,7 @@ void SceneTreePanel::rebuildTree()
+                 0,
+                 Qt::UserRole,
+                 QVariant::fromValue(
+-                    static_cast<qulonglong>(crop.nodeCount)));
++                    static_cast<qulonglong>(crop.nodeId)));
+             item->setData(
+                 0,
+                 Qt::UserRole + 1,
+diff --git a/MVVCVTK/c_ui/panels/SceneTreePanel.h b/MVVCVTK/c_ui/panels/SceneTreePanel.h
+index 65334ea8d8ff8d4a10430eb9ad78145bfce93af8..b3749098d56963d9b0506e9e2ee0484f908111f2 100644
+--- a/MVVCVTK/c_ui/panels/SceneTreePanel.h
++++ b/MVVCVTK/c_ui/panels/SceneTreePanel.h
+@@ -21,7 +21,7 @@ public:
+     void setCropTreeState(const CropTreeState& state);
+ 
+ signals:
+-    void cropNodeActivated(qulonglong nodeCount);
++    void cropNodeActivated(qulonglong nodeId);
+     void cropKeepInsideRequested();
+     void cropRemoveInsideRequested();
+     void cropApplyRequested();
+diff --git a/MVVCVTK/c_ui/viewport/ViewportGather.cpp b/MVVCVTK/c_ui/viewport/ViewportGather.cpp
+index e28669e5bce4bd51d6c380d148424994d225b901..d140bdebb1e9fa2200eb356f091485c2dac26e58 100644
+--- a/MVVCVTK/c_ui/viewport/ViewportGather.cpp
++++ b/MVVCVTK/c_ui/viewport/ViewportGather.cpp
+@@ -23,6 +23,26 @@
+ #include <string>
+ #include <utility>
+ 
++namespace {
++class CtRenderWidget final : public QVTKOpenGLNativeWidget {
++public:
++    using QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget;
++
++protected:
++    void initializeGL() override {
++        QVTKOpenGLNativeWidget::initializeGL();
++        auto* window = vtkGenericOpenGLRenderWindow::SafeDownCast(renderWindow());
++        if (window && window->GetReadyForRendering()) {
++            // HostDriven 会关闭 interactor 自动绘制。先建立缓冲附件，避免
++            // Qt 首次 blit 创建空 FBO 后，VTK 9.4 只调整尺寸而不补建附件。
++            // Start/End 只初始化窗口缓冲，不绘制场景或派发 Host 业务回调。
++            window->Start();
++            window->End();
++        }
++    }
++};
++}
++
+ void AddHostView(
+         HostSessionConfig& config,
+         QVTKOpenGLNativeWidget* vtkWidget,
+@@ -165,6 +185,10 @@ bool ViewportGather::eventFilter(
+         case QEvent::MouseButtonRelease:
+         case QEvent::MouseMove:
+         case QEvent::Wheel:
++        case QEvent::Show:
++        case QEvent::Resize:
++        case QEvent::WindowStateChange:
++        case QEvent::Paint:
+             scheduleViewportRefresh();
+             break;
+         default:
+@@ -186,32 +210,14 @@ void ViewportGather::scheduleViewportRefresh()
+ 
+ void ViewportGather::refreshAllViewports()
+ {
+-    if (m_axial) {
+-        m_axial->renderWindow()->Render();
+-        m_axial->update();
+-    }
+-    if (m_coronal) {
+-        m_coronal->renderWindow()->Render();
+-        m_coronal->update();
+-    }
+-    if (m_sagittal) {
+-        m_sagittal->renderWindow()->Render();
+-        m_sagittal->update();
+-    }
+-    if (m_view3d) {
+-        m_view3d->renderWindow()->Render();
+-        m_view3d->update();
+-    }
+-
+-  /*  if (!m_windowLevelProperty) {
+-        bindWindowLevelSource();
+-    }*/
+-
+-    -- m_refresher;
++    emit refreshRequested();
++}
+ 
+-    if (m_refresher > 0) {
+-        m_refreshTimer->start(34);
+-    }
++bool ViewportGather::GetViewVisible(const std::string& viewId) const
++{
++    const auto widget = viewId == "primary-3d" ? m_view3d : viewId == "slice-top-down" ? m_axial
++        : viewId == "slice-front-back" ? m_coronal : viewId == "slice-left-right" ? m_sagittal : QPointer<QVTKOpenGLNativeWidget>{};
++    return widget && widget->isVisible() && !widget->window()->isMinimized();
+ }
+ 
+ //void ViewportGather::bindWindowLevelSource()
+@@ -374,8 +380,10 @@ QWidget* ViewportGather::createViewportContainer(
+     layout->setContentsMargins(0, 0, 0, 0);
+     layout->setSpacing(0);
+ 
+-    vtkWidget = new QVTKOpenGLNativeWidget(container);
++    vtkWidget = new CtRenderWidget(container);
+     auto renderWindow =  vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
++    renderWindow->SetAlphaBitPlanes(1);
++    renderWindow->SetMultiSamples(0);
+     vtkWidget->setRenderWindow(renderWindow);
+ 
+     auto* button = new QToolButton(container);
+diff --git a/MVVCVTK/c_ui/viewport/ViewportGather.h b/MVVCVTK/c_ui/viewport/ViewportGather.h
+index 8cb56ef8c826d85158fb2575d16fc16125d385b9..669db5f0d968f656d5bd37865b7e30d726d934d5 100644
+--- a/MVVCVTK/c_ui/viewport/ViewportGather.h
++++ b/MVVCVTK/c_ui/viewport/ViewportGather.h
+@@ -28,6 +28,10 @@ public:
+     HostSessionConfig getHostConfig() const;
+ 
+     void requestRefresh();
++    bool GetViewVisible(const std::string& viewId) const;
++
++signals:
++    void refreshRequested();
+     //void resetWindowLevelState();
+ 
+ //signals:
+diff --git a/MVVCVTK/c_ui/workbenches/DocumentPage.cpp b/MVVCVTK/c_ui/workbenches/DocumentPage.cpp
+index 3b082019e282f37422ccef9fcd5c6aecdbe65a43..3a23961123afa692daac561f87e313e439af2e18 100644
+--- a/MVVCVTK/c_ui/workbenches/DocumentPage.cpp
++++ b/MVVCVTK/c_ui/workbenches/DocumentPage.cpp
+@@ -421,4 +421,4 @@ void DocumentPage::updateStatusLabel(const QString& text, bool isError)
+     else {
+         dicomStatusLabel_->setStyleSheet(QStringLiteral("color:#d0d0d0;"));
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/MVVCVTK/measure/MeasureHostBridge.cpp b/MVVCVTK/measure/MeasureHostBridge.cpp
+index 7c9e1760b6309c41543d74a890cfa9f68d1f7093..0fc0d432ee0494b3fab24074ead44a49462fa428 100644
+--- a/MVVCVTK/measure/MeasureHostBridge.cpp
++++ b/MVVCVTK/measure/MeasureHostBridge.cpp
+@@ -3,6 +3,7 @@
+ #include "MVVCVTK/SPI/App/Services/FeatureViewService.h"
+ 
+ #include <utility>
++#include <vtkImageData.h>
+ 
+ namespace measure {
+ 
+@@ -34,7 +35,7 @@ bool MeasureHostBridge::AttachHost(const HostFeatureContext& context)
+         return false;
+     }
+ 
+-    const auto image = context.data->GetImageSnapshot();
++    const auto image = context.data->GetPrimaryImage();
+     const auto modelToWorld = viewPort->GetModelToWorld();
+     if (!image || !image->image || !modelToWorld) {
+         return false;
+diff --git a/MVVCVTK/measure/MeasureHostBridge.h b/MVVCVTK/measure/MeasureHostBridge.h
+index f7884638904e13f7e109d0f02a9bcd9ed63dd6a7..013d37a0bac88eb0f22c3f65ff81bc1433769f6d 100644
+--- a/MVVCVTK/measure/MeasureHostBridge.h
++++ b/MVVCVTK/measure/MeasureHostBridge.h
+@@ -9,7 +9,7 @@
+ namespace measure {
+ 
+ struct MeasureHostData final {
+-    TrustedImageSnapshot image;
++    VtkImageGridSnapshot image;
+     std::array<double, 16> modelToWorld{};
+ };
+ 
+diff --git a/MVVCVTK/measure/MeasureToolDialog.cpp b/MVVCVTK/measure/MeasureToolDialog.cpp
+index baf467f9312fd42eec7f0020e26cb01f140ed476..8579daa3d42389d692bc4723e6bcf209e8943918 100644
+--- a/MVVCVTK/measure/MeasureToolDialog.cpp
++++ b/MVVCVTK/measure/MeasureToolDialog.cpp
+@@ -1,4 +1,5 @@
+ #include "measure/MeasureToolDialog.h"
++#include <vtkImageData.h>
+ #include "measure/MeasurementSession.h"
+ #include "measure/EdgeCaptureController.h"
+ 
+@@ -18,7 +19,7 @@
+ 
+ namespace measure {
+     MeasureToolDialog::MeasureToolDialog(
+-        TrustedImageSnapshot imageSnapshot,
++        VtkImageGridSnapshot imageSnapshot,
+         const MeasurementViewInitState& initialState,
+         QWidget* parent)
+         : QDialog(parent)
+@@ -166,7 +167,7 @@ void MeasureToolDialog::BuildUi()
+ }
+ 
+ void MeasureToolDialog::BuildMeasurementViewport(
+-    TrustedImageSnapshot imageSnapshot,
++    VtkImageGridSnapshot imageSnapshot,
+     const MeasurementViewInitState& initialState)
+ {
+     if (!m_vtkWidget
+diff --git a/MVVCVTK/measure/MeasureToolDialog.h b/MVVCVTK/measure/MeasureToolDialog.h
+index e86ab6707ff78abcf446a272259505f602347fae..1ff06b75ab43e9766e833e0bcc55cb41c54480f7 100644
+--- a/MVVCVTK/measure/MeasureToolDialog.h
++++ b/MVVCVTK/measure/MeasureToolDialog.h
+@@ -20,7 +20,7 @@ class MeasurementSession;
+ class MeasureToolDialog : public QDialog {
+ public:
+     MeasureToolDialog(
+-        TrustedImageSnapshot imageSnapshot,
++        VtkImageGridSnapshot imageSnapshot,
+         const MeasurementViewInitState& initialState,
+         QWidget* parent = nullptr);
+     ~MeasureToolDialog() override;
+@@ -28,7 +28,7 @@ public:
+ private:
+     void BuildUi();
+     void BuildMeasurementViewport(  
+-        TrustedImageSnapshot imageSnapshot,
++        VtkImageGridSnapshot imageSnapshot,
+         const MeasurementViewInitState& initialState);
+     void SetView(MeasureView view);
+     void BeginTool(MeasureTool tool);
+diff --git a/MVVCVTK/measure/MeasureViewAdapter.cpp b/MVVCVTK/measure/MeasureViewAdapter.cpp
+index ac5819c0ce4aa5afce1109d98792f727a19c6a9a..d5535100795b55d414e4e5104889ce3394ac5150 100644
+--- a/MVVCVTK/measure/MeasureViewAdapter.cpp
++++ b/MVVCVTK/measure/MeasureViewAdapter.cpp
+@@ -80,7 +80,7 @@ MeasureViewAdapter::~MeasureViewAdapter()
+ 
+ bool MeasureViewAdapter::Build(
+     QVTKOpenGLNativeWidget* widget,
+-    TrustedImageSnapshot image,
++    VtkImageGridSnapshot image,
+     MeasureView view,
+     const MeasurementViewInitState& initialState)
+ {
+@@ -131,7 +131,7 @@ bool MeasureViewAdapter::Build(
+     m_slice->GetProperty()->SetInterpolationTypeToLinear();
+     m_renderer->AddViewProp(m_slice);
+ 
+-    const auto scalarRange = m_image->scalarRange;
++    const auto scalarRange = m_image->image->GetScalarRange();
+     const double defaultWidth =
+         std::max(0.01, scalarRange[1] - scalarRange[0]);
+     const double defaultCenter =
+@@ -237,7 +237,7 @@ bool MeasureViewAdapter::GetIsReady() const noexcept
+         && m_worldToModel;
+ }
+ 
+-TrustedImageSnapshot MeasureViewAdapter::GetImageSnapshot() const
++VtkImageGridSnapshot MeasureViewAdapter::GetImageSnapshot() const
+ {
+     return m_image;
+ }
+diff --git a/MVVCVTK/measure/MeasureViewAdapter.h b/MVVCVTK/measure/MeasureViewAdapter.h
+index 230b031bc4198696f46a15ec489dd03afeb62a4f..e9c759eb768d8cec87c098102637fa8666d7b748 100644
+--- a/MVVCVTK/measure/MeasureViewAdapter.h
++++ b/MVVCVTK/measure/MeasureViewAdapter.h
+@@ -1,7 +1,7 @@
+ #pragma once
+ 
+ #include "MVVCVTK/API/Host/Types/HostValueTypes.h"
+-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
++#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
+ #include "MVVCVTK/SPI/Interaction/InteractionTypes.h"
+ #include "measure/MeasurementTypes.h"
+ #include "measure/MeasurementViewInitState.h"
+@@ -39,7 +39,7 @@ public:
+ 
+     bool Build(
+         QVTKOpenGLNativeWidget* widget,
+-        TrustedImageSnapshot image,
++        VtkImageGridSnapshot image,
+         MeasureView view,
+         const MeasurementViewInitState& initialState);
+     void Reset();
+@@ -49,7 +49,7 @@ public:
+     void SendRender();
+ 
+     bool GetIsReady() const noexcept;
+-    TrustedImageSnapshot GetImageSnapshot() const;
++    VtkImageGridSnapshot GetImageSnapshot() const;
+     vtkRenderer* GetRenderer() const noexcept;
+     std::array<double, 3> GetCursorWorld() const noexcept;
+     HostWindowLevelParams GetWindowLevel() const noexcept;
+@@ -77,7 +77,7 @@ private:
+     void SendInput(vtkObject* caller, unsigned long eventId);
+ 
+     QPointer<QVTKOpenGLNativeWidget> m_widget;
+-    TrustedImageSnapshot m_image;
++    VtkImageGridSnapshot m_image;
+     vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
+     vtkSmartPointer<vtkRenderer> m_renderer;
+     vtkSmartPointer<vtkImageSliceMapper> m_sliceMapper;
+diff --git a/MVVCVTK/measure/MeasurementInteractionHandler.cpp b/MVVCVTK/measure/MeasurementInteractionHandler.cpp
+index 8d5e3c4219bb7db07374cd37dc20594bfa2b30ef..8a6a140345bb3a23f6b93d98e7bc8d10442e0e67 100644
+--- a/MVVCVTK/measure/MeasurementInteractionHandler.cpp
++++ b/MVVCVTK/measure/MeasurementInteractionHandler.cpp
+@@ -113,7 +113,7 @@ MeasurementPlane MeasurementInteractionHandler::GetMeasurePlane() const
+     plane.normal = view.normal;
+ 
+     if (const auto image = m_adapter->GetImageSnapshot()) {
+-        const auto spacing = image->spacing;
++        const auto spacing = image->image->GetSpacing();
+         const double minimumSpacing = std::min({
+             std::abs(spacing[0]), std::abs(spacing[1]), std::abs(spacing[2]) });
+         plane.tolerance = std::max(1e-9, minimumSpacing * 1e-6);
+diff --git a/MVVCVTK/measure/MeasurementViewport.cpp b/MVVCVTK/measure/MeasurementViewport.cpp
+index 08581d0f33461eabba5febb0cbd49daf2f0f3f31..6c5efbb6a086d3374de7341a17bf774d3ce80416 100644
+--- a/MVVCVTK/measure/MeasurementViewport.cpp
++++ b/MVVCVTK/measure/MeasurementViewport.cpp
+@@ -1,4 +1,5 @@
+ #include "measure/MeasurementViewport.h"
++#include <vtkImageData.h>
+ 
+ #include "measure/EdgeCaptureController.h"
+ #include "measure/MeasurementInteractionHandler.h"
+@@ -22,7 +23,7 @@ MeasurementViewport::~MeasurementViewport()
+ 
+ bool MeasurementViewport::Build(
+     QVTKOpenGLNativeWidget* widget,
+-    TrustedImageSnapshot image,
++    VtkImageGridSnapshot image,
+     const std::shared_ptr<MeasurementSession>& session,
+     MeasureView view,
+     const MeasurementViewInitState& initialState)
+diff --git a/MVVCVTK/measure/MeasurementViewport.h b/MVVCVTK/measure/MeasurementViewport.h
+index 6ecc3435d989ceda6daa7f4cf546e876967eca6b..61a81f642f153c3cb74a78be007a0d2a82e1afa8 100644
+--- a/MVVCVTK/measure/MeasurementViewport.h
++++ b/MVVCVTK/measure/MeasurementViewport.h
+@@ -1,6 +1,6 @@
+ #pragma once
+ 
+-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
++#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
+ #include "measure/MeasurementTypes.h"
+ #include "measure/MeasurementViewInitState.h"
+ 
+@@ -32,7 +32,7 @@ public:
+ 
+     bool Build(
+         QVTKOpenGLNativeWidget* widget,
+-        TrustedImageSnapshot image,
++        VtkImageGridSnapshot image,
+         const std::shared_ptr<MeasurementSession>& session,
+         MeasureView view,
+         const MeasurementViewInitState& initialState);
+diff --git a/MVVCVTK/measure/ZcEdgeAlgorithm.cpp b/MVVCVTK/measure/ZcEdgeAlgorithm.cpp
+index 58506c67943392a738c8180b22344c611aeb8a52..15e8bede8bbf8d43178b9fd51cf5213a1dc7e245 100644
+--- a/MVVCVTK/measure/ZcEdgeAlgorithm.cpp
++++ b/MVVCVTK/measure/ZcEdgeAlgorithm.cpp
+@@ -563,7 +563,7 @@ public:
+         }
+         if (!EnsureReady(image.width, image.height, error))
+             return false;
+-        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error)) 
++        if (!m_measureArc && !Resolve("ZC_MeasureArcByArcRing", m_measureArc, error))
+             return false;
+         IplImage header = MakeImageHeader(image);
+         TPoint camera{};

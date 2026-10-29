@@ -113,7 +113,7 @@ MeasurementPlane MeasurementInteractionHandler::GetMeasurePlane() const
     plane.normal = view.normal;
 
     if (const auto image = m_adapter->GetImageSnapshot()) {
-        const auto spacing = image->spacing;
+        const auto spacing = image->image->GetSpacing();
         const double minimumSpacing = std::min({
             std::abs(spacing[0]), std::abs(spacing[1]), std::abs(spacing[2]) });
         plane.tolerance = std::max(1e-9, minimumSpacing * 1e-6);

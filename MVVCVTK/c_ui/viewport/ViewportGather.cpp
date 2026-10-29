@@ -23,6 +23,23 @@
 #include <string>
 #include <utility>
 
+namespace {
+class CtRenderWidget final : public QVTKOpenGLNativeWidget {
+public:
+    using QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget;
+
+protected:
+    void initializeGL() override {
+        QVTKOpenGLNativeWidget::initializeGL();
+        auto* window = vtkGenericOpenGLRenderWindow::SafeDownCast(renderWindow());
+        if (window && window->GetReadyForRendering()) {
+            window->Start();
+            window->End();
+        }
+    }
+};
+}
+
 void AddHostView(
         HostSessionConfig& config,
         QVTKOpenGLNativeWidget* vtkWidget,
@@ -165,6 +182,10 @@ bool ViewportGather::eventFilter(
         case QEvent::MouseButtonRelease:
         case QEvent::MouseMove:
         case QEvent::Wheel:
+        case QEvent::Show:
+        case QEvent::Resize:
+        case QEvent::WindowStateChange:
+        case QEvent::Paint:
             scheduleViewportRefresh();
             break;
         default:
@@ -186,32 +207,40 @@ void ViewportGather::scheduleViewportRefresh()
 
 void ViewportGather::refreshAllViewports()
 {
-    if (m_axial) {
-        m_axial->renderWindow()->Render();
-        m_axial->update();
+    emit refreshRequested();
+}
+
+bool ViewportGather::GetViewVisible(const std::string& viewId) const
+{
+    QPointer<QVTKOpenGLNativeWidget> widget = nullptr;
+
+    if (viewId == "primary-3d")
+    {
+        widget = m_view3d;
     }
-    if (m_coronal) {
-        m_coronal->renderWindow()->Render();
-        m_coronal->update();
+    else if (viewId == "slice-top-down")
+    {
+        widget = m_axial;
     }
-    if (m_sagittal) {
-        m_sagittal->renderWindow()->Render();
-        m_sagittal->update();
+    else if (viewId == "slice-front-back")
+    {
+        widget = m_coronal;
     }
-    if (m_view3d) {
-        m_view3d->renderWindow()->Render();
-        m_view3d->update();
+    else if (viewId == "slice-left-right")
+    {
+        widget = m_sagittal;
+    }
+    else
+    {
+        return false;
     }
 
-  /*  if (!m_windowLevelProperty) {
-        bindWindowLevelSource();
-    }*/
-
-    -- m_refresher;
-
-    if (m_refresher > 0) {
-        m_refreshTimer->start(34);
+    if (!widget)
+    {
+        return false;
     }
+
+    return widget->isVisible() && !widget->window()->isMinimized();
 }
 
 //void ViewportGather::bindWindowLevelSource()
@@ -374,7 +403,7 @@ QWidget* ViewportGather::createViewportContainer(
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    vtkWidget = new QVTKOpenGLNativeWidget(container);
+    vtkWidget = new CtRenderWidget(container);
     auto renderWindow =  vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     vtkWidget->setRenderWindow(renderWindow);
 

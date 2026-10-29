@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MVVCVTK/API/Host/Types/HostValueTypes.h"
-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
+#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 #include "MVVCVTK/SPI/Interaction/InteractionTypes.h"
 #include "measure/MeasurementTypes.h"
 #include "measure/MeasurementViewInitState.h"
@@ -39,7 +39,7 @@ public:
 
     bool Build(
         QVTKOpenGLNativeWidget* widget,
-        TrustedImageSnapshot image,
+        VtkImageGridSnapshot image,
         MeasureView view,
         const MeasurementViewInitState& initialState);
     void Reset();
@@ -49,7 +49,7 @@ public:
     void SendRender();
 
     bool GetIsReady() const noexcept;
-    TrustedImageSnapshot GetImageSnapshot() const;
+    VtkImageGridSnapshot GetImageSnapshot() const;
     vtkRenderer* GetRenderer() const noexcept;
     std::array<double, 3> GetCursorWorld() const noexcept;
     HostWindowLevelParams GetWindowLevel() const noexcept;
@@ -77,7 +77,7 @@ private:
     void SendInput(vtkObject* caller, unsigned long eventId);
 
     QPointer<QVTKOpenGLNativeWidget> m_widget;
-    TrustedImageSnapshot m_image;
+    VtkImageGridSnapshot m_image;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
     vtkSmartPointer<vtkImageSliceMapper> m_sliceMapper;

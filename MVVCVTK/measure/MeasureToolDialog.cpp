@@ -1,4 +1,5 @@
 #include "measure/MeasureToolDialog.h"
+#include <vtkImageData.h>
 #include "measure/MeasurementSession.h"
 #include "measure/EdgeCaptureController.h"
 
@@ -18,7 +19,7 @@
 
 namespace measure {
     MeasureToolDialog::MeasureToolDialog(
-        TrustedImageSnapshot imageSnapshot,
+        VtkImageGridSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState,
         QWidget* parent)
         : QDialog(parent)
@@ -166,7 +167,7 @@ void MeasureToolDialog::BuildUi()
 }
 
 void MeasureToolDialog::BuildMeasurementViewport(
-    TrustedImageSnapshot imageSnapshot,
+    VtkImageGridSnapshot imageSnapshot,
     const MeasurementViewInitState& initialState)
 {
     if (!m_vtkWidget

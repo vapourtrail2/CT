@@ -21,7 +21,7 @@ public:
     void setCropTreeState(const CropTreeState& state);
 
 signals:
-    void cropNodeActivated(qulonglong nodeCount);
+    void cropNodeActivated(qulonglong nodeId);
     void cropKeepInsideRequested();
     void cropRemoveInsideRequested();
     void cropApplyRequested();

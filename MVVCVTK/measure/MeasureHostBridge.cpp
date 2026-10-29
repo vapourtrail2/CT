@@ -3,6 +3,7 @@
 #include "MVVCVTK/SPI/App/Services/FeatureViewService.h"
 
 #include <utility>
+#include <vtkImageData.h>
 
 namespace measure {
 
@@ -34,7 +35,7 @@ bool MeasureHostBridge::AttachHost(const HostFeatureContext& context)
         return false;
     }
 
-    const auto image = context.data->GetImageSnapshot();
+    const auto image = context.data->GetPrimaryImage();
     const auto modelToWorld = viewPort->GetModelToWorld();
     if (!image || !image->image || !modelToWorld) {
         return false;

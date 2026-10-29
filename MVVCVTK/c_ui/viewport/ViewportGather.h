@@ -28,6 +28,10 @@ public:
     HostSessionConfig getHostConfig() const;
 
     void requestRefresh();
+    bool GetViewVisible(const std::string& viewId) const;
+
+signals:
+    void refreshRequested();
     //void resetWindowLevelState();
 
 //signals:

@@ -9,7 +9,7 @@
 namespace measure {
 
 struct MeasureHostData final {
-    TrustedImageSnapshot image;
+    VtkImageGridSnapshot image;
     std::array<double, 16> modelToWorld{};
 };
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- 显式 MSBuild 参数优先；CT 本机属性先于可能属于其他项目的环境默认值。 -->
+  <Import Project="$(MSBuildThisFileDirectory)..\out\ct-sdk.props" Condition="'$(Platform)'=='x64' And Exists('$(MSBuildThisFileDirectory)..\out\ct-sdk.props')" />
   <PropertyGroup Condition="'$(Platform)'=='x64'">
     <MVVCVTKSdkRoot Condition="'$(MVVCVTKSdkRoot)'=='' And '$(MVVCVTK_SDK_ROOT)'!=''">$(MVVCVTK_SDK_ROOT)</MVVCVTKSdkRoot>
   </PropertyGroup>
@@ -20,13 +22,14 @@
   <PropertyGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And Exists('$(MVVCVTKVtkRoot)\include')">
     <MVVCVTKVtkIncludeDirs>$([System.IO.Directory]::GetDirectories('$(MVVCVTKVtkRoot)\include', 'vtk-*'))</MVVCVTKVtkIncludeDirs>
   </PropertyGroup>
+  <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true'">
+    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\MVVCVTKHost.lib;$(MVVCVTKLibDir)\OrthogonalCrop.lib;$(MVVCVTKLibDir)\GapAnalysis.lib" />
+  </ItemGroup>
   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Debug'">
-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
   </ItemGroup>
   <ItemGroup Condition="'$(MVVCVTKSdkResolved)'=='true' And '$(Configuration)'=='Release'">
-    <MVVCVTKProductLibrary Include="$(MVVCVTKLibDir)\*Host*.lib;$(MVVCVTKLibDir)\*OrthogonalCrop*.lib;$(MVVCVTKLibDir)\*GapAnalysis*.lib" />
     <MVVCVTKVtkLibrary Include="$(MVVCVTKVtkLibDir)\vtk*.lib" Exclude="$(MVVCVTKVtkLibDir)\vtk*d.lib" />
     <MVVCVTKOpenCVLibrary Include="$(MVVCVTKOpenCVLibDir)\opencv_*.lib" Exclude="$(MVVCVTKOpenCVLibDir)\opencv_*d.lib" />
   </ItemGroup>
@@ -54,10 +57,10 @@
     <Error Condition="!Exists('$(MVVCVTKIncludeDir)\MVVCVTK\API')" Text="MVVCVTK SDK API include directory is missing." />
     <Error Condition="'$(MVVCVTKVtkIncludeDirs)'==''" Text="MVVCVTK SDK VTK include directory was not discovered." />
     <Error Condition="!Exists('$(MVVCVTKOpenCVIncludeDir)')" Text="MVVCVTK SDK OpenCV include directory is missing." />
-    <Error Condition="'@(MVVCVTKProductLibrary)'==''" Text="MVVCVTK SDK product libraries were not discovered." />
+    <Error Condition="!Exists('%(MVVCVTKProductLibrary.FullPath)')" Text="MVVCVTK SDK required product library is missing: %(MVVCVTKProductLibrary.FullPath)." />
     <Error Condition="'@(MVVCVTKVtkLibrary)'==''" Text="MVVCVTK SDK VTK libraries were not discovered for $(Configuration)." />
     <Error Condition="'@(MVVCVTKOpenCVLibrary)'==''" Text="MVVCVTK SDK OpenCV libraries were not discovered for $(Configuration)." />
-    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll')" Text="MVVCVTK Gap kernel runtime is missing for $(Configuration)." />
+    <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\GapKernel.dll')" Text="MVVCVTK Gap kernel runtime is missing for $(Configuration)." />
     <Error Condition="!Exists('$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll')" Text="DefX Gap runtime is missing for $(Configuration)." />
   </Target>
   <Target Name="MVVCVTKCopyRuntime" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application' And '$(Platform)'=='x64' And '$(MVVCVTKSdkResolved)'=='true'">
@@ -66,7 +69,7 @@
       <MVVCVTKRuntime Include="$(MVVCVTKVtkBinDir)\vtk*.dll" Exclude="$(MVVCVTKVtkBinDir)\vtk*d.dll" Condition="'$(Configuration)'=='Release'" />
       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Debug'" />
       <MVVCVTKRuntime Include="$(MVVCVTKOpenCVBinDir)\opencv_*.dll" Exclude="$(MVVCVTKOpenCVBinDir)\opencv_*d.dll" Condition="'$(Configuration)'=='Release'" />
-      <MVVCVTKRuntime Include="$(MVVCVTKGapRuntimeDir)\MVVCVTKGapKernel.dll;$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll" />
+      <MVVCVTKRuntime Include="$(MVVCVTKGapRuntimeDir)\GapKernel.dll;$(MVVCVTKGapRuntimeDir)\DefXAnalysis.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(MVVCVTKRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" Condition="'@(MVVCVTKRuntime)'!=''" />
   </Target>

@@ -1,8 +1,9 @@
 #pragma once
+#include <map>
 
 #include "MVVCVTK/API/Features/GapAnalysis/Host/GapHostFeature.h"
 #include "MVVCVTK/API/Features/OrthogonalCrop/Host/CropHostFeature.h"
-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
+#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 #include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
 #include "MVVCVTK/API/Host/VtkAppHostSession.h"
 #include "measure/MeasureHostBridge.h"
@@ -15,14 +16,20 @@
 #include <QObject>
 #include <QString>
 #include <QTimer>
+#include <QElapsedTimer>
+#include <functional>
+#include <set>
+#include <atomic>
+#include <future>
 
 struct HostRequest;
 class VtkAppHostSession;
+class VolumePublishBridge;
 
 struct CropTreeItem final
 {
     QString text;
-    std::size_t nodeCount = 0;
+    CropNodeId nodeId = 0;
     bool isCurrent = false;
     bool isApplied = false;
     bool isSelectable = false;
@@ -64,13 +71,15 @@ public:
     QString getSourcePath() const noexcept {
         return sourcePath_;
     }
-    TrustedImageSnapshot capturedVolumeSnapshot(QString* err = nullptr);
+    VtkImageGridSnapshot capturedVolumeSnapshot(QString* err = nullptr);
     //publish
-    TrustedImageSnapshot publishVolumeSnapshotForTest(
-        const TrustedImageSnapshot& archive,
-        QString* err = nullptr);
+    VtkImageGridSnapshot publishVolumeSnapshotForTest(
+        const VtkImageGridSnapshot& archive,
+        QString* err = nullptr, bool* isPending = nullptr);
     bool areAllRenderViewsAtVersion(
-        std::uint64_t expectedVersion,
+        const DataRevisionRef& expectedRevision,
+        DataBindingRevision expectedBindingRevision,
+        std::map<std::string, std::uint64_t>& renderTargets,
         QString* report = nullptr);
     void failVolumePublishTest(const QString& reason);
     std::optional<measure::MeasureHostData> getMeasureHostData(
@@ -78,6 +87,12 @@ public:
     std::optional<HostRenderViewState> getRenderViewState(
         const HostViewTarget& target);
     bool initHost(HostSessionConfig config, QString* err = nullptr);
+    bool Stop(QString* errorOut = nullptr);
+    bool GetIsStopped() const;
+    void SetViewVisibility(std::function<bool(const std::string&)> getVisible);
+    void SendUpdates();
+    void SendRender();
+    void RequestRender();
     bool openData(const QString& path,
         const std::array<int,3>& dims,
         const std::array<float, 3>& spacing,
@@ -93,13 +108,13 @@ public:
         QString* errorOut = nullptr);
     bool sendRequest(
         HostRequest&& request,
-        HostCompleteCallback onComplete = nullptr);
+        HostResultCallback onComplete = {});
 
     bool startBoxCrop();
     bool startPlaneCrop();
     bool keepCropInside();
     bool removeCropInside();
-    bool setCropNode(std::size_t nodeCount);
+    bool setCropNode(CropNodeId nodeId);
     bool applyCrop();
     bool restoreOriginalCrop();
     bool exitCrop();
@@ -112,7 +127,9 @@ public:
     bool toggleGapOverlay(QString* errorOut = nullptr);
     bool exportGapCsv(
         const QString& outputPath,
+        std::function<void(bool, QString)> onComplete,
         QString* errorOut = nullptr);
+    bool getIsGapExporting() const;
     bool exitGap(QString* errorOut = nullptr);
     GapHostState getGapState() const;
     void clearSession();
@@ -127,13 +144,17 @@ signals:
     void isoStateCleared();
     void cropHistoryChanged();
     void cropBuildFinished(bool isSuccess, QString message);
+    void hostError(QString message);
 
 private:
     bool resetHost(QString* errorOut);
     bool StopHost(QString* errorOut = nullptr);
     bool resetCropFeature(QString* errorOut = nullptr);
     bool resetGapFeature(QString* errorOut = nullptr);
-    void clearCropFeature();
+    bool clearCropFeature();
+    bool ReleasePublishedVolumes(bool all, QString* errorOut = nullptr);
+    bool StartCrop(CropHostAction shape);
+    bool SetCropWidget(CropHostAction shape);
     CropHostTarget getCropTarget() const;
     static HostViewTargets getGapTargets();
     bool sendCropAction(CropHostRequest request);
@@ -143,7 +164,10 @@ private:
         HostRequest&& request,
         const QString& sourcePath,
         QString* errorOut);
-    void finishLoadRequest(std::uint64_t generation, bool isSuccess);
+    void SendPendingLoad();
+    void finishLoadRequest(std::uint64_t generation, HostResult result);
+    void finishGapExport();
+    std::shared_ptr<const GapResultReader> getGapResultReader() const;
     void setIsoState();
     void setState(State state);
 
@@ -157,20 +181,26 @@ private:
     std::uint64_t requestGeneration_ = 0;
     QString sourcePath_;
     QString pendingSourcePath_;
-    enum class CropRecordShape
-    {
-        Box,
-        Plane
-    };
-    struct CropRecord final
-    {
-        CropRecordShape shape = CropRecordShape::Box;
-        CropRemovalMode removalMode = CropRemovalMode::KeepInside;
-    };
-    std::vector<CropRecord> cropRecords_;
-    CropRecordShape pendingCropShape_ = CropRecordShape::Box;
-    CropRemovalMode pendingCropMode_ = CropRemovalMode::KeepInside;
     bool cropBuildPending_ = false;
-    bool hasOriginalCrop_ = false;
+    bool isGapRestoreCleanupPending_ = false;
     QTimer cropStateTimer_;
+    struct WorkSignal;
+    std::shared_ptr<WorkSignal> workSignal_;
+    std::function<bool(const std::string&)> getVisible_;
+    std::set<std::string> pendingRender_;
+    QTimer renderTimer_;
+    QElapsedTimer renderClock_;
+    qint64 nextRenderAt_ = 0;
+    bool isClosing_ = false;
+    std::uint64_t cropRevision_ = 0;
+    CropNodeId cropRenderedHead_ = 0;
+    std::unique_ptr<HostRequest> pendingLoad_;
+    QTimer loadRetryTimer_;
+    QElapsedTimer loadRetryClock_;
+    QTimer gapExportTimer_;
+    std::future<std::pair<bool, QString>> gapExport_;
+    std::shared_ptr<std::atomic_bool> gapExportCancelled_;
+    std::function<void(bool, QString)> gapExportCallback_;
+    std::shared_ptr<VolumePublishBridge> volumePublishBridge_;
+
 };

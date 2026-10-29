@@ -1,7 +1,7 @@
 #include "VolumeManager.h"
 #include <utility>
 
-int VolumeManager::addVolume(QString name, TrustedImageSnapshot image, int VolumeSourceid)
+int VolumeManager::addVolume(QString name, VtkImageGridSnapshot image, int VolumeSourceid)
 {
 	int id = nextVolumeid_;
 	VolumeRecord record{ id,std::move(name),std::move(image),std::move(VolumeSourceid) };

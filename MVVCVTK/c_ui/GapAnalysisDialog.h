@@ -52,4 +52,5 @@ private:
     QPushButton* exitButton_ = nullptr;
     QTimer* stateTimer_ = nullptr;
     int lastAnalysisState_ = -1;
+    bool isExitRequested_ = false;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
+#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 #include "measure/MeasurementTypes.h"
 #include "measure/MeasurementViewInitState.h"
 
@@ -32,7 +32,7 @@ public:
 
     bool Build(
         QVTKOpenGLNativeWidget* widget,
-        TrustedImageSnapshot image,
+        VtkImageGridSnapshot image,
         const std::shared_ptr<MeasurementSession>& session,
         MeasureView view,
         const MeasurementViewInitState& initialState);

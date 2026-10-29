@@ -32,6 +32,7 @@ public:
     ~OnlineReconstructionDialog() override;
 
     void setInitialConfigPath(const QString& path);
+    bool Stop();
 
 signals:
     void reconstructionCompleted(fdkui::ReconstructionResultPtr result);

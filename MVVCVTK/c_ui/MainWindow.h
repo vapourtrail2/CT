@@ -14,7 +14,7 @@
 
 #include "c_ui/command/commands.h"
 #include "c_ui/context/AppContext.h"
-#include "MVVCVTK/SPI/Data/TrustedImageState.h"
+#include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 
 class QVBoxLayout;
 class DocumentPage; 
@@ -41,6 +41,7 @@ class RibbonPage;
 class UIReconstruct3D;
 class QProgressDialog;
 class GapAnalysisDialog;
+class QThread;
 
 class CTViewer : public QMainWindow
 {
@@ -48,6 +49,9 @@ class CTViewer : public QMainWindow
 public:
     explicit CTViewer(QWidget* parent = nullptr);
     ~CTViewer();
+
+protected:
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     void buildTheTop();
@@ -94,7 +98,7 @@ private:
     void updateCropTree();
     void handleCropBuildFinished(bool isSuccess, QString message);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
-    void switchVolumeForTest(int volumeid);
+    void switchVolumeForTest(bool useoriginal);
 
 private:
     UiState buildUiState(int index) const;
@@ -113,10 +117,14 @@ private:
     QPointer<GapAnalysisDialog> gapAnalysisDialog_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
-    int originVolumeId_= 0;//本轮体积
-    int latestCroppedVolumeId_ = 0;//最近裁切产物
-    int cropSourceVolumeId_= 0;
+    VtkImageGridSnapshot originalSnapshot_;
+    VtkImageGridSnapshot croppedSnapshot_;
+    int originVolumeId_ = 0;
+    int latestCroppedVolumeId_ = 0;
+    int cropSourceVolumeId_ = 0;
     bool volumePublishTestBusy_ = false;
+    bool isClosing_ = false;
+    std::vector<QPointer<QThread>> copyThreads_;
 
 
 private:

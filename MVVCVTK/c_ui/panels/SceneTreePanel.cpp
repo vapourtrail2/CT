@@ -166,7 +166,7 @@ void SceneTreePanel::rebuildTree()
                 0,
                 Qt::UserRole,
                 QVariant::fromValue(
-                    static_cast<qulonglong>(crop.nodeCount)));
+                    static_cast<qulonglong>(crop.nodeId)));
             item->setData(
                 0,
                 Qt::UserRole + 1,

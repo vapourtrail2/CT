@@ -1,4 +1,5 @@
 #include "measure/MeasurementViewport.h"
+#include <vtkImageData.h>
 
 #include "measure/EdgeCaptureController.h"
 #include "measure/MeasurementInteractionHandler.h"
@@ -22,7 +23,7 @@ MeasurementViewport::~MeasurementViewport()
 
 bool MeasurementViewport::Build(
     QVTKOpenGLNativeWidget* widget,
-    TrustedImageSnapshot image,
+    VtkImageGridSnapshot image,
     const std::shared_ptr<MeasurementSession>& session,
     MeasureView view,
     const MeasurementViewInitState& initialState)

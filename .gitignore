@@ -415,3 +415,9 @@ idontknowwhatitis/Microsoft.Windows.CppWinRT.*/
 *.md
 
 /*-win-x64/
+
+/docs/
+
+/tests/
+
+/libs/

@@ -143,7 +143,6 @@ std::optional<CircleResult> ComputeCircle(
         plane.origin,
         Add(Scale(plane.u, circle->centerU), Scale(plane.v, circle->centerV)));
     result.radius = circle->radius;
-    result.diameter = 2.0 * circle->radius;
     result.circumference = 2.0 * kPi * circle->radius;
     return result;
 }

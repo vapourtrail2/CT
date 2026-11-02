@@ -3,6 +3,8 @@
 #include "MVVCVTK/API/Host/Types/HostValueTypes.h"
 #include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 #include "MVVCVTK/SPI/Interaction/InteractionTypes.h"
+#include "MVVCVTK/SPI/Host/HostFeature.h"
+#include "MVVCVTK/API/Host/Types/HostSessionTypes.h"
 #include "measure/MeasurementTypes.h"
 #include "measure/MeasurementViewInitState.h"
 
@@ -42,6 +44,11 @@ public:
         VtkImageGridSnapshot image,
         MeasureView view,
         const MeasurementViewInitState& initialState);
+    bool AttachHostView(const HostInputView& view, VtkImageGridSnapshot image,
+        std::shared_ptr<FeatureViewService> port, const HostRenderViewState& state, MeasureView sliceView);
+    bool SyncHostView(const HostRenderViewState& state);
+    bool HasValidHostLease() const;
+    MeasurementPlane GetPlane() const;
     void Reset();
 
     bool SetView(MeasureView view);
@@ -76,6 +83,9 @@ private:
     void DetachInput();
     void SendInput(vtkObject* caller, unsigned long eventId);
 
+    std::shared_ptr<FeatureViewService> m_hostPort;
+    std::weak_ptr<const FeatureViewLease> m_hostLease;
+    bool m_isHostView = false;
     QPointer<QVTKOpenGLNativeWidget> m_widget;
     VtkImageGridSnapshot m_image;
     vtkSmartPointer<vtkGenericOpenGLRenderWindow> m_renderWindow;

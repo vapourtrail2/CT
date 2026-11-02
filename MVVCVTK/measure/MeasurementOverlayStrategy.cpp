@@ -73,26 +73,27 @@ void MeasurementOverlayStrategy::Refresh()
     }
 
     for (const auto& entity : m_session->Entities()) {
-        if (entity.where2DViewer != m_view || !SourcePlaneMatches(entity)) {
-            continue;
-        }
+        if (!entity.visible) continue;
+        m_highlight = entity.id == m_session->SelectedId();
         const auto& definition = GetMeasurementToolDefinition(entity.type);
         if (!definition.buildPath) {
             continue;
         }
-        const auto physicalPath = definition.buildPath(
-            entity.physicalPoints, entity.plane, &entity.result);
+        const auto physicalPath = entity.capturedPath.empty()
+            ? definition.buildPath(entity.physicalPoints, entity.plane, &entity.result) : entity.capturedPath;
         const auto worldPath = ProjectToCurrentView(physicalPath);
         if (worldPath.size() < 2) {
             continue;
         }
-        AddPath(worldPath, false, false);
+        if (m_is3D) AddPath(worldPath, false, false);
+        else AddSlicePath(physicalPath, m_adapter->GetPlane().sliceTolerance);
         AddControlPoints(ProjectToCurrentView(entity.physicalPoints), false);
         AddLabel(entity, worldPath);
     }
 
+    m_highlight = false;
     if (const auto& draft = m_session->Draft();
-        draft && draft->request.view == m_view) {
+        draft && (m_is3D || draft->request.view == m_view)) {
         std::vector<Point3> candidate = draft->physicalPoints;
         if (draft->previewPoint) {
             candidate.push_back(*draft->previewPoint);
@@ -126,6 +127,7 @@ std::vector<Point3> MeasurementOverlayStrategy::ProjectToCurrentView(
     constexpr double safeOffset = 0.01;
     for (const auto& physical : physicalPath) {
         Point3 world = PhysicalToWorld(physical);
+        if (m_is3D) { projected.push_back(world); continue; }
         const double distance = geometry::Dot(normal, geometry::Subtract(world, origin));
         world = geometry::Subtract(world, geometry::Scale(normal, distance));
         world = geometry::Add(world, geometry::Scale(normal, safeOffset));
@@ -198,12 +200,16 @@ void MeasurementOverlayStrategy::AddPath(
     actor->PickableOff();
     actor->GetProperty()->LightingOff();
     actor->GetProperty()->SetLineWidth(draft ? 2.5 : 2.0);
-    if (draft) {
+    if (m_highlight && !draft) {
+        actor->GetProperty()->SetColor(1.0, 0.3, 0.9);
+        actor->GetProperty()->SetLineWidth(4.0);
+    }
+    else if (draft) {
         actor->GetProperty()->SetColor(1.0, 0.65, 0.1);
     }
     else if (dashed) {
         actor->GetProperty()->SetColor(0.3, 0.85, 1.0);
-        actor->GetProperty()->SetOpacity(0.8);
+        actor->GetProperty()->SetOpacity(0.35);
     }
     else {
         actor->GetProperty()->SetColor(0.1, 1.0, 0.35);
@@ -220,7 +226,14 @@ void MeasurementOverlayStrategy::AddLabel(
         return;
     }
     auto label = vtkSmartPointer<vtkBillboardTextActor3D>::New();
-    label->SetInput(FormatMeasurementLabel(entity.id, entity.result).c_str());
+    std::string text = FormatMeasurementLabel(/*entity.id, */entity.result);
+    if (!m_is3D) {
+        const auto plane = m_adapter->GetPlane();
+        const bool outside = std::any_of(entity.physicalPoints.begin(), entity.physicalPoints.end(), [&plane](const auto& point) {
+            return std::abs(geometry::Dot(plane.normal, geometry::Subtract(point, plane.origin))) > plane.sliceTolerance;
+        });
+    }
+    label->SetInput(text.c_str());
     const auto& labelPosition = worldPath[worldPath.size() / 2];
     label->SetPosition(labelPosition[0], labelPosition[1], labelPosition[2]);
     label->PickableOff();
@@ -274,6 +287,42 @@ void MeasurementOverlayStrategy::RemoveProps()
         }
     }
     m_props.clear();
+}
+
+// Split every segment at the two slice boundaries before projecting it.
+void MeasurementOverlayStrategy::AddSlicePath(const std::vector<Point3>& path, double tolerance)
+{
+    const auto plane = m_adapter->GetPlane();
+    std::vector<Point3> run;
+    bool runOutside = false;
+    for (std::size_t i = 1; i < path.size(); ++i) {
+        const auto& a = path[i - 1];
+        const auto& b = path[i];
+        const double da = geometry::Dot(plane.normal, geometry::Subtract(a, plane.origin));
+        const double db = geometry::Dot(plane.normal, geometry::Subtract(b, plane.origin));
+        std::vector<double> cuts{0.0, 1.0};
+        if (std::abs(db - da) > 1e-12) {
+            for (double boundary : {-tolerance, tolerance}) {
+                const double t = (boundary - da) / (db - da);
+                if (t > 0.0 && t < 1.0) cuts.push_back(t);
+            }
+        }
+        std::sort(cuts.begin(), cuts.end());
+        for (std::size_t j = 1; j < cuts.size(); ++j) {
+            const double lo = cuts[j - 1], hi = cuts[j];
+            const bool outside = std::abs(da + (db - da) * (lo + hi) * 0.5) > tolerance;
+            const auto p = geometry::Add(a, geometry::Scale(geometry::Subtract(b, a), lo));
+            const auto q = geometry::Add(a, geometry::Scale(geometry::Subtract(b, a), hi));
+            if (!run.empty() && outside != runOutside) {
+                AddPath(ProjectToCurrentView(run), runOutside, false);
+                run.clear();
+            }
+            if (run.empty()) run.push_back(p);
+            run.push_back(q);
+            runOutside = outside;
+        }
+    }
+    if (run.size() >= 2) AddPath(ProjectToCurrentView(run), runOutside, false);
 }
 
 } // namespace measure

@@ -25,6 +25,7 @@
 struct HostRequest;
 class VtkAppHostSession;
 class VolumePublishBridge;
+namespace measure { class MainMeasurementFeature; class MeasurementSession; }
 
 struct CropTreeItem final
 {
@@ -73,21 +74,24 @@ public:
     }
     VtkImageGridSnapshot capturedVolumeSnapshot(QString* err = nullptr);
     //publish
-    VtkImageGridSnapshot publishVolumeSnapshotForTest(
+    VtkImageGridSnapshot publishVolumeSnapshot(
         const VtkImageGridSnapshot& archive,
         QString* err = nullptr, bool* isPending = nullptr);
-    bool areAllRenderViewsAtVersion(
+    bool areRenderViewsSynchronized(
         const DataRevisionRef& expectedRevision,
         DataBindingRevision expectedBindingRevision,
         std::map<std::string, std::uint64_t>& renderTargets,
         QString* report = nullptr);
-    void failVolumePublishTest(const QString& reason);
+    void failVolumeActivation(const QString& reason);
     std::optional<measure::MeasureHostData> getMeasureHostData(
         const HostViewTarget& sourceView);
     std::optional<HostRenderViewState> getRenderViewState(
         const HostViewTarget& target);
     bool initHost(HostSessionConfig config, QString* err = nullptr);
     bool Stop(QString* errorOut = nullptr);
+    bool bindMeasurements(std::shared_ptr<measure::MeasurementSession> session);
+    bool unbindMeasurements();
+    std::shared_ptr<measure::MainMeasurementFeature> getMeasurements() const { return measurementFeature_; }
     bool GetIsStopped() const;
     void SetViewVisibility(std::function<bool(const std::string&)> getVisible);
     void SendUpdates();
@@ -202,5 +206,6 @@ private:
     std::shared_ptr<std::atomic_bool> gapExportCancelled_;
     std::function<void(bool, QString)> gapExportCallback_;
     std::shared_ptr<VolumePublishBridge> volumePublishBridge_;
+    std::shared_ptr<measure::MainMeasurementFeature> measurementFeature_;
 
 };

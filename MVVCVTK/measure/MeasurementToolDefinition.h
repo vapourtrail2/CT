@@ -29,7 +29,6 @@ struct MeasurementToolDefinition {
 
 const MeasurementToolDefinition& GetMeasurementToolDefinition(MeasureTool tool);
 std::string FormatMeasurementLabel(
-    std::uint64_t id,
     const MeasurementResult& result);
 std::string FormatCompletedMeasurement(const MeasurementResult& result);
 

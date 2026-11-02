@@ -2,6 +2,7 @@
 
 #include "measure/MeasurementGeometry.h"
 #include "measure/MeasurementView.h"
+#include "MVVCVTK/SPI/App/Services/FeatureViewService.h"
 
 #include <QVTKOpenGLNativeWidget.h>
 
@@ -199,6 +200,9 @@ void MeasureViewAdapter::Reset()
     m_cursorWorld = {};
     m_windowLevel = {};
     m_view = MeasureView::Axial;
+    m_hostPort.reset();
+    m_hostLease.reset();
+    m_isHostView = false;
 }
 
 bool MeasureViewAdapter::SetView(MeasureView view)
@@ -216,6 +220,10 @@ void MeasureViewAdapter::SetInputCallback(InputCallback callback)
 
 void MeasureViewAdapter::SendRender()
 {
+    if (m_isHostView) {
+        if (HasValidHostLease()) m_hostPort->SetRenderNeeded();
+        return;
+    }
     if (m_renderWindow) {
         m_renderWindow->Render();
     }
@@ -226,6 +234,7 @@ void MeasureViewAdapter::SendRender()
 
 bool MeasureViewAdapter::GetIsReady() const noexcept
 {
+    if (m_isHostView) return HasValidHostLease() && m_image && m_image->image && m_renderer && m_modelToWorld && m_worldToModel;
     return m_widget
         && m_image
         && m_image->image
@@ -475,6 +484,56 @@ void MeasureViewAdapter::SendInput(vtkObject* caller, unsigned long eventId)
         m_inputCommand->SetAbortFlag(
             result.isPropagationStopped ? 1 : 0);
     }
+}
+
+bool MeasureViewAdapter::HasValidHostLease() const
+{
+    const auto lease = m_hostLease.lock();
+    return lease && lease->GetIsActive() && lease->GetIsOwnerThread();
+}
+
+bool MeasureViewAdapter::AttachHostView(const HostInputView& view, VtkImageGridSnapshot image,
+    std::shared_ptr<FeatureViewService> port, const HostRenderViewState& state, MeasureView sliceView)
+{
+    Reset();
+    m_hostLease = view.lease;
+    if (!HasValidHostLease() || !view.renderer || !image || !image->image || !port) return false;
+    m_isHostView = true;
+    m_hostPort = std::move(port);
+    m_renderer = view.renderer;
+    m_image = std::move(image);
+    m_view = sliceView;
+    m_modelToWorld = vtkSmartPointer<vtkMatrix4x4>::New();
+    m_worldToModel = vtkSmartPointer<vtkMatrix4x4>::New();
+    return SyncHostView(state);
+}
+
+bool MeasureViewAdapter::SyncHostView(const HostRenderViewState& state)
+{
+    if (!HasValidHostLease()) return false;
+    const auto matrix = m_hostPort->GetModelToWorld();
+    if (!matrix) return false;
+    m_modelToWorld->DeepCopy(matrix->data());
+    m_worldToModel->DeepCopy(m_modelToWorld);
+    m_worldToModel->Invert();
+    m_cursorWorld = state.cursorWorld;
+    m_windowLevel = state.windowLevel;
+    return true;
+}
+
+MeasurementPlane MeasureViewAdapter::GetPlane() const
+{
+    const auto& descriptor = GetSliceViewDescriptor(m_view);
+    MeasurementPlane plane;
+    plane.origin = GetModelPoint(m_cursorWorld);
+    plane.u = descriptor.u;
+    plane.v = descriptor.v;
+    plane.normal = descriptor.normal;
+    const auto spacing = m_image->image->GetSpacing();
+    const double smallest = std::min({std::abs(spacing[0]), std::abs(spacing[1]), std::abs(spacing[2])});
+    plane.tolerance = std::max(1e-9, smallest * 1e-6);
+    plane.sliceTolerance = std::max(1e-6, std::abs(spacing[descriptor.axis]) * 0.51);
+    return plane;
 }
 
 } // namespace measure

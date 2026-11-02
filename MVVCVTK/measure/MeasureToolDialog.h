@@ -22,7 +22,7 @@ public:
     MeasureToolDialog(
         VtkImageGridSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState,
-        QWidget* parent = nullptr);
+        std::shared_ptr<MeasurementSession> session, QWidget* parent = nullptr);
     ~MeasureToolDialog() override;
 
 private:

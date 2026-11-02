@@ -1,6 +1,6 @@
 # 多体积管理、主视图测量与通用场景树方案
 
-当前进度（2026-10-21）：用户已实现 1.1 快照保存和 1.2 A/B 发布，并提供四视图版本同步的运行日志。当前继续 [1.3 多体积记录管理](/C:/CT/docs/measurement-volume-step-1-manage.md)。下面的实施顺序是总体路线，已验证部分与后续待实施部分分别看待。
+当前进度（2026-10-29）：本目录已接入每体积测量集合、ID 激活、通用场景树、主界面四视图测量和抓边确认。逐步改动、代码入口和验证状态见 [实施与审查](/D:/CTT/CT/docs/measurement-implementation-review.md)。下文保留原总体设计，实际实现以该审查文档和当前源码为准。
 
 ## Summary
 
@@ -65,7 +65,7 @@ AppContext
 
 ### 2.2 体积对象
 
-建议在 `C:\CT\MVVCVTK\c_ui\scene` 新增 `VolumeTypes.h`、`VolumeManager.h/.cpp`。以下类型是拟新增的前端设计，不是已有 SDK 类型，也不是可直接编译的完整实现：
+沿用现有 `D:\CTT\CT\MVVCVTK\c_ui\context`，不需要新建 scene 目录。早期设计曾建议新增 `VolumeTypes.h`、`VolumeManager.h/.cpp`。以下类型是拟新增的前端设计，不是已有 SDK 类型，也不是可直接编译的完整实现：
 
 ```cpp
 using VolumeId = std::uint64_t; // 0 表示无效
@@ -117,7 +117,7 @@ struct VolumeObject {
 
 ### 3.2 加载完成后登记原始体积
 
-接入位置：`C:\CT\MVVCVTK\c_ui\MainWindow.cpp` 的 `CTViewer::handleLoadFinished()`。
+接入位置：`D:\CTT\CT\MVVCVTK\c_ui\MainWindow.cpp` 的 `CTViewer::handleLoadFinished()`。
 
 ```text
 加载成功
@@ -132,7 +132,7 @@ struct VolumeObject {
 
 ### 3.3 裁切成功后登记独立产物
 
-接入位置：`C:\CT\MVVCVTK\c_ui\context\SessionManager.cpp` 的 `SessionManager::applyCrop()`。
+接入位置：`D:\CTT\CT\MVVCVTK\c_ui\context\SessionManager.cpp` 的 `SessionManager::applyCrop()`。
 
 发起操作时冻结来源体积 ID、输入版本、操作编号及会话代次。增加携带产物信息的通知；原 `cropBuildFinished(bool, QString)` 可以继续服务进度和界面恢复。
 
@@ -179,7 +179,7 @@ struct VolumeObject {
 
 ### 4.1 先将 session 移出弹窗
 
-修改 `C:\CT\MVVCVTK\measure\MeasureToolDialog.h/.cpp`：
+修改 `D:\CTT\CT\MVVCVTK\measure\MeasureToolDialog.h/.cpp`：
 
 - 构造函数接收外部 `shared_ptr<MeasurementSession>`。
 - `BuildMeasurementViewport()` 不再创建 session。
@@ -190,7 +190,7 @@ struct VolumeObject {
 
 ### 4.2 统一正式对象提交
 
-修改 `C:\CT\MVVCVTK\measure\MeasurementSession.h/.cpp`：
+修改 `D:\CTT\CT\MVVCVTK\measure\MeasurementSession.h/.cpp`：
 
 - 增加正式抓边结果提交入口，共用 ID、删除、撤销和重做。
 - 增加名称、可见性、来源方式等对象属性。
@@ -259,7 +259,7 @@ cursor 或视图状态变化时主动刷新四视图。手工草稿取得第一�
 
 ### 5.1 树模型
 
-将 `C:\CT\MVVCVTK\c_ui\panels\SceneTreePanel.cpp` 的清空重建结构改为 `QTreeView + SceneTreeModel`。节点保存稳定业务引用、名称、类型和操作能力，例如：
+将 `D:\CTT\CT\MVVCVTK\c_ui\panels\SceneTreePanel.cpp` 的清空重建结构改为 `QTreeView + SceneTreeModel`。节点保存稳定业务引用、名称、类型和操作能力，例如：
 
 ```cpp
 struct SceneObjectRef {

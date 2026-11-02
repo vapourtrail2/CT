@@ -205,6 +205,7 @@ void DocumentPage::showOpenDialog()
 
         inputPath_ = new QLineEdit(filePage);
         inputPath_->setPlaceholderText(QStringLiteral("选择或输入 RAW 文件"));
+        inputPath_->setText(QStringLiteral("C:/data/600x1800x600.raw"));
 		inputRow->addWidget(inputPath_, 1);
 
         btnBrowse_ = new QPushButton(QStringLiteral("浏览..."), filePage);
@@ -223,8 +224,8 @@ void DocumentPage::showOpenDialog()
 
         auto makeNum_1 = [this]() {
             auto* box = new QDoubleSpinBox(docDialog_);
-            box->setDecimals(3);
-            box->setRange(0.000001, 100.0);
+            box->setDecimals(2);
+            box->setRange(0.01, 100.0);
             box->setSingleStep(0.1);
             box->setSuffix(QStringLiteral("mm"));   
             return box;
@@ -249,14 +250,18 @@ void DocumentPage::showOpenDialog()
 		dimsX_ = makeNum_3();
 		dimsY_ = makeNum_3();
 		dimsZ_ = makeNum_3();
+        
+        dimsX_->setValue(600);
+        dimsY_->setValue(1800);
+        dimsZ_->setValue(600);
 
 		spacingX_ = makeNum_1();
 		spacingY_ = makeNum_1();
 		spacingZ_ = makeNum_1();
 
-		spacingX_->setValue(0.02);
-		spacingY_->setValue(0.02);
-		spacingZ_->setValue(0.02);
+        spacingX_->setValue(1);
+		spacingY_->setValue(1);
+		spacingZ_->setValue(1);
 
         originX_ = makeNum_2();
         originY_ = makeNum_2();

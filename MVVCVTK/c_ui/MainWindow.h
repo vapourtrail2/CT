@@ -42,6 +42,8 @@ class UIReconstruct3D;
 class QProgressDialog;
 class GapAnalysisDialog;
 class QThread;
+class QDockWidget;
+namespace measure { class MeasurementToolPanel; }
 
 class CTViewer : public QMainWindow
 {
@@ -98,7 +100,12 @@ private:
     void updateCropTree();
     void handleCropBuildFinished(bool isSuccess, QString message);
    /* void setWindowLevel(HostWindowLevelParams windowLevel);*/
-    void switchVolumeForTest(bool useoriginal);
+    void activateVolume(int volumeId);
+    void updateSceneTree();
+    void saveActiveVolumeViewState();
+    void restoreActiveVolumeViewState();
+    void bindMeasurements();
+    void closeMeasurementTools();
 
 private:
     UiState buildUiState(int index) const;
@@ -117,17 +124,18 @@ private:
     QPointer<GapAnalysisDialog> gapAnalysisDialog_;
     std::unique_ptr<RibbonPageRegister> ribbonPageRegister_;
     AppContext context_;
-    VtkImageGridSnapshot originalSnapshot_;
-    VtkImageGridSnapshot croppedSnapshot_;
     int originVolumeId_ = 0;
     int latestCroppedVolumeId_ = 0;
     int cropSourceVolumeId_ = 0;
-    bool volumePublishTestBusy_ = false;
+    bool volumeActivationBusy_ = false;
     bool isClosing_ = false;
     std::vector<QPointer<QThread>> copyThreads_;
 
 
 private:
+    QDockWidget* measurementDock_ = nullptr;
+    measure::MeasurementToolPanel* measurementPanel_ = nullptr;
+    std::map<int, std::uint64_t> measurementSubscriptions_;
     int iconHeight_ = 100;
     bool fileHasData_ = false;
     std::array<std::optional<HostWindowLevelParams>,3> cropWindowLevels_{}; 

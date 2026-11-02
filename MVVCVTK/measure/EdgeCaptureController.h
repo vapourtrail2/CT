@@ -43,6 +43,7 @@ public:
     void SetView(MeasureView view);
     void SetStatusCallback(StatusCallback callback);
     void Refresh();
+    std::optional<MeasurementEntity> TakeResult(std::string& error);
 
 private:
     // 圆环以图像索引为单位；每个视图独立保存，切换工具不覆盖直线框。

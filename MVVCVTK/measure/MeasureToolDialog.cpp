@@ -21,8 +21,8 @@ namespace measure {
     MeasureToolDialog::MeasureToolDialog(
         VtkImageGridSnapshot imageSnapshot,
         const MeasurementViewInitState& initialState,
-        QWidget* parent)
-        : QDialog(parent)
+        std::shared_ptr<MeasurementSession> session, QWidget* parent)
+        : QDialog(parent), m_session(std::move(session))
     {
         BuildUi();
         BuildMeasurementViewport(
@@ -34,6 +34,7 @@ namespace measure {
     {
         if (m_session) {
             m_session->SetChangedCallback({});
+            m_session->CancelDraft();
         }
 
         m_viewport.Reset();
@@ -176,7 +177,6 @@ void MeasureToolDialog::BuildMeasurementViewport(
         return;
     }
 
-    m_session = std::make_shared<MeasurementSession>();
 
     if (!m_viewport.Build(
         m_vtkWidget,

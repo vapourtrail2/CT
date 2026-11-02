@@ -26,6 +26,7 @@ public:
 
     void SetView(MeasureView view);
     void Refresh();
+    void SetThreeDimensional(bool enabled) { m_is3D = enabled; }
 
 private:
     std::vector<Point3> ProjectToCurrentView(const std::vector<Point3>& physicalPath) const;
@@ -35,7 +36,10 @@ private:
     void AddControlPoints(const std::vector<Point3>& worldPoints, bool draft);
     void AddLabel(const MeasurementEntity& entity, const std::vector<Point3>& worldPath);
     void RemoveProps();
+    void AddSlicePath(const std::vector<Point3>& physicalPath, double tolerance);
         
+    bool m_is3D = false;
+    bool m_highlight = false;
     std::shared_ptr<MeasurementSession> m_session;
     MeasureViewAdapter* m_adapter = nullptr;
     MeasureView m_view = MeasureView::Axial;

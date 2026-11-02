@@ -28,20 +28,16 @@ MeasurementInteractionHandler::MeasurementInteractionHandler(
 
 InteractionResult MeasurementInteractionHandler::Send(const InteractionEvent& event)
 {   
-    if (!m_session || !m_session->IsActive() || !m_adapter || !m_renderer) {
-        if (event.eventKind == InteractionEventKind::PrimaryRelease
-            && m_consumingLeftButton) {
-            m_consumingLeftButton = false;
-            return { true, true };
-        }
-        if (event.eventKind == InteractionEventKind::PrimaryPress
-            || event.eventKind == InteractionEventKind::PrimaryRelease
-            || event.eventKind == InteractionEventKind::WheelForward
-            || event.eventKind == InteractionEventKind::WheelBackward) {
-            return { true, true };
-        }
-        return {};
+    if (event.eventKind == InteractionEventKind::Cancel) {
+        m_consumingLeftButton = false;
+        m_session->CancelDraft();
+        return {true, true};
     }
+    if (event.eventKind == InteractionEventKind::PrimaryRelease && m_consumingLeftButton) {
+        m_consumingLeftButton = false;
+        return {true, true};
+    }
+    if (!m_session->IsActive() || !m_adapter->GetIsReady()) return {};
 
     const auto& draft = m_session->Draft();
     if (!draft || draft->request.view != m_view) {
@@ -101,25 +97,7 @@ std::optional<Point3> MeasurementInteractionHandler::GetDisplayPoint(
 
 MeasurementPlane MeasurementInteractionHandler::GetMeasurePlane() const
 {
-    const auto cursor = m_adapter->GetCursorWorld();
-    const auto& view = GetSliceViewDescriptor(m_view);
-
-    MeasurementPlane plane;
-    plane.origin = m_adapter->GetModelPoint({
-        cursor[0], cursor[1], cursor[2]
-    });
-    plane.u = view.u;
-    plane.v = view.v;
-    plane.normal = view.normal;
-
-    if (const auto image = m_adapter->GetImageSnapshot()) {
-        const auto spacing = image->image->GetSpacing();
-        const double minimumSpacing = std::min({
-            std::abs(spacing[0]), std::abs(spacing[1]), std::abs(spacing[2]) });
-        plane.tolerance = std::max(1e-9, minimumSpacing * 1e-6);
-        plane.sliceTolerance = std::max(1e-6, minimumSpacing * 0.51);
-    }
-    return plane;
+    return m_adapter->GetPlane();
 }
 
 bool MeasurementInteractionHandler::GetIsInsideImage(
@@ -145,6 +123,11 @@ bool MeasurementInteractionHandler::GetIsInsideImage(
             || continuousIndex[axis] > extent[2 * axis + 1] + margin) {
             return false;
         }
+    }
+    if (snapshot->validityMask) {
+        int index[3];
+        for (int axis = 0; axis < 3; ++axis) index[axis] = std::clamp(int(std::lround(continuousIndex[axis])), extent[2 * axis], extent[2 * axis + 1]);
+        return snapshot->validityMask->GetScalarComponentAsDouble(index[0], index[1], index[2], 0) != 0.0;
     }
     return true;
 }

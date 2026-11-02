@@ -2,13 +2,22 @@
 #include "MVVCVTK/SPI/Host/TrustedDataPort.h"
 #include <QString>
 #include <map>
+#include <memory>
+#include <array>
+#include <optional>
+#include "MVVCVTK/API/Host/Types/HostValueTypes.h"
+
+namespace measure { class MeasurementSession; }
 
 struct VolumeRecord
 {
 	int id = 0;
 	QString name;
 	VtkImageGridSnapshot image;
-	int VolumeSourceid = 0;//来源体积
+	int VolumeSourceid = 0; // 来源体积
+    std::shared_ptr<measure::MeasurementSession> measurements;
+    std::array<std::optional<HostWindowLevelParams>, 3> windowLevels;
+    std::optional<std::array<double, 3>> cursorWorld;
 };
 
 class VolumeManager {

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="measure">
@@ -323,5 +323,13 @@
     <QtMoc Include="c_ui\MainWindow.h">
       <Filter>c_ui\main</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="measure\MainMeasurementFeature.h"><Filter>measure</Filter></ClInclude>
+    <ClCompile Include="measure\MainMeasurementFeature.cpp"><Filter>measure</Filter></ClCompile>
+    <ClInclude Include="measure\MeasurementToolPanel.h"><Filter>measure</Filter></ClInclude>
+    <ClCompile Include="measure\MeasurementToolPanel.cpp"><Filter>measure</Filter></ClCompile>
+    <ClInclude Include="c_ui\panels\SceneTreeModel.h"><Filter>c_ui\panels</Filter></ClInclude>
+    <ClCompile Include="c_ui\panels\SceneTreeModel.cpp"><Filter>c_ui\panels</Filter></ClCompile>
   </ItemGroup>
 </Project>

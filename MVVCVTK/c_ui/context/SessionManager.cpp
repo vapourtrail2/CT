@@ -1,5 +1,6 @@
 #include "c_ui/context/SessionManager.h"
 #include "c_ui/context/VolumeHostBridge.h"
+#include "measure/MainMeasurementFeature.h"
 #include <QByteArray>
 #include <QMetaObject>
 #include <QPointer>
@@ -200,13 +201,15 @@ bool SessionManager::resetHost(QString* errorOut)
     isClosing_ = false;
     auto newHost = std::make_unique<VtkAppHostSession>(config_);
 
-    if (!newHost->BuildSession()) {
-        (void)newHost->Stop();
-        setError(
-            errorOut,
-            QStringLiteral("Failed to build VTK host session."));
-        return false;
-    }
+    //if (!newHost->BuildSession()) {
+    //    (void)newHost->Stop();
+    //    setError(
+    //        errorOut,
+    //        QStringLiteral("Failed to build VTK host session."));
+    //    return false;
+    //}
+
+    newHost->BuildSession();
 
     hostSession_ = std::move(newHost);
     if (!resetCropFeature(errorOut)) {
@@ -232,8 +235,6 @@ bool SessionManager::StopHost(QString* errorOut)
         clearCropFeature();
         return true;
     }
-    // Running 阶段先按 Feature 卸载协议收口：该协议会恢复仍占用裁剪结果的主输入。
-    // 普通 CloseDocument 不具备卸载时的输入恢复权限，不能在主输入占用结果时反复重发。
     if (hostSession_->GetStopState() == HostStopState::Running) {
         const auto pumpClosingViews = [this] {
             (void)hostSession_->SendUpdates();
@@ -241,7 +242,7 @@ bool SessionManager::StopHost(QString* errorOut)
             for (const auto& view : hostSession_->GetSceneViewStates())
                 if (view.isAvailable) draw.viewIds.push_back(view.id);
             if (!draw.viewIds.empty()) (void)hostSession_->SendRender(draw);
-        };
+            };
         if (gapFeature_) {
             if (!hostSession_->DetachFeature(*gapFeature_)) {
                 pumpClosingViews();
@@ -255,6 +256,7 @@ bool SessionManager::StopHost(QString* errorOut)
             if (!hostSession_->DetachFeature(*cropFeature_)) {
                 pumpClosingViews();
                 setError(errorOut, QStringLiteral("正在关闭裁切工具，请稍候。"));
+
                 return false;
             }
             cropFeature_.reset();
@@ -321,7 +323,7 @@ bool SessionManager::resetCropFeature(QString* errorOut)
     }
 
     auto feature = std::make_shared<CropHostFeature>();
-    if (!hostSession_->AttachFeature(feature)) {
+    if (!hostSession_->AttachFeature(feature)) {//为什么裁切应用之后 在裁切上做了测量之后，切到原始上去 会触发这个Failed to attach Core crop feature，但是四视图已经更新成1的视觉效果 但是会报这个错
         setError(
             errorOut,
             QStringLiteral("Failed to attach Core crop feature."));
@@ -637,7 +639,6 @@ bool SessionManager::restoreOriginalCrop()
             && guard->hostSession_.get() == host && guard->cropFeature_ == crop;
     };
     if (gapFeature_) {
-        // 普通 Exit 保留正式结果；显式恢复来源前才卸载这个消费者。
         const auto gap = gapFeature_;
         isGapRestoreCleanupPending_ = true;
         cropBuildPending_ = true;
@@ -739,6 +740,7 @@ bool SessionManager::startGap(
     GapHostCallback onComplete,
     QString* errorOut)
 {
+    if (!unbindMeasurements()) { setError(errorOut, QStringLiteral("测量工具尚未释放。")); return false; }
     if (isGapRestoreCleanupPending_ || cropBuildPending_) {
         setError(errorOut, QStringLiteral("裁切恢复或结果释放尚未完成，请稍后重试孔隙分析。"));
         return false;
@@ -793,6 +795,7 @@ bool SessionManager::toggleGapOverlay(QString* errorOut)
 bool SessionManager::exportGapCsv(const QString& outputPath,
     std::function<void(bool, QString)> onComplete, QString* errorOut)
 {
+    if (!unbindMeasurements()) { setError(errorOut, QStringLiteral("测量工具尚未释放。")); return false; }
     if (isGapRestoreCleanupPending_ || cropBuildPending_) {
         setError(errorOut, QStringLiteral("裁切恢复或结果释放尚未完成，暂不能导出 CSV。"));
         return false;
@@ -893,7 +896,7 @@ VtkImageGridSnapshot SessionManager::capturedVolumeSnapshot(QString* err)
     return captured;
 }
 
-VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B交给SDK
+VtkImageGridSnapshot SessionManager::publishVolumeSnapshot(//保存的A/B交给SDK
     const VtkImageGridSnapshot& archive,
     QString* err, bool* isPending)
 {
@@ -911,7 +914,7 @@ VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
     }
     if (gapFeature_) {
         setError(err, QStringLiteral(
-            "This test requires no Gap feature. Restart and test loading/cropping only."));
+            "请先关闭孔隙分析，再切换体积。"));
         return {};
     }
 
@@ -919,6 +922,8 @@ VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
         setError(err, message);
         return {};
         };
+
+    if (!unbindMeasurements()) return fail(QStringLiteral("测量交互尚未释放，请稍后重试。"));
 
     // 只接受空闲四视图；先安全移除当前裁切上下文。
     if (cropFeature_ && cropFeature_->GetState().isPublishing) {
@@ -936,8 +941,9 @@ VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
             }
         }
         if (!hostSession_->DetachFeature(*cropFeature_)) {
-            // 当前 SDK 卸载会等待源预览/视图归还；由既有 Qt 切换定时器继续推进。
-            if (isPending) *isPending = true;
+            if (isPending) { 
+                *isPending = true;
+            }  
             SendUpdates();
             SendRender();
             setError(err, QStringLiteral("正在归还裁剪视图，请稍候。"));
@@ -945,6 +951,7 @@ VtkImageGridSnapshot SessionManager::publishVolumeSnapshotForTest(//保存的A/B
         }
         cropFeature_.reset();
     }
+
     clearCropHistory();
 
     if (!volumePublishBridge_) {
@@ -1009,7 +1016,7 @@ bool SessionManager::ReleasePublishedVolumes(bool all, QString* errorOut)
     return complete;
 }
 
-bool SessionManager::areAllRenderViewsAtVersion(
+bool SessionManager::areRenderViewsSynchronized(
     const DataRevisionRef& expectedRevision,
     DataBindingRevision expectedBindingRevision,
     std::map<std::string, std::uint64_t>& renderTargets,
@@ -1067,9 +1074,9 @@ bool SessionManager::areAllRenderViewsAtVersion(
     return all;
 }
 
-void SessionManager::failVolumePublishTest(const QString& reason)
+void SessionManager::failVolumeActivation(const QString& reason)
 {
-    qWarning() << "[volumePublish] test stopped " << reason;
+    qWarning() << "[VolumeActivation] stopped " << reason;
     setState(State::Failed);
     emit isoStateCleared();
 }
@@ -1120,6 +1127,8 @@ bool SessionManager::sendLoadRequest(
             QStringLiteral("A load request is already running."));
         return false;
     }
+
+    if (!unbindMeasurements()) { setError(errorOut, QStringLiteral("测量工具尚未释放。")); return false; }
 
     // CT 接管请求存储；旧 Crop 文档的异步退出完成后再交给 SDK，避免丢弃重建 buffer。
     if (auto* file = dynamic_cast<HostLoadRequest*>(&request)) pendingLoad_ = std::make_unique<HostLoadRequest>(std::move(*file));
@@ -1306,7 +1315,6 @@ bool SessionManager::SetCropWidget(CropHostAction shape)
         emit hostError(QStringLiteral("裁剪模式设置失败，已退出编辑。"));
     }
     syncCropHistory();
-    // Widget 启停不一定改变历史修订，编辑按钮仍需同步当前激活状态。
     emit cropHistoryChanged();
     return accepted;
 }
@@ -1314,6 +1322,7 @@ bool SessionManager::SetCropWidget(CropHostAction shape)
 
 bool SessionManager::StartCrop(CropHostAction shape)
 {
+    if (!unbindMeasurements()) return false;
     if (state_ != State::Ready || isClosing_ || !cropFeature_ || cropBuildPending_) return false;
     const auto input = hostSession_->GetImageDescriptor();
     if (!input) return false;
@@ -1376,8 +1385,6 @@ void SessionManager::finishGapExport()
 void SessionManager::SendPendingLoad()
 {
     if (!pendingLoad_ || isClosing_ || !hostSession_) { loadRetryTimer_.stop(); return; }
-    // Gap 退出显示后仍可保留分析结果和来源租约；数据重载时先按既有卸载协议
-    // 释放此依赖，再关闭裁剪文档，沿用 StopHost 的消费者先于生产者顺序。
     bool isGapClosed = !gapFeature_;
     if (gapFeature_ && hostSession_->DetachFeature(*gapFeature_)) {
         gapFeature_.reset();
@@ -1410,4 +1417,23 @@ void SessionManager::SendPendingLoad()
     if (admission.status != HostAdmissionStatus::Accepted) {
         onComplete({ false, admission.errorCode, admission.message });
     }
+}
+
+bool SessionManager::bindMeasurements(std::shared_ptr<measure::MeasurementSession> session)
+{
+    if (!hostSession_ || state_ != State::Ready || !unbindMeasurements()) return false;
+    auto feature = std::make_shared<measure::MainMeasurementFeature>(std::move(session),
+        [this](const HostViewTarget& target) { return getRenderViewState(target); });
+    if (!hostSession_->AttachFeature(feature)) return false;
+    measurementFeature_ = std::move(feature);
+    RequestRender();
+    return true;
+}
+
+bool SessionManager::unbindMeasurements()
+{
+    if (!measurementFeature_) return true;
+    if (hostSession_ && !hostSession_->DetachFeature(*measurementFeature_)) return false;
+    measurementFeature_.reset();
+    return true;
 }

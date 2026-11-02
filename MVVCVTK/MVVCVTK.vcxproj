@@ -374,4 +374,12 @@
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <ClInclude Include="measure\MainMeasurementFeature.h" />
+    <ClCompile Include="measure\MainMeasurementFeature.cpp" />
+    <ClInclude Include="measure\MeasurementToolPanel.h" />
+    <ClCompile Include="measure\MeasurementToolPanel.cpp" />
+    <ClInclude Include="c_ui\panels\SceneTreeModel.h" />
+    <ClCompile Include="c_ui\panels\SceneTreeModel.cpp" />
+  </ItemGroup>
 </Project>

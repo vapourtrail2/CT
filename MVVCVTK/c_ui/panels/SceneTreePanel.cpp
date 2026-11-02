@@ -1,214 +1,96 @@
 #include "SceneTreePanel.h"
-
 #include <QAbstractItemView>
-#include <QSignalBlocker>
-#include <QVariant>
+#include <QHeaderView>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
+#include <QShortcut>
+#include <QTreeView>
 #include <QVBoxLayout>
 
-SceneTreePanel::SceneTreePanel(QWidget* parent)
-    : QWidget(parent)
+SceneTreePanel::SceneTreePanel(QWidget* parent) : QWidget(parent)
 {
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(4, 4, 4, 4);
-
-    tree_ = new QTreeWidget(this);
-    tree_->setHeaderHidden(true);
-    tree_->setStyleSheet(
-        "QTreeWidget{background:#1f1f1f; border:1px solid #333;}");
+    tree_ = new QTreeView(this);
+    model_ = new SceneTreeModel(this);
+    tree_->setModel(model_);
+    tree_->setSelectionBehavior(QAbstractItemView::SelectRows);
     tree_->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    root_ = new QTreeWidgetItem(
-        tree_,
-        QStringList() << QStringLiteral("场景"));
-    root_->setExpanded(true);
-
+    tree_->setEditTriggers(QAbstractItemView::EditKeyPressed);
+    tree_->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    tree_->header()->setStretchLastSection(true);
     layout->addWidget(tree_);
 
-    auto* cropControls = new QVBoxLayout();
-    cropControls->setContentsMargins(0, 0, 0, 0);
-    cropControls->setSpacing(4);
+    cropControls_ = new QWidget(this);
+    auto* cropLayout = new QVBoxLayout(cropControls_);
+    cropLayout->setContentsMargins(0, 0, 0, 0);
+    auto* row = new QHBoxLayout;
+    keepInsideButton_ = new QPushButton(QStringLiteral("保留内"), cropControls_);
+    removeInsideButton_ = new QPushButton(QStringLiteral("移除内"), cropControls_);
+    exitButton_ = new QPushButton(QStringLiteral("退出裁切"), cropControls_);
+    for (auto* button : {keepInsideButton_, removeInsideButton_, exitButton_}) row->addWidget(button);
+    cropLayout->addLayout(row);
+    row = new QHBoxLayout;
+    applyButton_ = new QPushButton(QStringLiteral("应用"), cropControls_);
+    restoreButton_ = new QPushButton(QStringLiteral("激活原始体积"), cropControls_);
+    row->addWidget(applyButton_);
+    row->addWidget(restoreButton_);
+    cropLayout->addLayout(row);
+    cropControls_->hide();
+    layout->addWidget(cropControls_);
 
-    keepInsideButton_ = new QPushButton(QStringLiteral("保留内"), this);
-    removeInsideButton_ = new QPushButton(QStringLiteral("移除内"), this);
-    applyButton_ = new QPushButton(QStringLiteral("应用"), this);
-    restoreButton_ = new QPushButton(QStringLiteral("恢复原始"), this);
-    exitButton_ = new QPushButton(QStringLiteral("退出"), this);//也得留 但是怎么留?
-
-	auto* firstraw = new QHBoxLayout();
-	firstraw->setContentsMargins(0, 0, 0, 0);
-	firstraw->setSpacing(4);
-	firstraw->addWidget(keepInsideButton_); 
-    firstraw->addWidget(removeInsideButton_);
-    firstraw->addWidget(exitButton_);
-
-    auto* secondraw = new QHBoxLayout();
-    secondraw->setContentsMargins(0, 0, 0, 0);
-    secondraw->setSpacing(4);
-    secondraw->addWidget(applyButton_);
-    secondraw->addWidget(restoreButton_);
-
-    cropControls->addLayout(firstraw);
-    cropControls->addLayout(secondraw);
-    layout->addLayout(cropControls);
-
-    connect(
-        tree_,
-        &QTreeWidget::itemClicked,
-        this,
-        [this](QTreeWidgetItem* item) {
-            if (!item
-                || !item->data(0, Qt::UserRole + 1).toBool()) {
-                return;
-            }
-            emit cropNodeActivated(
-                item->data(0, Qt::UserRole).toULongLong());
-        });
-    connect(
-        keepInsideButton_,
-        &QPushButton::clicked,
-        this,
-        &SceneTreePanel::cropKeepInsideRequested);
-    connect(
-        removeInsideButton_,
-        &QPushButton::clicked,
-        this,
-        &SceneTreePanel::cropRemoveInsideRequested);
-    connect(
-        applyButton_,
-        &QPushButton::clicked,
-        this,
-        &SceneTreePanel::cropApplyRequested);
-    connect(
-        restoreButton_,
-        &QPushButton::clicked,
-        this,
-        &SceneTreePanel::cropRestoreOriginalRequested);
-    connect(
-        exitButton_,
-        &QPushButton::clicked,
-        this,
-        &SceneTreePanel::cropExitRequested);
-
-    rebuildTree();
+    connect(tree_, &QTreeView::clicked, this, [this](const QModelIndex& index) {
+        const auto item = index.sibling(index.row(), 0);
+        emit objectSelected(item.data(SceneTreeModel::Kind).toInt(), item.data(SceneTreeModel::VolumeId).toInt(), item.data(SceneTreeModel::ObjectId).toULongLong());
+    });
+    connect(tree_, &QTreeView::doubleClicked, this, [this](const QModelIndex& index) {
+        const auto item = index.sibling(index.row(), 0);
+        if (!item.data(SceneTreeModel::CanActivate).toBool()) return;
+        const auto kind = static_cast<SceneNodeKind>(item.data(SceneTreeModel::Kind).toInt());
+        if (kind == SceneNodeKind::CropHistory) emit cropNodeActivated(item.data(SceneTreeModel::ObjectId).toULongLong());
+        else emit volumeActivated(item.data(SceneTreeModel::VolumeId).toInt());
+    });
+    connect(model_, &QStandardItemModel::itemChanged, this, [this](QStandardItem* item) {
+        if (model_->isSyncing()) return;
+        if (item->column() != 0 || item->data(SceneTreeModel::Kind).toInt() != int(SceneNodeKind::Measurement)) return;
+        const int volume = item->data(SceneTreeModel::VolumeId).toInt();
+        const auto object = item->data(SceneTreeModel::ObjectId).toULongLong();
+        emit objectVisibilityChanged(volume, object, item->checkState() == Qt::Checked);
+        emit objectRenamed(volume, object, item->text());
+    });
+    auto* remove = new QShortcut(QKeySequence::Delete, tree_);
+    remove->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(remove, &QShortcut::activated, this, [this] {
+        const auto index = tree_->currentIndex().sibling(tree_->currentIndex().row(), 0);
+        if (index.data(SceneTreeModel::CanRemove).toBool()) emit objectRemoveRequested(index.data(SceneTreeModel::VolumeId).toInt(), index.data(SceneTreeModel::ObjectId).toULongLong());
+    });
+    connect(keepInsideButton_, &QPushButton::clicked, this, &SceneTreePanel::cropKeepInsideRequested);
+    connect(removeInsideButton_, &QPushButton::clicked, this, &SceneTreePanel::cropRemoveInsideRequested);
+    connect(applyButton_, &QPushButton::clicked, this, &SceneTreePanel::cropApplyRequested);
+    connect(restoreButton_, &QPushButton::clicked, this, &SceneTreePanel::cropRestoreOriginalRequested);
+    connect(exitButton_, &QPushButton::clicked, this, &SceneTreePanel::cropExitRequested);
 }
 
-void SceneTreePanel::setDataState(
-    bool hasData,
-    const QString& sourcePath)
+void SceneTreePanel::setDataState(bool hasData, const QString&)
 {
-    hasData_ = hasData;
-    sourcePath_ = sourcePath;
+    // Session transitions affect controls, not the registered scene objects.
+    if (!hasData) cropControls_->hide();
+}
 
-    rebuildTree();
+void SceneTreePanel::setSceneNodes(const std::vector<SceneNode>& nodes)
+{
+    const bool firstPopulation = model_->rowCount() == 0;
+    model_->syncNodes(nodes);
+    if (firstPopulation) tree_->expandToDepth(1);
 }
 
 void SceneTreePanel::setCropTreeState(const CropTreeState& state)
 {
-    cropTreeState_ = state;
-    rebuildTree();
-}
-
-void SceneTreePanel::rebuildTree()
-{
-    if (!tree_ || !root_) {
-        return;
-    }
-
-    const QSignalBlocker blocker(tree_);
-
-    clearTree();
-
-    if (!hasData_) {
-        keepInsideButton_->setEnabled(false);
-        removeInsideButton_->setEnabled(false);
-        applyButton_->setEnabled(false);
-        restoreButton_->setEnabled(false);
-        exitButton_->setEnabled(false);
-        volumeItem_ = new QTreeWidgetItem(
-            root_,
-            QStringList() << QStringLiteral("(无数据加载)"));
-        root_->setExpanded(true);
-        return;
-    }
-
-    const QString displayName =
-        sourcePath_.trimmed().isEmpty()
-        ? QStringLiteral("当前数据")
-        : sourcePath_;
-
-    volumeItem_ = new QTreeWidgetItem(
-        root_,
-        QStringList() << displayName);
-
-    cropRoot_ = new QTreeWidgetItem(
-        volumeItem_,
-        QStringList() << QStringLiteral("裁切记录"));
-
-    if (cropTreeState_.items.empty()) {
-        auto* emptyItem = new QTreeWidgetItem(
-            cropRoot_,
-            QStringList() << QStringLiteral("(暂无裁切记录)"));
-        emptyItem->setDisabled(true);
-    }
-    else {
-        for (const auto& crop : cropTreeState_.items) {
-            const QString text = crop.isApplied
-                ? QStringLiteral("已应用｜%1").arg(crop.text)
-                : crop.text;
-            auto* item = new QTreeWidgetItem(
-                cropRoot_,
-                QStringList() << text);
-            item->setData(
-                0,
-                Qt::UserRole,
-                QVariant::fromValue(
-                    static_cast<qulonglong>(crop.nodeId)));
-            item->setData(
-                0,
-                Qt::UserRole + 1,
-                crop.isSelectable);
-            if (!crop.isSelectable) {
-                item->setDisabled(true);
-            }
-            if (crop.isCurrent) {
-                tree_->setCurrentItem(item);
-            }
-        }
-    }
-
-    const bool canEdit =
-        hasData_
-        && cropTreeState_.isCropping
-        && !cropTreeState_.isBuilding;
-    keepInsideButton_->setEnabled(canEdit);
-    removeInsideButton_->setEnabled(canEdit);
-    applyButton_->setEnabled(
-        hasData_ && cropTreeState_.canApply);
-    restoreButton_->setEnabled(
-        hasData_ && cropTreeState_.canRestoreOriginal);
-    exitButton_->setEnabled(
-        hasData_
-        && cropTreeState_.isCropping
-        && !cropTreeState_.isBuilding);
-
-    root_->setExpanded(true);
-    tree_->expandAll();
-}
-
-void SceneTreePanel::clearTree()
-{
-    volumeItem_ = nullptr;
-    cropRoot_ = nullptr;
-
-    if (!root_) {
-        return;
-    }
-
-    while (root_->childCount() > 0) {
-        delete root_->takeChild(0);
-    }
+    cropControls_->setVisible(state.isCropping || state.isBuilding);
+    const bool editable = state.isCropping && !state.isBuilding;
+    keepInsideButton_->setEnabled(editable);
+    removeInsideButton_->setEnabled(editable);
+    exitButton_->setEnabled(editable);
+    applyButton_->setEnabled(state.canApply && !state.isBuilding);
+    restoreButton_->setEnabled(state.canRestoreOriginal && !state.isBuilding);
 }

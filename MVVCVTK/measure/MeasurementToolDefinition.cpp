@@ -171,23 +171,24 @@ const MeasurementToolDefinition& GetMeasurementToolDefinition(MeasureTool tool)
 }
 
 std::string FormatMeasurementLabel(
-    std::uint64_t id,
     const MeasurementResult& result)
 {
     std::ostringstream stream;
-    stream << std::fixed << std::setprecision(3) << "M" << id << " ";
     std::visit([&stream](const auto& value) {
         using Result = std::decay_t<decltype(value)>;
         if constexpr (std::is_same_v<Result, LineResult>) {
-            stream << "L=" << value.length;
+            stream << "长度:" << value.length;
         }
         else if constexpr (std::is_same_v<Result, CircleResult>) {
-            stream << "D=" << value.diameter << " R=" << value.radius;
+            stream <<  "半径:" << value.radius;
+        }
+        else if constexpr (std::is_same_v<Result, CapturedCurveResult>) {
+            stream  << "长度:" << value.length;
         }
         else {
-            stream << "Arc=" << value.length
-                << " R=" << value.radius
-                << " A=" << std::abs(value.radiusAngle) * 180.0 / kPi << "deg";
+            stream << "长度:" << value.length
+                << " 半径:" << value.radius
+                << " 圆心角:" << std::abs(value.radiusAngle) * 180.0 / kPi << "deg";
         }
     }, result);
     return stream.str();
@@ -203,8 +204,10 @@ std::string FormatCompletedMeasurement(const MeasurementResult& result)
             stream << "完成：长度 = " << value.length << " mm";
         }
         else if constexpr (std::is_same_v<Result, CircleResult>) {
-            stream << "完成：直径 = " << value.diameter
-                << "，半径 = " << value.radius << " mm";
+            stream << "，半径 = " << value.radius << " mm";
+        }
+        else if constexpr (std::is_same_v<Result, CapturedCurveResult>) {
+            stream << "完成：长度 = " << value.length << " mm";
         }
         else {
             stream << "完成：弧长 = " << value.length

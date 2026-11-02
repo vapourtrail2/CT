@@ -9,6 +9,9 @@
 #include "c_ui/windows/Titlebar.h"
 #include "c_ui/workbenches/DocumentPage.h"
 #include "measure/MeasureToolDialog.h"
+#include "measure/MeasurementSession.h"
+#include "measure/MainMeasurementFeature.h"
+#include "measure/MeasurementToolPanel.h"
 #include "MVVCVTK/API/Host/Types/HostRequestTypes.h"
 #include "c_ui/external/online_reconstruction_dialog.h"
 #include "uireconstruct3d.h"
@@ -29,6 +32,8 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QDialog>
+#include <QDockWidget>
+#include "measure/MeasurementToolDefinition.h"
 #include <QDialogButtonBox>
 #include <QEvent>
 #include <QElapsedTimer>
@@ -96,17 +101,19 @@ CTViewer::CTViewer(QWidget* parent)
     auto* showA = new QShortcut(QKeySequence(QStringLiteral("Ctrl+1")), this);
     showA->setAutoRepeat(false);
     connect(showA, &QShortcut::activated, this, [this]() {
-        switchVolumeForTest(true);
+        activateVolume(originVolumeId_);
         });
 
     auto* showB = new QShortcut(QKeySequence(QStringLiteral("Ctrl+2")), this);
     showB->setAutoRepeat(false);
     connect(showB, &QShortcut::activated, this, [this]() {
-        switchVolumeForTest(false);
+        activateVolume(latestCroppedVolumeId_);
         });
 }
 
 CTViewer::~CTViewer() {
+    closeMeasurementTools();
+    for (const auto& entry : measurementSubscriptions_) context_.getVolumeManager().getVolume(entry.first).measurements->Unsubscribe(entry.second);
 }
 
 void CTViewer::closeEvent(QCloseEvent* event)
@@ -409,6 +416,7 @@ void CTViewer::showGapAnalysisDialog()
         return;
     }
 
+    closeMeasurementTools();
     if (gapAnalysisDialog_) {
         gapAnalysisDialog_->show();
         gapAnalysisDialog_->raise();
@@ -424,67 +432,61 @@ void CTViewer::showGapAnalysisDialog()
 
 void CTViewer::showMeasureToolsDialog()
 {
-    if (!context_.hasData()) {
-        QMessageBox::warning(
-            this,
-            QStringLiteral("二维测量"),
-            QStringLiteral("请先加载 RAW 数据或重建结果。"));
+    auto& volumes = context_.getVolumeManager();
+    const int volumeId = volumes.getActiveVolumeid();
+    if (!context_.hasData() || volumeId == 0 || volumeActivationBusy_) {
+        statusBar()->showMessage(QStringLiteral("请先加载并激活一个体积。"), 4000);
         return;
     }
-
-    HostViewTarget sourceTarget;
-    sourceTarget.isViewRoleUsed = true;
-    sourceTarget.viewRole = HostRenderViewRole::TopDownSlice;
-
-    auto& sessionManager = context_.getSessionManager();
-    std::optional<measure::MeasureHostData> hostData;
-    std::optional<HostRenderViewState> sourceState;
-    for (int attempt = 0; attempt < 2; ++attempt) {
-        hostData = sessionManager.getMeasureHostData(sourceTarget);
-        sourceState = sessionManager.getRenderViewState(sourceTarget);
-        if (hostData
-            && hostData->image
-            && sourceState
-            && hostData->image->data && hostData->image->binding
-            && hostData->image->data->self == sourceState->dataRevision
-            && hostData->image->binding->revision == sourceState->bindingRevision) {
-            break;
-        }
-        hostData.reset();
-        sourceState.reset();
-    }
-    if (!hostData
-        || !hostData->image
-        || !hostData->image->image
-        || !sourceState) {
-        QMessageBox::warning(
-            this,
-            QStringLiteral("二维测量"),
-            QStringLiteral("无法取得当前图像或视图状态。"));
+    auto& session = context_.getSessionManager();
+    if (session.getCropTreeState().isBuilding) return;
+    if (session.getCropTreeState().isCropping && !session.exitCrop()) return;
+    if (!session.getMeasurements() && !session.bindMeasurements(volumes.getVolume(volumeId).measurements)) {
+        statusBar()->showMessage(QStringLiteral("无法接入主视图测量，请检查 SDK 视图和输入绑定。"), 5000);
         return;
     }
-
-    measure::MeasurementViewInitState initialState;
-
-    initialState.cursorWorld = sourceState->cursorWorld;
-    initialState.windowLevel = std::array<double, 2>{
-            sourceState->windowLevel.windowWidth,
-            sourceState->windowLevel.windowCenter
-    }; 
-    initialState.background = std::array<double, 3>{
-            sourceState->background.r,
-            sourceState->background.g,
-            sourceState->background.b
-    };
-    initialState.visibilityMask = sourceState->visibilityMask;
-    initialState.modelMatrix = hostData->modelToWorld;
-
-    measure::MeasureToolDialog dialog(
-        hostData->image,
-        initialState,
-        this);
-
-    dialog.exec();
+    if (!measurementDock_) {
+        measurementDock_ = new QDockWidget(QStringLiteral("二维测量"), this);
+        measurementDock_->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
+        measurementPanel_ = new measure::MeasurementToolPanel(measurementDock_);
+        measurementDock_->setWidget(measurementPanel_);
+        addDockWidget(Qt::BottomDockWidgetArea, measurementDock_);
+        measurementPanel_->beginTool = [this](measure::MeasureTool tool) {
+            auto feature = context_.getSessionManager().getMeasurements();
+            if (feature && !feature->BeginTool(tool)) statusBar()->showMessage(QStringLiteral("测量输入接管失败。"), 4000);
+            context_.getSessionManager().RequestRender();
+        };
+        measurementPanel_->beginCapture = [this](measure::EdgeCaptureShape shape) {
+            auto feature = context_.getSessionManager().getMeasurements();
+            if (feature && !feature->BeginCapture(shape)) statusBar()->showMessage(QStringLiteral("抓边输入接管失败。"), 4000);
+            context_.getSessionManager().RequestRender();
+        };
+        measurementPanel_->confirmCapture = [this] {
+            const auto feature = context_.getSessionManager().getMeasurements();
+            std::string error;
+            if (feature && !feature->ConfirmCapture(error)) statusBar()->showMessage(QString::fromUtf8(error.c_str()), 5000);
+            context_.getSessionManager().RequestRender();
+        };
+        measurementPanel_->cancel = [this] {
+            if (auto feature = context_.getSessionManager().getMeasurements()) feature->Cancel();
+            context_.getSessionManager().RequestRender();
+        };
+        measurementPanel_->requestRender = [this] { context_.getSessionManager().RequestRender(); };
+        connect(measurementDock_, &QDockWidget::visibilityChanged, this, [this](bool visible) {
+            if (!visible && context_.getSessionManager().getMeasurements()) {
+                context_.getSessionManager().getMeasurements()->Cancel();
+                context_.getSessionManager().RequestRender();
+            }
+        });
+        auto* escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+        connect(escape, &QShortcut::activated, this, [this] {
+            if (measurementDock_->isVisible()) measurementPanel_->cancel();
+        });
+    }
+    measurementPanel_->Bind(volumes.getVolume(volumeId).measurements);
+    measurementPanel_->SetVolumeName(volumes.getVolume(volumeId).name);
+    measurementDock_->show();
+    measurementDock_->raise();
 }
 
 void CTViewer::connectAppSignals()
@@ -517,6 +519,28 @@ void CTViewer::connectAppSignals()
         &CTViewer::handleCropBuildFinished);
 
     auto* sceneTree = workspacePage_->getSceneTreePanel();
+    connect(sceneTree, &SceneTreePanel::volumeActivated, this, &CTViewer::activateVolume);
+    connect(sceneTree, &SceneTreePanel::objectSelected, this, [this](int kind, int volumeId, qulonglong objectId) {
+        if (kind != int(SceneNodeKind::Measurement)) return;
+        auto& volumes = context_.getVolumeManager();
+        auto session = volumes.getVolume(volumeId).measurements;
+        if (volumeId == volumes.getActiveVolumeid()) session->Select(objectId);
+        const auto& entities = session->Entities();
+        const auto found = std::find_if(entities.begin(), entities.end(), [objectId](const auto& entity) { return entity.id == objectId; });
+        if (found != entities.end()) statusBar()->showMessage(QString::fromUtf8(measure::FormatCompletedMeasurement(found->result).c_str()), 8000);
+        context_.getSessionManager().RequestRender();
+    });
+    connect(sceneTree, &SceneTreePanel::objectVisibilityChanged, this, [this](int volumeId, qulonglong objectId, bool visible) {
+        context_.getVolumeManager().getVolume(volumeId).measurements->SetVisible(objectId, visible);
+        context_.getSessionManager().RequestRender();
+    });
+    connect(sceneTree, &SceneTreePanel::objectRenamed, this, [this](int volumeId, qulonglong objectId, const QString& name) {
+        context_.getVolumeManager().getVolume(volumeId).measurements->Rename(objectId, name.trimmed().toUtf8().toStdString());
+    });
+    connect(sceneTree, &SceneTreePanel::objectRemoveRequested, this, [this](int volumeId, qulonglong objectId) {
+        context_.getVolumeManager().getVolume(volumeId).measurements->Remove(objectId);
+        context_.getSessionManager().RequestRender();
+    });
     connect(
         sceneTree,
         &SceneTreePanel::cropNodeActivated,
@@ -567,6 +591,7 @@ void CTViewer::connectAppSignals()
             }
             if (!context_.getSessionManager().applyCrop()) {
                 cropWindowLevels_ = {};
+                cropSourceVolumeId_ = 0;
                 qDebug() << "裁切应用未启动。";
             }
         });
@@ -575,9 +600,11 @@ void CTViewer::connectAppSignals()
         &SceneTreePanel::cropRestoreOriginalRequested,
         this,
         [this]() {
-            if (context_.getSessionManager().restoreOriginalCrop()) {
-                workspacePage_->getViewportGather()->requestRefresh();
-            }
+            auto& volumes = context_.getVolumeManager();
+            int rootId = volumes.getActiveVolumeid();
+            if (rootId == 0) return;
+            while (volumes.getVolume(rootId).VolumeSourceid != 0) rootId = volumes.getVolume(rootId).VolumeSourceid;
+            activateVolume(rootId);
         });
     connect(
         sceneTree,
@@ -585,6 +612,7 @@ void CTViewer::connectAppSignals()
         this,
         [this]() {
             if (context_.getSessionManager().exitCrop()) {
+                QTimer::singleShot(0, this, &CTViewer::bindMeasurements);
                 workspacePage_->getViewportGather()->requestRefresh();
             }
         });
@@ -1200,6 +1228,10 @@ void CTViewer::set3DMode(
     request.targetView.isViewRoleUsed = true;
     request.targetView.viewRole = HostRenderViewRole::Primary3D;
     request.mode = mode;
+    const auto state = context_.getSessionManager().getRenderViewState(request.targetView);
+    auto material = state->material;
+    material.isShadeOn = true;
+    request.material = material;
 	request.visibility = std::move(visibility);
     context_.getSessionManager().sendRequest(std::move(request));
     auto* ptr = workspacePage_->getViewportGather();
@@ -1293,6 +1325,7 @@ void CTViewer::setIsoValue(double isoValue)//ui的value ->core
 
 void CTViewer::startBoxCrop()
 {
+    closeMeasurementTools();
     if (!context_.hasData()) {
         statusBar()->showMessage(
             QStringLiteral("请先加载数据。"),
@@ -1312,6 +1345,7 @@ void CTViewer::startBoxCrop()
 
 void CTViewer::startPlaneCrop()
 {
+    closeMeasurementTools();
     if (!context_.hasData()) {
         statusBar()->showMessage(
             QStringLiteral("请先加载数据。"),
@@ -1336,18 +1370,23 @@ void CTViewer::updateCropTree()
     }
 
     workspacePage_->getSceneTreePanel()->setCropTreeState(context_.getSessionManager().getCropTreeState());
+    updateSceneTree();
 }
 
 void CTViewer::handleCropBuildFinished(
     bool isSuccess,
     QString message)
 {
-    if (!isSuccess) {
-        return;
-    }
-
     const int sourceVolumeId = cropSourceVolumeId_;
     cropSourceVolumeId_ = 0;
+    if (!isSuccess) {
+        cropWindowLevels_ = {};
+        statusBar()->showMessage(message, 5000);
+        return;
+    }
+    closeMeasurementTools();
+    auto& volumes = context_.getVolumeManager();
+    volumes.setActiveVolumeid(0);
     QString captureError;
     const auto captured = context_.getSessionManager().capturedVolumeSnapshot(&captureError);
 
@@ -1355,8 +1394,9 @@ void CTViewer::handleCropBuildFinished(
         qDebug() << "[VolumeCapture] B failed:" << captureError;
     }
     else {
-        croppedSnapshot_ = captured;
-        const auto& b = croppedSnapshot_;
+        latestCroppedVolumeId_ = volumes.addVolume(QStringLiteral("裁切体积 %1").arg(volumes.getVolumes().size() + 1), captured, sourceVolumeId);
+        volumes.setActiveVolumeid(latestCroppedVolumeId_);
+        const auto& b = captured;
         qDebug() << "[VolumeCapture] B saved"
             << "sourceVolumeId=" << sourceVolumeId
             << "version=" << b->binding->revision
@@ -1383,21 +1423,26 @@ void CTViewer::handleCropBuildFinished(
     }
 
     cropWindowLevels_ = {};
+    updateSceneTree();
+    bindMeasurements();
 
     workspacePage_->getViewportGather()->requestRefresh();
 }
 
-void CTViewer::switchVolumeForTest(bool useOriginal)
+void CTViewer::activateVolume(int volumeId)
 {
-    if (volumePublishTestBusy_) return;
-    if (!originalSnapshot_ || !croppedSnapshot_) {
-        QMessageBox::warning(this, QStringLiteral("体积切换测试"),
-            QStringLiteral("请先加载 A 并成功应用一次裁切，确认 A/B 都已保存。"));
-        return;
-    }
-    const auto archive = useOriginal ? originalSnapshot_ : croppedSnapshot_;
-    const QString name = useOriginal ? QStringLiteral("A") : QStringLiteral("B");
-    volumePublishTestBusy_ = true;
+    if (volumeActivationBusy_) return;
+    auto& volumes = context_.getVolumeManager();
+    if (!context_.hasData() || volumeId == 0 || !volumes.getVolumes().count(volumeId)) return;
+    if (volumeId == volumes.getActiveVolumeid()) return;
+    if (context_.getSessionManager().getCropTreeState().isBuilding) return;
+    closeMeasurementTools();
+    saveActiveVolumeViewState();
+    const auto archive = volumes.getVolume(volumeId).image;
+    const QString name = volumes.getVolume(volumeId).name;
+    volumes.setActiveVolumeid(0);
+    updateSceneTree();
+    volumeActivationBusy_ = true;
     setEnabled(false);
     auto expectedRevision = std::make_shared<DataRevisionRef>();
     auto expectedBinding = std::make_shared<DataBindingRevision>(0);
@@ -1410,8 +1455,8 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
     auto* timer = new QTimer(this);
     timer->setInterval(50);
     connect(timer, &QTimer::timeout, this,
-        [this, timer, attempts, expectedRevision, expectedBinding, activationResult, activationCompletedAt, renderTargets, deadline, archive, name]() {
-            if (isClosing_) { timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; return; }
+        [this, timer, attempts, expectedRevision, expectedBinding, activationResult, activationCompletedAt, renderTargets, deadline, archive, name, volumeId]() {
+            if (isClosing_) { timer->stop(); timer->deleteLater(); volumeActivationBusy_ = false; return; }
             QString report;
             auto& session = context_.getSessionManager();
             // 沿用 CT 加载清理的 30 秒绝对保护；异步准备不再当成 60 次绘制核验。
@@ -1419,7 +1464,7 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
                 ? *activationCompletedAt >= 30000 : deadline->elapsed() >= 30000;
             if (preparationTimedOut) {
                 timer->stop(); timer->deleteLater();
-                volumePublishTestBusy_ = false; setEnabled(true);
+                volumeActivationBusy_ = false; setEnabled(true);
                 // 停止旧 Host 的准备任务；失败时 resetHost 保留可重试的旧 Host/账本。
                 session.clearSession();
                 QMessageBox::warning(this, QStringLiteral("视图同步未通过"),
@@ -1431,13 +1476,13 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
             if (!*expectedBinding) {
                 ++(*attempts);
                 bool isPending = false;
-                const auto published = session.publishVolumeSnapshotForTest(archive, &report, &isPending);
+                const auto published = session.publishVolumeSnapshot(archive, &report, &isPending);
                 if (!published && isPending && *attempts < 60) return;
                 if (!published) {
                     timer->stop(); timer->deleteLater();
-                    volumePublishTestBusy_ = false; setEnabled(true);
-                    if (isPending) session.failVolumePublishTest(report);
-                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), report);
+                    volumeActivationBusy_ = false; setEnabled(true);
+                    if (isPending) session.failVolumeActivation(report);
+                    QMessageBox::warning(this, QStringLiteral("体积发布未完成"), report);
                     return;
                 }
                 qDebug() << "[VolumePublish] data published" << name
@@ -1448,8 +1493,8 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
                 // 完整显示组激活使用当前 binding 的 CAS，并在提交时推进一次版本。
                 const auto binding = published->binding->revision;
                 if (binding == std::numeric_limits<DataBindingRevision>::max()) {
-                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
-                    QMessageBox::warning(this, QStringLiteral("发布测试未完成"), QStringLiteral("数据绑定版本已耗尽。"));
+                    timer->stop(); timer->deleteLater(); volumeActivationBusy_ = false; setEnabled(true);
+                    QMessageBox::warning(this, QStringLiteral("体积发布未完成"), QStringLiteral("数据绑定版本已耗尽。"));
                     return;
                 }
                 *expectedBinding = binding + 1;
@@ -1468,7 +1513,7 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
                         *activationCompletedAt = deadline->elapsed();
                         if (result.isSucceeded) {
                             QString report;
-                            (void)self->context_.getSessionManager().areAllRenderViewsAtVersion(
+                            (void)self->context_.getSessionManager().areRenderViewsSynchronized(
                                 *expectedRevision, *expectedBinding, *renderTargets, &report);
                             if (renderTargets->size() != 4) {
                                 result.isSucceeded = false;
@@ -1479,7 +1524,7 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
                     });
                 if (!self || self->isClosing_) return;
                 if (!accepted) {
-                    timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
+                    timer->stop(); timer->deleteLater(); volumeActivationBusy_ = false; setEnabled(true);
                     QMessageBox::warning(this, QStringLiteral("显示激活未接纳"), QStringLiteral("数据已发布，SDK 显示激活请求被拒绝；保留资源以便退出或重试。"));
                     return;
                 }
@@ -1488,18 +1533,22 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
             }
             if (!activationResult->has_value()) return;
             if (!activationResult->value().isSucceeded) {
-                timer->stop(); timer->deleteLater(); volumePublishTestBusy_ = false; setEnabled(true);
+                timer->stop(); timer->deleteLater(); volumeActivationBusy_ = false; setEnabled(true);
                 QMessageBox::warning(this, QStringLiteral("显示激活未完成"),
                     QStringLiteral("数据已发布，显示激活失败或取消：%1").arg(QString::fromStdString(activationResult->value().message)));
                 return;
             }
             ++(*attempts);
-            const bool synchronized = session.areAllRenderViewsAtVersion(
+            const bool synchronized = session.areRenderViewsSynchronized(
                 *expectedRevision, *expectedBinding, *renderTargets, &report);
             if (!synchronized && *attempts < 60) return;
             timer->stop(); timer->deleteLater();
-            volumePublishTestBusy_ = false; setEnabled(true);
+            volumeActivationBusy_ = false; setEnabled(true);
             if (synchronized) {
+                context_.getVolumeManager().setActiveVolumeid(volumeId);
+                updateSceneTree();
+                restoreActiveVolumeViewState();
+                bindMeasurements();
                 qDebug() << "[VolumePublish] four views synchronized" << name << report;
                 statusBar()->showMessage(
                     QStringLiteral("已发布 %1，四视图版本一致；请继续检查图像和 mask。")
@@ -1509,7 +1558,7 @@ void CTViewer::switchVolumeForTest(bool useOriginal)
                 const QString reason = QStringLiteral(
                     "等待四视图同步超时，期望绑定版本 %1；实际：%2。请重新加载后测试。")
                     .arg(static_cast<qulonglong>(*expectedBinding)).arg(report);
-                session.failVolumePublishTest(reason);
+                session.failVolumeActivation(reason);
                 QMessageBox::warning(this, QStringLiteral("视图同步未通过"), reason);
             }
         });
@@ -1568,6 +1617,10 @@ void CTViewer::setCloseProgressDialog()
 void CTViewer::handleSessionChanged(
     SessionManager::State state)
 {
+    if (state != SessionManager::State::Ready) {
+        closeMeasurementTools();
+        context_.getVolumeManager().setActiveVolumeid(0);
+    }
     if (workspacePage_) {
         workspacePage_->setDataState(
             state == SessionManager::State::Ready,
@@ -1601,25 +1654,26 @@ void CTViewer::handleLoadFinished(
     originVolumeId_ = 0;
     latestCroppedVolumeId_ = 0;
     cropSourceVolumeId_ = 0;
-    originalSnapshot_.reset();
-    croppedSnapshot_.reset();
     QString err;
-    originalSnapshot_ = context_.getSessionManager().capturedVolumeSnapshot(&err);
+    const auto original = context_.getSessionManager().capturedVolumeSnapshot(&err);
 
-    if (!originalSnapshot_) {
+    if (!original) {
         qWarning() << "[volumeCaptured] a failed" << err;
     }
     else {
         // 登记同一份独立归档，不再捕获或复制一份体积。
-        originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积"), originalSnapshot_);
+        originVolumeId_ = volumes.addVolume(QStringLiteral("原始体积 %1").arg(volumes.getVolumes().size() + 1), original);
         volumes.setActiveVolumeid(originVolumeId_);
-        const auto& a = originalSnapshot_;
+        const auto& a = original;
         qDebug() << "[VolumeCaptured] A saved"
             << "version=" << a->binding->revision
             << "dims=" << a->image->GetDimensions()[0] << a->image->GetDimensions()[1] << a->image->GetDimensions()[2]
             << "hasMask=" << (a->validityMask != nullptr)
             << "image=" << static_cast<void*>(a->image.GetPointer());
     }
+
+    updateSceneTree();
+    bindMeasurements();
 
     if (isDocuOpen) {
         pageDocument_->closeOpenDialog();
@@ -1638,4 +1692,121 @@ void CTViewer::handleLoadFinished(
         tabBar_->setCurrentIndex(TabIndex::Start);
         return;
     }
+}
+
+void CTViewer::closeMeasurementTools()
+{
+    if (measurementDock_) measurementDock_->hide();
+    if (measurementPanel_) measurementPanel_->Bind({});
+    if (!context_.getSessionManager().unbindMeasurements()) statusBar()->showMessage(QStringLiteral("测量交互尚未释放，请稍后重试。"), 4000);
+}
+
+void CTViewer::bindMeasurements()
+{
+    auto& volumes = context_.getVolumeManager();
+    const int id = volumes.getActiveVolumeid();
+    if (id != 0 && context_.hasData()) {
+        if (!context_.getSessionManager().bindMeasurements(volumes.getVolume(id).measurements))
+            statusBar()->showMessage(QStringLiteral("体积已激活，但测量显示接入失败。"), 5000);
+    }
+}
+
+void CTViewer::updateSceneTree()
+{
+    if (!workspacePage_) return;
+    auto& volumes = context_.getVolumeManager();
+    std::vector<SceneNode> nodes;
+    for (const auto& entry : volumes.getVolumes()) {
+        const auto& volume = entry.second;
+        const QString key = QStringLiteral("volume:%1").arg(volume.id);
+        SceneNode parent;
+        parent.key = key;
+        parent.name = volume.name;
+        parent.kind = SceneNodeKind::Volume;
+        parent.volumeId = volume.id;
+        parent.active = volume.id == volumes.getActiveVolumeid();
+        parent.canActivate = true;
+        nodes.push_back(std::move(parent));
+        if (!measurementSubscriptions_.count(volume.id)) {
+            const auto observer = volume.measurements->Subscribe([this](measure::MeasurementSession::Change change) {
+                if (change == measure::MeasurementSession::Change::Objects) QTimer::singleShot(0, this, &CTViewer::updateSceneTree);
+            });
+            measurementSubscriptions_.emplace(volume.id, observer);
+        }
+        for (const auto& entity : volume.measurements->Entities()) {
+            SceneNode node;
+            node.key = key + QStringLiteral("/measurement:%1").arg(qulonglong(entity.id));
+            node.parentKey = key;
+            node.name = QString::fromUtf8(entity.name.c_str());
+            node.detail = QString::fromUtf8(measure::FormatMeasurementLabel(entity.result).c_str());
+            node.kind = SceneNodeKind::Measurement;
+            node.volumeId = volume.id;
+            node.objectId = entity.id;
+            node.visible = entity.visible;
+            node.canActivate = node.canRename = node.canCheck = node.canRemove = true;
+            nodes.push_back(std::move(node));
+        }
+    }
+    const auto crop = context_.getSessionManager().getCropTreeState();
+    const int active = volumes.getActiveVolumeid();
+    if (active != 0 && crop.isCropping) {
+        const QString key = QStringLiteral("volume:%1/crop-edit").arg(active);
+        SceneNode group;
+        group.key = key;
+        group.parentKey = QStringLiteral("volume:%1").arg(active);
+        group.name = QStringLiteral("当前裁切编辑记录");
+        group.volumeId = active;
+        nodes.push_back(std::move(group));
+        for (const auto& record : crop.items) {
+            SceneNode node;
+            node.key = key + QStringLiteral("/%1").arg(qulonglong(record.nodeId));
+            node.parentKey = key;
+            node.name = record.text;
+            node.kind = SceneNodeKind::CropHistory;
+            node.volumeId = active;
+            node.objectId = record.nodeId;
+            node.active = record.isCurrent;
+            node.canActivate = record.isSelectable;
+            nodes.push_back(std::move(node));
+        }
+    }
+    workspacePage_->getSceneTreePanel()->setSceneNodes(nodes);
+}
+
+void CTViewer::saveActiveVolumeViewState()
+{
+    auto& volumes = context_.getVolumeManager();
+    const int activeId = volumes.getActiveVolumeid();
+    if (activeId == 0) return;
+    auto& record = volumes.getVolume(activeId);
+    for (int i = 0; i < 3; ++i) {
+        HostViewTarget target;
+        target.isViewRoleUsed = true;
+        target.viewRole = SliceRoles[i];
+        if (const auto state = context_.getSessionManager().getRenderViewState(target)) {
+            record.windowLevels[i] = state->windowLevel;
+            record.cursorWorld = state->cursorWorld;
+        }
+    }
+}
+
+void CTViewer::restoreActiveVolumeViewState()
+{
+    auto& volumes = context_.getVolumeManager();
+    const auto& record = volumes.getVolume(volumes.getActiveVolumeid());
+    auto& session = context_.getSessionManager();
+    for (int i = 0; i < 3; ++i) {
+        if (!record.windowLevels[i]) continue;
+        HostViewSetRequest request;
+        request.targetView.isViewRoleUsed = true;
+        request.targetView.viewRole = SliceRoles[i];
+        request.windowLevel = record.windowLevels[i];
+        session.sendRequest(std::move(request));
+    }
+    if (record.cursorWorld) {
+        HostSessionSetRequest request;
+        request.cursor = HostCursorParams{*record.cursorWorld, -1};
+        session.sendRequest(std::move(request));
+    }
+    session.RequestRender();
 }

@@ -1,11 +1,11 @@
-#include <iostream>
-#include <QDebug>
 #include "measure/MeasurementSession.h"
 #include "measure/MeasurementToolDefinition.h"
 
 
 #include <algorithm>
 #include <sstream>
+#include <cmath>
+#include "measure/MeasurementGeometry.h"
 
 namespace measure {
 namespace {
@@ -35,6 +35,15 @@ bool MeasurementSession::AppendPoint(
         return false;
     }
 
+    if (m_draft->plane && !MatchesPlane(*m_draft->plane, plane)) {
+        CancelDraft();
+        if (error) *error = "切片已改变，本次草稿已取消。";
+        return false;
+    }
+    if (std::abs(geometry::Dot(plane.normal, geometry::Subtract(physicalPoint, plane.origin))) > plane.tolerance) {
+        if (error) *error = "测量点必须位于同一切片平面。";
+        return false;
+    }
     if (!m_draft->plane) {
         m_draft->plane = plane;
     }
@@ -80,13 +89,14 @@ bool MeasurementSession::AppendPoint(
     entity.plane = *m_draft->plane;
     entity.physicalPoints = std::move(candidate);
     entity.result = *result;
+    entity.name = "测量 " + std::to_string(entity.id);
     RecordHistory();//保存旧状态
     m_entities.push_back(std::move(entity));
 
     m_statusMessage = FormatCompletedMeasurement(m_entities.back().result);
 
     m_draft.reset();//草稿为空
-    NotifyChanged();
+    NotifyChanged(Change::Objects);
     return true;
 }
 
@@ -150,7 +160,7 @@ bool MeasurementSession::Undo()
     m_entities = std::move(m_undoHistory.back());
     m_undoHistory.pop_back();
     m_statusMessage = "已撤销上一次测量。";
-    NotifyChanged();
+    NotifyChanged(Change::Objects);
     return true;
 }
 
@@ -164,7 +174,7 @@ bool MeasurementSession::Redo()
     m_entities = std::move(m_redoHistory.back());
     m_redoHistory.pop_back();
     m_statusMessage = "已重做上一次测量。";
-    NotifyChanged();
+    NotifyChanged(Change::Objects);
     return true;
 }
 
@@ -193,7 +203,7 @@ bool MeasurementSession::Remove(std::uint64_t id)
         std::remove_if(m_entities.begin(), m_entities.end(),
             [id](const MeasurementEntity& entity) { return entity.id == id; }),
         m_entities.end());
-    NotifyChanged();
+    NotifyChanged(Change::Objects);
     return true;
 }
 
@@ -214,7 +224,7 @@ void MeasurementSession::ClearView(MeasureView view)
         m_draft.reset();
     }
     if (removesEntities || removedDraft) {
-        NotifyChanged();
+        NotifyChanged(removesEntities ? Change::Objects : Change::Draft);
     }
 }
 
@@ -252,11 +262,85 @@ void MeasurementSession::RecordHistory()
     m_redoHistory.clear();
 }
 
-void MeasurementSession::NotifyChanged()
+bool MeasurementSession::MatchesPlane(const MeasurementPlane& source, const MeasurementPlane& current)
 {
-    if (m_callback) {
-        m_callback();
-    }
+    const double parallel = std::abs(geometry::Dot(source.normal, current.normal));
+    const double offset = std::abs(geometry::Dot(source.normal, geometry::Subtract(current.origin, source.origin)));
+    return parallel > 1.0 - 1e-6 && offset <= std::max(source.tolerance, current.tolerance);
 }
 
-} 
+MeasurementSession::ObserverId MeasurementSession::Subscribe(std::function<void(Change)> callback)
+{
+    const auto id = m_nextObserverId++;
+    m_observers.emplace(id, std::move(callback));
+    return id;
+}
+
+void MeasurementSession::Unsubscribe(ObserverId id)
+{
+    m_observers.erase(id);
+}
+
+bool MeasurementSession::SetVisible(std::uint64_t id, bool visible)
+{
+    const auto item = std::find_if(m_entities.begin(), m_entities.end(), [id](const auto& e) { return e.id == id; });
+    if (item == m_entities.end() || item->visible == visible) return false;
+    RecordHistory();
+    item->visible = visible;
+    NotifyChanged(Change::Objects);
+    return true;
+}
+
+bool MeasurementSession::Rename(std::uint64_t id, std::string name)
+{
+    const auto item = std::find_if(m_entities.begin(), m_entities.end(), [id](const auto& e) { return e.id == id; });
+    if (item == m_entities.end() || name.empty() || item->name == name) return false;
+    RecordHistory();
+    item->name = std::move(name);
+    NotifyChanged(Change::Objects);
+    return true;
+}
+
+void MeasurementSession::Select(std::uint64_t id)
+{
+    if (m_selectedId == id) return;
+    m_selectedId = id;
+    NotifyChanged(Change::Selection);
+}
+
+bool MeasurementSession::CommitCaptured(MeasurementEntity entity, std::string* error)
+{
+    if (entity.capturedPath.size() < 2) {
+        if (error) *error = "抓边结果为空，请先完成抓边。";
+        return false;
+    }
+    for (const auto& point : entity.capturedPath) {
+        const double offset = geometry::Dot(entity.plane.normal, geometry::Subtract(point, entity.plane.origin));
+        if (!std::isfinite(point[0]) || !std::isfinite(point[1]) || !std::isfinite(point[2]) || std::abs(offset) > entity.plane.tolerance) {
+            if (error) *error = "抓边结果不在来源切片中。";
+            return false;
+        }
+    }
+    entity.id = m_nextId++;
+    entity.source = MeasurementSource::EdgeCapture;
+    entity.name = "抓边结果 " + std::to_string(entity.id);
+    RecordHistory();
+    m_entities.push_back(std::move(entity));
+    m_draft.reset();
+    m_statusMessage = FormatCompletedMeasurement(m_entities.back().result);
+    NotifyChanged(Change::Objects);
+    return true;
+}
+
+void MeasurementSession::NotifyChanged(Change change)
+{
+    ++m_revision;
+    // Copy the small callback list so a callback may unsubscribe safely.
+    const auto observers = m_observers;
+    for (const auto& entry : observers) {
+        if (m_observers.count(entry.first)) entry.second(change);
+    }
+    if (m_callback) m_callback();
+}
+
+} // namespace measure

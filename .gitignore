@@ -411,5 +411,7 @@ Microsoft.Windows.CppWinRT.*/
 idontknowwhatitis/Microsoft.Windows.CppWinRT.*/
 
 *.dll
+*.diff
+*.md
 
 /*-win-x64/

@@ -28,8 +28,8 @@ static const RibbonCommon::IconMapItem kStartIconMap[] = {
     };
 
 static const RibbonCommon::IconMapItem kEditIconMap[] = {
-        { QStringLiteral("撤销"), ":/icons/icons/undo.png" },
-        { QStringLiteral("重做"), ":/icons/icons/redo.png" },
+        //{ QStringLiteral("撤销"), ":/icons/icons/undo.png" },
+        //{ QStringLiteral("重做"), ":/icons/icons/redo.png" },
         { QStringLiteral("释放内存/清除撤销队列"), ":/icons/icons/free_memory.png" },
         { QStringLiteral("剪切"), ":/icons/icons/cut.png" },
         { QStringLiteral("复制"), ":/icons/icons/copy.png" },

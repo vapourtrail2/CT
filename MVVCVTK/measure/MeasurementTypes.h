@@ -3,6 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <variant>
 #include <vector>
 
@@ -45,7 +46,6 @@ struct LineResult {
 struct CircleResult {
     Point3 center{ 0.0, 0.0, 0.0 };
 	double radius = 0.0;//半径
-	double diameter = 0.0;//直径
 	double circumference = 0.0;//周长
 };
 
@@ -56,7 +56,10 @@ struct ArcResult {
     double length = 0.0;
 };
 
-using MeasurementResult = std::variant<LineResult, CircleResult, ArcResult>;//保存三个测量结果其中一种
+struct CapturedCurveResult { double length = 0.0; };
+using MeasurementResult = std::variant<LineResult, CircleResult, ArcResult, CapturedCurveResult>;//保存三个测量结果其中一种
+
+enum class MeasurementSource { Manual, EdgeCapture };
 
 struct MeasurementEntity {
     std::uint64_t id = 0;//测量编号
@@ -65,6 +68,10 @@ struct MeasurementEntity {
     MeasurementPlane plane; 
     std::vector<Point3> physicalPoints;
     MeasurementResult result = LineResult{};
+    std::string name;
+    bool visible = true;
+    MeasurementSource source = MeasurementSource::Manual;
+    std::vector<Point3> capturedPath; // Edge algorithm geometry in physical coordinates.
 };
 
 struct MeasurementDraft {

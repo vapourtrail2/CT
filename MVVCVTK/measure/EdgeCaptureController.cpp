@@ -207,6 +207,11 @@ InteractionResult EdgeCaptureController::Send(const InteractionEvent& event)
 
 void EdgeCaptureController::SetEnabled(bool enabled)
 {
+    if (enabled && !m_enabled) {
+        m_viewStates = {};
+        m_circleStates = {};
+        m_arcStates = {};
+    }
     m_enabled = enabled;
     m_consumingLeftButton = false;
     m_dragMode = DragMode::None;
@@ -934,3 +939,52 @@ void EdgeCaptureController::Report(const std::string& message) const
 }
 
 }
+
+namespace measure {
+std::optional<MeasurementEntity> EdgeCaptureController::TakeResult(std::string& error)
+{
+    ImageGeometry geometry;
+    if (!m_enabled || !GetImageGeometry(geometry)) { error = "请先启动抓边。"; return {}; }
+    MeasurementEntity entity;
+    entity.where2DViewer = m_view;
+    entity.plane = m_adapter->GetPlane();
+    const auto fromPixel = [this, &geometry](double x, double y, int slice) {
+        return IndexToPhysical(geometry.extent[2 * geometry.uAxis] + x,
+            geometry.extent[2 * geometry.vAxis + 1] - y, slice);
+    };
+    if (m_shape == EdgeCaptureShape::Line) {
+        const auto& state = CurrentState();
+        if (!state.result) { error = "请拖动矩形并松开鼠标，取得有效抓边结果后再确认。"; return {}; }
+        const auto& line = *state.result;
+        entity.type = MeasureTool::Line;
+        entity.capturedPath = {fromPixel(line.x1, line.y1, state.fixedIndex), fromPixel(line.x2, line.y2, state.fixedIndex)};
+        const auto result = geometry::ComputeLine(entity.capturedPath);
+        if (!result) { error = "抓边端点无效。"; return {}; }
+        entity.result = *result;
+    }
+    else {
+        auto& state = CurrentCircleState();
+        if (m_shape == EdgeCaptureShape::Circle && state.result) {
+            entity.type = MeasureTool::Circle3Point;
+            const auto& circle = *state.result;
+            constexpr int samples = 512;
+            for (int i = 0; i <= samples; ++i) {
+                const double angle = 6.283185307179586 * i / samples;
+                entity.capturedPath.push_back(fromPixel(circle.x + circle.radius * std::cos(angle), circle.y + circle.radius * std::sin(angle), state.fixedIndex));
+            }
+        }
+        else if (m_shape == EdgeCaptureShape::Arc && state.arcResult) {
+            entity.type = MeasureTool::Arc3Point;
+            for (const auto& point : state.arcResult->path) entity.capturedPath.push_back(fromPixel(point[0], point[1], state.fixedIndex));
+        }
+        else { error = "请先完成抓圆或抓弧，再确认结果。"; return {}; }
+        double length = 0.0;
+        for (std::size_t i = 1; i < entity.capturedPath.size(); ++i) length += geometry::Norm(geometry::Subtract(entity.capturedPath[i], entity.capturedPath[i - 1]));
+        entity.result = CapturedCurveResult{length};
+    }
+    if (entity.capturedPath.size() < 2) { error = "抓边路径为空。"; return {}; }
+    entity.physicalPoints = {entity.capturedPath.front(), entity.capturedPath.back()};
+    entity.plane.origin = entity.capturedPath.front();
+    return entity;
+}
+} // namespace measure

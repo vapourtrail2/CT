@@ -124,10 +124,11 @@ bool VolumePublishBridge::AttachHost(const HostFeatureContext& context)
 
 bool VolumePublishBridge::DetachHost()
 {
-    // 账本随 Host 持有的 bridge 存活；不依赖外层 SessionManager 的析构次序。
-    // Host Stop 先归还当前 owned primary，再调用此处；阻塞时保留端口和责任记录。
     std::string error;
-    if (!ReleasePublications(true, error)) return false;
+    if (!ReleasePublications(true, error)) { 
+        std::cerr << "[VolumePublish] detach blocked: " << error << std::endl;
+        return false; 
+    }
     data_.reset();
     views_.reset();
     return true;
